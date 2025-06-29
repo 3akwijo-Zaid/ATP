@@ -30,17 +30,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const users = await response.json();
 
             if (users.length > 0) {
-                scoreboardList.innerHTML = '';
-                users.forEach((user, index) => {
-                    const userElement = document.createElement('div');
-                    userElement.className = 'list-item';
-                    userElement.innerHTML = `
-                        <span><strong>${index + 1}. ${user.username}</strong></span>
-                        <span>${user.points} Points</span>
-                        <button class="btn" style="width:auto;padding:0.4em 1em;font-size:0.9em;" onclick="viewPredictions(${user.id}, '${user.username}')">View Predictions</button>
-                    `;
-                    scoreboardList.appendChild(userElement);
-                });
+                // Filter out the 'admin' user
+                const filteredUsers = users.filter(u => u.username && u.username.toLowerCase() !== 'admin');
+                if (filteredUsers.length > 0) {
+                    scoreboardList.innerHTML = '';
+                    filteredUsers.forEach((user, index) => {
+                        const userElement = document.createElement('div');
+                        userElement.className = 'list-item';
+                        userElement.innerHTML = `
+                            <span><strong>${index + 1}. ${user.username}</strong></span>
+                            <span>${user.points} Points</span>
+                            <button class="btn" style="width:auto;padding:0.4em 1em;font-size:0.9em;" onclick="viewPredictions(${user.id}, '${user.username}')">View Predictions</button>
+                        `;
+                        scoreboardList.appendChild(userElement);
+                    });
+                } else {
+                    scoreboardList.innerHTML = '<p>No users on the scoreboard yet.</p>';
+                }
             } else {
                 scoreboardList.innerHTML = '<p>No users on the scoreboard yet.</p>';
             }
@@ -80,11 +86,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const match = matches.find(m => m.id == pred.match_id);
             let sets = '';
             try {
-                const data = JSON.parse(pred.prediction_data);
-                sets = data.sets.map((s, i) => `<li>Set ${i+1}: ${s.player1_games}-${s.player2_games}</li>`).join('');
-                sets = `<ul style="margin:0.5em 0 0 1em;">${sets}</ul>`;
-                return `<div style="margin-bottom:1.2em;"><strong>${match.player1} vs ${match.player2}</strong><br>Predicted winner: <b>${data.winner}</b>${sets}</div>`;
-            } catch { return ''; }
+                // Support both stringified and already-parsed prediction_data
+                const data = typeof pred.prediction_data === 'string' ? JSON.parse(pred.prediction_data) : pred.prediction_data;
+                // Defensive: support both player1_games/player2_games and player1/player2
+                sets = (data.sets || []).map((s, i) => {
+                    const p1 = s.player1_games !== undefined ? s.player1_games : (s.player1 !== undefined ? s.player1 : '');
+                    const p2 = s.player2_games !== undefined ? s.player2_games : (s.player2 !== undefined ? s.player2 : '');
+                    return `<li>Set ${i+1}: ${p1}-${p2}</li>`;
+                }).join('');
+                sets = sets ? `<ul style="margin:0.5em 0 0 1em;">${sets}</ul>` : '';
+                // Defensive: winner may be 'player1', 'player2', or a name
+                let winner = data.winner;
+                if (winner === 'player1' && match && match.player1) winner = match.player1;
+                if (winner === 'player2' && match && match.player2) winner = match.player2;
+                return `<div style="margin-bottom:1.2em;"><strong>${match ? (match.player1 + ' vs ' + match.player2) : 'Match'} </strong><br>Predicted winner: <b>${winner || ''}</b>${sets}</div>`;
+            } catch (e) {
+                return '';
+            }
         }).join('');
     };
 

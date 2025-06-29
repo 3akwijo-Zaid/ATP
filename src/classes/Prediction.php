@@ -2,11 +2,24 @@
      * Compare tiebreaks for a set
      */
     private function tiebreakCorrect($predSet, $actualSet) {
+        // Defensive: If either tiebreak is missing or not an array, it's not correct
         if (!isset($predSet['tiebreak']) || !isset($actualSet['tiebreak'])) return false;
         if (!is_array($predSet['tiebreak']) || !is_array($actualSet['tiebreak'])) return false;
+        // Defensive: If both tiebreak arrays are empty, treat as not correct
+        if (empty($predSet['tiebreak']) && empty($actualSet['tiebreak'])) return false;
+        // Defensive: If either tiebreak value is not numeric, treat as not correct
+        foreach (['player1', 'player2'] as $key) {
+            if (
+                !isset($predSet['tiebreak'][$key]) || !isset($actualSet['tiebreak'][$key]) ||
+                $predSet['tiebreak'][$key] === '' || $actualSet['tiebreak'][$key] === '' ||
+                !is_numeric($predSet['tiebreak'][$key]) || !is_numeric($actualSet['tiebreak'][$key])
+            ) {
+                return false;
+            }
+        }
         return (
-            (isset($predSet['tiebreak']['player1']) && isset($actualSet['tiebreak']['player1']) && $predSet['tiebreak']['player1'] !== '' && $actualSet['tiebreak']['player1'] !== '' && intval($predSet['tiebreak']['player1']) === intval($actualSet['tiebreak']['player1'])) &&
-            (isset($predSet['tiebreak']['player2']) && isset($actualSet['tiebreak']['player2']) && $predSet['tiebreak']['player2'] !== '' && $actualSet['tiebreak']['player2'] !== '' && intval($predSet['tiebreak']['player2']) === intval($actualSet['tiebreak']['player2']))
+            intval($predSet['tiebreak']['player1']) === intval($actualSet['tiebreak']['player1']) &&
+            intval($predSet['tiebreak']['player2']) === intval($actualSet['tiebreak']['player2'])
         );
     }
 
@@ -349,4 +362,16 @@ class Prediction {
             return ['success' => false, 'message' => 'Failed to delete prediction.'];
         }
     }
-} 
+    /**
+     * Get recent prediction activity for a user
+     * @param int $userId
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentActivity($userId, $limit = 10) {
+        $this->db->query('SELECT p.*, m.start_time, m.player1_id, m.player2_id FROM predictions p JOIN matches m ON p.match_id = m.id WHERE p.user_id = :user_id ORDER BY p.created_at DESC LIMIT :limit');
+        $this->db->bind(':user_id', $userId);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        return $this->db->resultSet();
+    }
+}

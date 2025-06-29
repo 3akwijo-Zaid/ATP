@@ -102,12 +102,22 @@ switch ($action) {
         break;
 
     case 'promote_user':
-        if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
+        if (!isAdmin()) { 
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']); 
+            break; 
+        }
         $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['user_id'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'User ID is required']);
+            break;
+        }
         if ($user->promoteToAdmin($data['user_id'])) {
-            echo json_encode(['message' => 'User promoted to admin successfully.']);
+            echo json_encode(['success' => true, 'message' => 'User promoted to admin successfully.']);
         } else {
-            echo json_encode(['message' => 'Failed to promote user.']);
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to promote user.']);
         }
         break;
 

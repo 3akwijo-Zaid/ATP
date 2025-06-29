@@ -48,18 +48,38 @@ class User {
         }
     }
 
+
     public function getScoreboard() {
-        $this->db->query('SELECT id, username, points FROM users ORDER BY points DESC');
+        // Exclude admin users and users with empty/null usernames
+        $this->db->query('SELECT id, username, points FROM users WHERE (is_admin = 0 OR is_admin IS NULL) AND username IS NOT NULL AND username != "" AND username != "admin" ORDER BY points DESC');
         return $this->db->resultSet();
     }
 
     public function getAllUsers() {
-        $this->db->query('SELECT id, username, points, is_admin FROM users ORDER BY username ASC');
+        // Return all users except those with empty/null usernames and the username 'admin'
+        $this->db->query('SELECT id, username, points, is_admin FROM users WHERE username IS NOT NULL AND username != "" AND username != "admin" ORDER BY username ASC');
         return $this->db->resultSet();
+    }
+
+    public function getUserById($userId) {
+        $this->db->query('SELECT id, username, points, is_admin FROM users WHERE id = :id');
+        $this->db->bind(':id', $userId);
+        return $this->db->single();
     }
 
     public function promoteToAdmin($userId) {
         $this->db->query('UPDATE users SET is_admin = 1 WHERE id = :user_id');
+        $this->db->bind(':user_id', $userId);
+        
+        if ($this->db->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function revokeAdmin($userId) {
+        $this->db->query('UPDATE users SET is_admin = 0 WHERE id = :user_id');
         $this->db->bind(':user_id', $userId);
         
         if ($this->db->execute()) {
