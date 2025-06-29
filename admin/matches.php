@@ -1,110 +1,137 @@
 <?php require_once 'includes/header.php'; ?>
 
-<h2>Add New Match</h2>
-<form id="add-match-form">
-    <div class="form-group">
-        <label for="competition_name">Competition Name</label>
-        <input type="text" id="competition_name" required>
-    </div>
-    <div class="form-group">
-        <label for="player1">Player 1</label>
-        <input type="text" id="player1" required>
-    </div>
-    <div class="form-group">
-        <label for="player2">Player 2</label>
-        <input type="text" id="player2" required>
-    </div>
-    <div class="form-group">
-        <label for="start_time">Start Time</label>
-        <input type="datetime-local" id="start_time" required>
-    </div>
-    <div class="form-group">
-        <label for="match_format">Match Format</label>
-        <select id="match_format" required>
-            <option value="best_of_5">Best of 5 Sets</option>
-            <option value="best_of_3">Best of 3 Sets</option>
-        </select>
-    </div>
-    <button type="submit" class="btn">Add Match</button>
-    <p id="add-message"></p>
-</form>
+<div class="page-header">
+    <h1>Match Management</h1>
+    <p>Add new matches and manage existing match schedules.</p>
+</div>
 
-<hr style="margin: 2rem 0;">
+<div class="content-card">
+    <h2>Add New Match</h2>
+    <form id="add-match-form">
+        <div class="form-group">
+            <label for="tournament_id">Tournament</label>
+            <select id="tournament_id" required></select>
+        </div>
+        <div class="form-group">
+            <label for="round">Round</label>
+            <input type="text" id="round" required placeholder="e.g. Quarterfinals">
+        </div>
+        <div class="form-group">
+            <label for="player1_id">Player 1</label>
+            <select id="player1_id" required></select>
+        </div>
+        <div class="form-group">
+            <label for="player2_id">Player 2</label>
+            <select id="player2_id" required></select>
+        </div>
+        <div class="form-group">
+            <label for="start_time">Start Time</label>
+            <input type="datetime-local" id="start_time" required>
+        </div>
+        <div class="form-group">
+            <label for="match_format">Match Format</label>
+            <select id="match_format" required>
+                <option value="best_of_5">Best of 5 Sets</option>
+                <option value="best_of_3">Best of 3 Sets</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label><input type="checkbox" id="featured"> Featured Match</label>
+        </div>
+        <button type="submit" class="btn">Add Match</button>
+        <div class="list-item">
+            <p id="add-message"></p>
+        </div>
+    </form>
+</div>
 
-<h2>Existing Matches</h2>
-<div id="matches-list"></div>
+<div class="content-card">
+    <h2>All Matches</h2>
+    <div class="table-container">
+        <div id="matches-list"></div>
+    </div>
+</div>
 
 <script>
+async function fetchTournaments() {
+    const res = await fetch('../api/tournaments.php');
+    const data = await res.json();
+    const select = document.getElementById('tournament_id');
+    select.innerHTML = '<option value="">Select Tournament</option>';
+    data.forEach(t => {
+        select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    });
+}
+async function fetchPlayers() {
+    const res = await fetch('../api/users.php?action=get_players');
+    const data = await res.json();
+    const p1 = document.getElementById('player1_id');
+    const p2 = document.getElementById('player2_id');
+    p1.innerHTML = '<option value="">Select Player 1</option>';
+    p2.innerHTML = '<option value="">Select Player 2</option>';
+    data.forEach(pl => {
+        p1.innerHTML += `<option value="${pl.id}">${pl.name}</option>`;
+        p2.innerHTML += `<option value="${pl.id}">${pl.name}</option>`;
+    });
+}
 document.addEventListener('DOMContentLoaded', function() {
+    fetchTournaments();
+    fetchPlayers();
     const matchesList = document.getElementById('matches-list');
     const addMatchForm = document.getElementById('add-match-form');
     const addMessage = document.getElementById('add-message');
-
-    // Fetch and display existing matches
     async function fetchMatches() {
-        const response = await fetch('../api/matches.php');
-        const matches = await response.json();
-        matchesList.innerHTML = '';
-        if (matches.length > 0) {
-            const table = document.createElement('table');
-            table.innerHTML = `
-                <thead>
-                    <tr>
-                        <th>Competition</th>
-                        <th>Player 1</th>
-                        <th>Player 2</th>
-                        <th>Start Time</th>
-                        <th>Format</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${matches.map(m => `
-                        <tr>
-                            <td>${m.competition_name}</td>
-                            <td>${m.player1}</td>
-                            <td>${m.player2}</td>
-                            <td>${new Date(m.start_time).toLocaleString()}</td>
-                            <td>${m.match_format === 'best_of_3' ? 'Best of 3' : 'Best of 5'}</td>
-                            <td>${m.status}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            `;
-            matchesList.appendChild(table);
-        } else {
-            matchesList.innerHTML = '<p>No matches found.</p>';
-        }
+        const res = await fetch('../api/matches.php?grouped=0');
+        const matches = await res.json();
+        let html = '<table class="modern-table"><thead><tr><th>ID</th><th>Round</th><th>Player 1</th><th>Player 2</th><th>Start Time</th><th>Status</th><th>Featured</th><th>Actions</th></tr></thead><tbody>';
+        matches.forEach(m => {
+            html += `<tr>
+                <td>${m.id}</td>
+                <td>${m.round}</td>
+                <td>${m.player1_name || ''}</td>
+                <td>${m.player2_name || ''}</td>
+                <td>${m.start_time}</td>
+                <td>${m.status || 'upcoming'}</td>
+                <td><button onclick='toggleFeatured(${m.id}, ${m.featured || 0})' class='btn btn-sm ${m.featured ? 'btn-success' : 'btn-secondary'}'>${m.featured ? 'Featured' : 'Not Featured'}</button></td>
+                <td><a href='results.php?match_id=${m.id}' class='btn btn-sm btn-primary'>Update Result</a></td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        matchesList.innerHTML = html;
     }
-
-    // Handle add match form submission
     addMatchForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const competitionName = document.getElementById('competition_name').value;
-        const player1 = document.getElementById('player1').value;
-        const player2 = document.getElementById('player2').value;
-        const startTime = document.getElementById('start_time').value;
-        const matchFormat = document.getElementById('match_format').value;
-
+        const tournament_id = document.getElementById('tournament_id').value;
+        const round = document.getElementById('round').value;
+        const player1_id = document.getElementById('player1_id').value;
+        const player2_id = document.getElementById('player2_id').value;
+        const start_time = document.getElementById('start_time').value;
+        const match_format = document.getElementById('match_format').value;
+        const featured = document.getElementById('featured').checked ? 1 : 0;
         const response = await fetch('../api/admin.php?action=add_match', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                competition_name: competitionName,
-                player1, 
-                player2, 
-                start_time: startTime, 
-                match_format: matchFormat 
+                tournament_id, round, player1_id, player2_id, start_time, match_format, featured
             })
         });
         const result = await response.json();
         addMessage.textContent = result.message;
         if (response.ok) {
-            fetchMatches(); // Refresh the list
+            fetchMatches();
             addMatchForm.reset();
         }
     });
-
+    window.toggleFeatured = async function(matchId, current) {
+        const response = await fetch('../api/admin.php?action=toggle_featured', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ match_id: matchId, featured: current == 1 ? 0 : 1 })
+        });
+        const result = await response.json();
+        alert(result.message);
+        fetchMatches();
+    };
     fetchMatches();
 });
 </script>

@@ -1,8 +1,16 @@
 <?php require_once 'includes/header.php'; ?>
 
-<h2>User Management</h2>
-<div id="users-list">
-    <!-- Users will be loaded here -->
+<div class="page-header">
+    <h1>User Management</h1>
+    <p>Manage user accounts, view points, and control admin permissions.</p>
+</div>
+
+<div class="content-card">
+    <div class="table-container">
+        <div id="users-list">
+            <!-- Users will be loaded here -->
+        </div>
+    </div>
 </div>
 
 <script>
@@ -33,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <td>${user.is_admin == 1 ? 'Admin' : 'User'}</td>
                                 <td>
                                     ${user.is_admin == 0 ? 
-                                        `<button onclick="promoteUser(${user.id}, '${user.username}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Promote to Admin</button>` : 
+                                        `<button onclick="promoteUser(${user.id}, '${user.username}')" class="btn btn-sm">Promote to Admin</button>` : 
                                         '<span style="color: #666;">Already Admin</span>'
                                     }
                                 </td>

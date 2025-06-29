@@ -1,4 +1,19 @@
 <?php
+ini_set('display_errors', 0); // Don't show errors in output
+ini_set('log_errors', 1);     // Log errors to server logs
+error_reporting(E_ALL);       // Report all errors
+
+set_exception_handler(function($e) {
+    http_response_code(500);
+    echo json_encode(['success'=>false, 'error'=>'Server error: ' . $e->getMessage()]);
+    exit;
+});
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    echo json_encode(['success'=>false, 'error'=>"PHP error [$errno]: $errstr in $errfile on line $errline"]);
+    exit;
+});
+
 session_start();
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
@@ -25,15 +40,34 @@ function isAdmin() {
 
 switch ($action) {
     case 'login':
-        $data = json_decode(file_get_contents("php://input"));
-        $adminUser = $admin->login($data->username, $data->password);
+        $rawInput = file_get_contents("php://input");
+        $data = json_decode($rawInput, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid JSON input.']);
+            break;
+        }
+        if (!isset($data['username']) || !isset($data['password'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Username and password are required.']);
+            break;
+        }
+        $username = trim($data['username']);
+        $password = $data['password'];
+        if ($username === '' || $password === '') {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Username and password cannot be empty.']);
+            break;
+        }
+        $adminUser = $admin->login($username, $password);
         if ($adminUser) {
             $_SESSION['user_id'] = $adminUser['id'];
             $_SESSION['username'] = $adminUser['username'];
             $_SESSION['is_admin'] = $adminUser['is_admin'];
-            echo json_encode(['message' => 'Admin login successful.']);
+            echo json_encode(['success' => true, 'message' => 'Admin login successful.']);
         } else {
-            echo json_encode(['message' => 'Invalid credentials.']);
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Invalid credentials.']);
         }
         break;
 
@@ -61,22 +95,6 @@ switch ($action) {
         }
         break;
         
-    case 'get_point_settings':
-        if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
-        $settings = $admin->getPointSettings();
-        echo json_encode($settings);
-        break;
-
-    case 'update_point_settings':
-        if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
-        $data = json_decode(file_get_contents("php://input"), true);
-        if ($admin->updatePointSettings($data)) {
-            echo json_encode(['message' => 'Settings updated successfully.']);
-        } else {
-            echo json_encode(['message' => 'Failed to update settings.']);
-        }
-        break;
-
     case 'get_all_users':
         if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
         $users = $user->getAllUsers();
@@ -90,6 +108,32 @@ switch ($action) {
             echo json_encode(['message' => 'User promoted to admin successfully.']);
         } else {
             echo json_encode(['message' => 'Failed to promote user.']);
+        }
+        break;
+
+    case 'toggle_featured':
+        // Always return a JSON object with a message property
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        if (!isAdmin()) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
+            break;
+        }
+        if (!is_array($data) || !isset($data['match_id']) || !isset($data['featured'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid input.']);
+            break;
+        }
+        $result = $matchManager->setFeatured($data['match_id'], $data['featured']);
+        if ($result) {
+            echo json_encode([
+                'success' => true,
+                'message' => $data['featured'] ? 'Match marked as featured.' : 'Match unfeatured.'
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to update featured status.'
+            ]);
         }
         break;
 

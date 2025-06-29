@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/config.php';
+
 class Database {
     private $host = DB_HOST;
     private $user = DB_USER;
@@ -10,6 +12,11 @@ class Database {
     private $error;
 
     public function __construct() {
+        // Check if PDO MySQL extension is available
+        if (!extension_loaded('pdo_mysql')) {
+            throw new Exception('PDO MySQL extension is not enabled. Please enable it in php.ini by uncommenting the line: extension=pdo_mysql');
+        }
+
         $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbname;
         $options = [
             PDO::ATTR_PERSISTENT => true,
@@ -21,11 +28,15 @@ class Database {
             $this->dbh = new PDO($dsn, $this->user, $this->pass, $options);
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
-            echo $this->error;
+            error_log("Database connection error: " . $this->error);
+            throw new Exception("Database connection failed: " . $this->error);
         }
     }
 
     public function query($sql) {
+        if (!$this->dbh) {
+            throw new Exception("Database connection not established");
+        }
         $this->stmt = $this->dbh->prepare($sql);
     }
 
@@ -64,5 +75,17 @@ class Database {
 
     public function rowCount() {
         return $this->stmt->rowCount();
+    }
+
+    public function beginTransaction() {
+        return $this->dbh->beginTransaction();
+    }
+
+    public function commit() {
+        return $this->dbh->commit();
+    }
+
+    public function rollback() {
+        return $this->dbh->rollback();
     }
 } 

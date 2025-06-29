@@ -1,6 +1,6 @@
 <?php require_once 'includes/header.php'; ?>
 
-<div class="container">
+<div class="container container--full">
     <div class="form-container">
         <h2>Register</h2>
         <form id="register-form">
@@ -33,13 +33,13 @@ document.getElementById('register-form').addEventListener('submit', async functi
     });
 
     const result = await response.json();
-    messageEl.textContent = result.message;
+    if (messageEl) messageEl.textContent = result.message;
 
     if (response.ok && result.message.includes('success')) {
-        messageEl.style.color = 'lightgreen';
-        setTimeout(() => { window.location.href = 'login.php'; }, 2000);
+        if (messageEl) messageEl.style.color = 'lightgreen';
+        setTimeout(() => { window.location.href = 'profile.php?welcome=1'; }, 1200);
     } else {
-        messageEl.style.color = 'salmon';
+        if (messageEl) messageEl.style.color = 'salmon';
     }
 });
 </script>
