@@ -368,6 +368,24 @@ function startFixturesCountdowns() {
     }
 }
 
+@media (max-width: 425px) {
+    #featured-matches {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+}
+
+@media (max-width: 320px) {
+    #featured-matches {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
 .fixtures-preview {
     margin-top: 2.5em;
     margin-bottom: 1.5em;
