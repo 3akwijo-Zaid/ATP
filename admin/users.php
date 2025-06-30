@@ -6,9 +6,11 @@
 </div>
 
 <div class="content-card">
-    <div class="table-container">
-        <div id="users-list">
-            <!-- Users will be loaded here -->
+    <div class="container--table">
+        <div class="table-container">
+            <div id="users-list">
+                <!-- Users will be loaded here -->
+            </div>
         </div>
     </div>
 </div>
@@ -25,26 +27,24 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // Add cache-busting parameter to ensure fresh data
             const timestamp = new Date().getTime();
-            const response = await fetch(`../api/users.php?action=list&_t=${timestamp}`);
+            const response = await fetch(`../api/admin.php?action=get_all_users&_t=${timestamp}`);
             const data = await response.json();
 
-            if (!data.success) {
-                usersList.innerHTML = `<p>${data.message || 'Could not load users.'}</p>`;
-                return;
-            }
-
-            const users = data.users;
-            if (!Array.isArray(users) || users.length === 0) {
+            if (!Array.isArray(data) || data.length === 0) {
                 usersList.innerHTML = '<p>No users found.</p>';
                 return;
             }
 
+            const users = data;
             const table = document.createElement('table');
             table.innerHTML = `
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Username</th>
                         <th>Points</th>
+                        <th>Country</th>
+                        <th>Join Date</th>
                         <th>Admin Status</th>
                         <th>Actions</th>
                     </tr>
@@ -52,9 +52,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tbody>
                     ${users.map(user => `
                         <tr>
+                            <td>${user.id}</td>
                             <td>${user.username}</td>
-                            <td>${user.points}</td>
-                            <td>${user.is_admin == 1 ? 'Admin' : 'User'}</td>
+                            <td>${user.points || 0}</td>
+                            <td>${user.country || '-'}</td>
+                            <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
+                            <td>${user.is_admin == 1 ? '<span class="badge badge-success">Admin</span>' : '<span class="badge badge-secondary">User</span>'}</td>
                             <td>
                                 ${user.is_admin == 0 && currentAdmin === 'admin' ? 
                                     `<button onclick="promoteUser(${user.id}, '${user.username}')" class="btn btn-sm">Promote to Admin</button>` : 
@@ -86,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.textContent = 'Promoting...';
                 button.disabled = true;
                 
-                const response = await fetch('../api/users.php?action=promote', {
+                const response = await fetch('../api/admin.php?action=promote_user', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: userId })
@@ -122,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.textContent = 'Revoking...';
                 button.disabled = true;
                 
-                const response = await fetch('../api/users.php?action=revoke', {
+                const response = await fetch('../api/admin.php?action=revoke_admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: userId })

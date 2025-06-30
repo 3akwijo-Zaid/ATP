@@ -1231,6 +1231,18 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
             
+            // Check prediction settings and show/hide sections accordingly
+            const gameCard = document.querySelector('.atp-game-card');
+            const statisticsCard = document.querySelector('.atp-statistics-card');
+            
+            if (match.game_predictions_enabled === 0) {
+                if (gameCard) gameCard.style.display = 'none';
+            }
+            
+            if (match.statistics_predictions_enabled === 0) {
+                if (statisticsCard) statisticsCard.style.display = 'none';
+            }
+            
             // Generate sets and games
             generateSetsGrid(match);
             generateGameCards(match);
@@ -1582,58 +1594,62 @@ document.addEventListener('DOMContentLoaded', async function() {
                 saveMatchBtn.textContent = 'Save Match Prediction';
             }
             
-            // Load game predictions
-            const gameResponse = await fetch(`../api/game_predictions.php?match_id=${matchId}&user_predictions=1`);
-            const gameData = await gameResponse.json();
-            
-            console.log('Game prediction API response:', gameData);
-            
-            if (gameData.success && gameData.predictions && gameData.predictions.length > 0) {
-                gameData.predictions.forEach(prediction => {
-                    const winnerSelect = document.getElementById(`winner-${prediction.game_number}`);
-                    const score1Select = document.getElementById(`score1-${prediction.game_number}`);
-                    const score2Select = document.getElementById(`score2-${prediction.game_number}`);
-                    
-                    if (winnerSelect) winnerSelect.value = prediction.predicted_winner;
-                    
-                    const scores = prediction.predicted_score.split('-');
-                    if (score1Select && scores[0]) score1Select.value = scores[0];
-                    if (score2Select && scores[1]) score2Select.value = scores[1];
-                });
+            // Load game predictions (only if enabled)
+            if (match.game_predictions_enabled !== 0) {
+                const gameResponse = await fetch(`../api/game_predictions.php?match_id=${matchId}&user_predictions=1`);
+                const gameData = await gameResponse.json();
                 
-                // Disable save button since predictions exist
-                saveGameBtn.disabled = true;
-                saveGameBtn.textContent = 'Game Predictions Submitted';
-            } else {
-                console.log('No game predictions found or API error');
-                // Enable save button since no predictions exist
-                saveGameBtn.disabled = false;
-                saveGameBtn.textContent = 'Save Game Predictions';
+                console.log('Game prediction API response:', gameData);
+                
+                if (gameData.success && gameData.predictions && gameData.predictions.length > 0) {
+                    gameData.predictions.forEach(prediction => {
+                        const winnerSelect = document.getElementById(`winner-${prediction.game_number}`);
+                        const score1Select = document.getElementById(`score1-${prediction.game_number}`);
+                        const score2Select = document.getElementById(`score2-${prediction.game_number}`);
+                        
+                        if (winnerSelect) winnerSelect.value = prediction.predicted_winner;
+                        
+                        const scores = prediction.predicted_score.split('-');
+                        if (score1Select && scores[0]) score1Select.value = scores[0];
+                        if (score2Select && scores[1]) score2Select.value = scores[1];
+                    });
+                    
+                    // Disable save button since predictions exist
+                    saveGameBtn.disabled = true;
+                    saveGameBtn.textContent = 'Game Predictions Submitted';
+                } else {
+                    console.log('No game predictions found or API error');
+                    // Enable save button since no predictions exist
+                    saveGameBtn.disabled = false;
+                    saveGameBtn.textContent = 'Save Game Predictions';
+                }
             }
             
-            // Load statistics predictions
-            const statisticsResponse = await fetch(`../api/statistics_predictions.php?match_id=${matchId}&user_predictions=1`);
-            const statisticsData = await statisticsResponse.json();
-            
-            console.log('Statistics prediction API response:', statisticsData);
-            
-            if (statisticsData.success && statisticsData.predictions && statisticsData.predictions.length > 0) {
-                statisticsData.predictions.forEach(prediction => {
-                    const acesInput = document.getElementById(`aces-${prediction.player_type}`);
-                    const doubleFaultsInput = document.getElementById(`double-faults-${prediction.player_type}`);
-                    
-                    if (acesInput) acesInput.value = prediction.aces_predicted;
-                    if (doubleFaultsInput) doubleFaultsInput.value = prediction.double_faults_predicted;
-                });
+            // Load statistics predictions (only if enabled)
+            if (match.statistics_predictions_enabled !== 0) {
+                const statisticsResponse = await fetch(`../api/statistics_predictions.php?match_id=${matchId}&user_predictions=1`);
+                const statisticsData = await statisticsResponse.json();
                 
-                // Disable save button since predictions exist
-                saveStatisticsBtn.disabled = true;
-                saveStatisticsBtn.textContent = 'Statistics Predictions Submitted';
-            } else {
-                console.log('No statistics predictions found or API error');
-                // Enable save button since no predictions exist
-                saveStatisticsBtn.disabled = false;
-                saveStatisticsBtn.textContent = 'Save Statistics Predictions';
+                console.log('Statistics prediction API response:', statisticsData);
+                
+                if (statisticsData.success && statisticsData.predictions && statisticsData.predictions.length > 0) {
+                    statisticsData.predictions.forEach(prediction => {
+                        const acesInput = document.getElementById(`aces-${prediction.player_type}`);
+                        const doubleFaultsInput = document.getElementById(`double-faults-${prediction.player_type}`);
+                        
+                        if (acesInput) acesInput.value = prediction.aces_predicted;
+                        if (doubleFaultsInput) doubleFaultsInput.value = prediction.double_faults_predicted;
+                    });
+                    
+                    // Disable save button since predictions exist
+                    saveStatisticsBtn.disabled = true;
+                    saveStatisticsBtn.textContent = 'Statistics Predictions Submitted';
+                } else {
+                    console.log('No statistics predictions found or API error');
+                    // Enable save button since no predictions exist
+                    saveStatisticsBtn.disabled = false;
+                    saveStatisticsBtn.textContent = 'Save Statistics Predictions';
+                }
             }
         } catch (error) {
             console.error('Error loading predictions:', error);
@@ -1647,20 +1663,38 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     async function loadPredictionSummary() {
         try {
-            const [matchResponse, gameResponse, statisticsResponse] = await Promise.all([
-                fetch(`../api/predictions.php?match_id=${matchId}&user_id=${user_id}`),
-                fetch(`../api/game_predictions.php?match_id=${matchId}&user_predictions=1`),
-                fetch(`../api/statistics_predictions.php?match_id=${matchId}&user_predictions=1`)
-            ]);
+            // Only fetch predictions for enabled types
+            const fetchPromises = [];
+            const fetchTypes = [];
             
-            const matchData = await matchResponse.json();
-            const gameData = await gameResponse.json();
-            const statisticsData = await statisticsResponse.json();
+            // Always fetch match predictions (they're always enabled)
+            fetchPromises.push(fetch(`../api/predictions.php?match_id=${matchId}&user_id=${user_id}`));
+            fetchTypes.push('match');
+            
+            // Only fetch game predictions if enabled
+            if (match.game_predictions_enabled !== 0) {
+                fetchPromises.push(fetch(`../api/game_predictions.php?match_id=${matchId}&user_predictions=1`));
+                fetchTypes.push('game');
+            }
+            
+            // Only fetch statistics predictions if enabled
+            if (match.statistics_predictions_enabled !== 0) {
+                fetchPromises.push(fetch(`../api/statistics_predictions.php?match_id=${matchId}&user_predictions=1`));
+                fetchTypes.push('statistics');
+            }
+            
+            const responses = await Promise.all(fetchPromises);
+            const results = await Promise.all(responses.map(r => r.json()));
+            
+            // Map results to their types
+            const matchData = fetchTypes.includes('match') ? results[fetchTypes.indexOf('match')] : null;
+            const gameData = fetchTypes.includes('game') ? results[fetchTypes.indexOf('game')] : null;
+            const statisticsData = fetchTypes.includes('statistics') ? results[fetchTypes.indexOf('statistics')] : null;
             
             let summaryHTML = '<h3>Your Current Predictions</h3>';
             
             // Match prediction summary
-            if (matchData.success && matchData.prediction) {
+            if (matchData && matchData.success && matchData.prediction) {
                 const predData = matchData.prediction.prediction_data;
                 summaryHTML += `
                     <div style="margin-bottom: 1rem;">
@@ -1682,55 +1716,59 @@ document.addEventListener('DOMContentLoaded', async function() {
                 summaryHTML += '<div style="margin-bottom: 1rem;"><em>No match prediction submitted yet.</em></div>';
             }
             
-            // Game prediction summary
-            if (gameData.success && gameData.predictions && gameData.predictions.length > 0) {
-                // Sort predictions by game number
-                const sortedPredictions = gameData.predictions.sort((a, b) => a.game_number - b.game_number);
-                
-                summaryHTML += `
-                    <div style="margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <strong>Game Predictions (Set 1):</strong>
-                        </div>
-                        <div class="game-predictions-sequence">
-                `;
-                
-                sortedPredictions.forEach(prediction => {
-                    const winnerName = prediction.predicted_winner === 'player1' ? match.player1_name : match.player2_name;
+            // Game prediction summary (only if enabled)
+            if (match.game_predictions_enabled !== 0) {
+                if (gameData && gameData.success && gameData.predictions && gameData.predictions.length > 0) {
+                    // Sort predictions by game number
+                    const sortedPredictions = gameData.predictions.sort((a, b) => a.game_number - b.game_number);
+                    
                     summaryHTML += `
-                        <div class="game-prediction-item">
-                            <div class="game-number">Point ${prediction.game_number}</div>
-                            <div class="game-score">${formatScoreDisplay(prediction.predicted_score)}</div>
-                            <div class="game-winner">${winnerName}</div>
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <strong>Game Predictions (Set 1):</strong>
+                            </div>
+                            <div class="game-predictions-sequence">
+                    `;
+                    
+                    sortedPredictions.forEach(prediction => {
+                        const winnerName = prediction.predicted_winner === 'player1' ? match.player1_name : match.player2_name;
+                        summaryHTML += `
+                            <div class="game-prediction-item">
+                                <div class="game-number">Point ${prediction.game_number}</div>
+                                <div class="game-score">${formatScoreDisplay(prediction.predicted_score)}</div>
+                                <div class="game-winner">${winnerName}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    summaryHTML += `
+                            </div>
                         </div>
                     `;
-                });
-                
-                summaryHTML += `
-                        </div>
-                    </div>
-                `;
-            } else {
-                summaryHTML += '<div style="margin-bottom: 1rem;"><em>No game predictions submitted yet.</em></div>';
+                } else {
+                    summaryHTML += '<div style="margin-bottom: 1rem;"><em>No game predictions submitted yet.</em></div>';
+                }
             }
             
-            // Statistics prediction summary
-            if (statisticsData.success && statisticsData.predictions && statisticsData.predictions.length > 0) {
-                summaryHTML += `
-                    <div style="margin-bottom: 1rem;">
-                        <strong>Statistics Predictions:</strong><br>
-                `;
-                
-                statisticsData.predictions.forEach(prediction => {
-                    const playerName = prediction.player_type === 'player1' ? match.player1_name : match.player2_name;
+            // Statistics prediction summary (only if enabled)
+            if (match.statistics_predictions_enabled !== 0) {
+                if (statisticsData && statisticsData.success && statisticsData.predictions && statisticsData.predictions.length > 0) {
                     summaryHTML += `
-                        <span style="color: #ffd54f;">${playerName}:</span> ${prediction.aces_predicted} aces, ${prediction.double_faults_predicted} double faults<br>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Statistics Predictions:</strong><br>
                     `;
-                });
-                
-                summaryHTML += '</div>';
-            } else {
-                summaryHTML += '<div style="margin-bottom: 1rem;"><em>No statistics predictions submitted yet.</em></div>';
+                    
+                    statisticsData.predictions.forEach(prediction => {
+                        const playerName = prediction.player_type === 'player1' ? match.player1_name : match.player2_name;
+                        summaryHTML += `
+                            <span style="color: #ffd54f;">${playerName}:</span> ${prediction.aces_predicted} aces, ${prediction.double_faults_predicted} double faults<br>
+                        `;
+                    });
+                    
+                    summaryHTML += '</div>';
+                } else {
+                    summaryHTML += '<div style="margin-bottom: 1rem;"><em>No statistics predictions submitted yet.</em></div>';
+                }
             }
             
             predictionSummary.innerHTML = summaryHTML;

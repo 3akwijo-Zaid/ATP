@@ -38,6 +38,12 @@
         <div class="form-group">
             <label><input type="checkbox" id="featured"> Featured Match</label>
         </div>
+        <div class="form-group">
+            <label><input type="checkbox" id="game_predictions_enabled"> Enable Game Result Predictions</label>
+        </div>
+        <div class="form-group">
+            <label><input type="checkbox" id="statistics_predictions_enabled"> Enable Statistics Predictions</label>
+        </div>
         <button type="submit" class="btn">Add Match</button>
         <div class="list-item">
             <p id="add-message"></p>
@@ -47,8 +53,10 @@
 
 <div class="content-card">
     <h2>All Matches</h2>
-    <div class="table-container">
-        <div id="matches-list"></div>
+    <div class="container--table">
+        <div class="table-container">
+            <div id="matches-list"></div>
+        </div>
     </div>
 </div>
 
@@ -83,8 +91,10 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchMatches() {
         const res = await fetch('../api/matches.php?grouped=0');
         const matches = await res.json();
-        let html = '<table class="modern-table"><thead><tr><th>ID</th><th>Round</th><th>Player 1</th><th>Player 2</th><th>Start Time</th><th>Status</th><th>Featured</th><th>Actions</th></tr></thead><tbody>';
+        let html = '<table class="modern-table"><thead><tr><th>ID</th><th>Round</th><th>Player 1</th><th>Player 2</th><th>Start Time</th><th>Status</th><th>Featured</th><th>Predictions</th><th>Actions</th></tr></thead><tbody>';
         matches.forEach(m => {
+            const gamePred = m.game_predictions_enabled ? '<span class="badge badge-success">Game</span>' : '<span class="badge badge-secondary">Game</span>';
+            const statsPred = m.statistics_predictions_enabled ? '<span class="badge badge-success">Stats</span>' : '<span class="badge badge-secondary">Stats</span>';
             html += `<tr>
                 <td>${m.id}</td>
                 <td>${m.round}</td>
@@ -93,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${m.start_time}</td>
                 <td>${m.status || 'upcoming'}</td>
                 <td><button onclick='toggleFeatured(${m.id}, ${m.featured || 0})' class='btn btn-sm ${m.featured ? 'btn-success' : 'btn-secondary'}'>${m.featured ? 'Featured' : 'Not Featured'}</button></td>
+                <td>${gamePred} ${statsPred}</td>
                 <td><a href='results.php?match_id=${m.id}' class='btn btn-sm btn-primary'>Update Result</a></td>
             </tr>`;
         });
@@ -108,11 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const start_time = document.getElementById('start_time').value;
         const match_format = document.getElementById('match_format').value;
         const featured = document.getElementById('featured').checked ? 1 : 0;
+        const game_predictions_enabled = document.getElementById('game_predictions_enabled').checked ? 1 : 0;
+        const statistics_predictions_enabled = document.getElementById('statistics_predictions_enabled').checked ? 1 : 0;
         const response = await fetch('../api/admin.php?action=add_match', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                tournament_id, round, player1_id, player2_id, start_time, match_format, featured
+                tournament_id, round, player1_id, player2_id, start_time, match_format, featured, game_predictions_enabled, statistics_predictions_enabled
             })
         });
         const result = await response.json();

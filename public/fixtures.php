@@ -117,6 +117,10 @@ async function renderFixtures(data) {
                         ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
                         <span>${m.tournament_name} (${m.round})</span>
                     </div>
+                    <div class='fixture-prediction-types'>
+                        ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
+                        ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
+                    </div>
                     <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
                     <div class='fixture-result'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
                     <div class='fixture-prediction-action'>
@@ -221,13 +225,33 @@ fetchTournaments().then(fetchFixtures);
     justify-content: center;
 }
 .fixture-tournament-logo {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 2px;
-    border: 1px solid rgba(255, 213, 79, 0.3);
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5em;
+    border-radius: 50%;
+}
+.fixture-prediction-types {
+    margin: 0.5rem 0;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+.prediction-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.game-badge {
+    background-color: #4caf50;
+    color: white;
+}
+.stats-badge {
+    background-color: #2196f3;
+    color: white;
 }
 .fixture-status.upcoming { color: #4fc3f7; }
 .fixture-status.in_progress { color: #ff9800; }

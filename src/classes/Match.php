@@ -9,7 +9,7 @@ class MatchManager {
     }
 
     public function createMatch($data) {
-        $this->db->query('INSERT INTO matches (tournament_id, round, player1_id, player2_id, start_time, match_format, featured) VALUES (:tournament_id, :round, :player1_id, :player2_id, :start_time, :match_format, :featured)');
+        $this->db->query('INSERT INTO matches (tournament_id, round, player1_id, player2_id, start_time, match_format, featured, game_predictions_enabled, statistics_predictions_enabled) VALUES (:tournament_id, :round, :player1_id, :player2_id, :start_time, :match_format, :featured, :game_predictions_enabled, :statistics_predictions_enabled)');
         $this->db->bind(':tournament_id', $data['tournament_id']);
         $this->db->bind(':round', $data['round']);
         $this->db->bind(':player1_id', $data['player1_id']);
@@ -17,6 +17,8 @@ class MatchManager {
         $this->db->bind(':start_time', $data['start_time']);
         $this->db->bind(':match_format', $data['match_format']);
         $this->db->bind(':featured', isset($data['featured']) ? $data['featured'] : 0);
+        $this->db->bind(':game_predictions_enabled', isset($data['game_predictions_enabled']) ? $data['game_predictions_enabled'] : 1);
+        $this->db->bind(':statistics_predictions_enabled', isset($data['statistics_predictions_enabled']) ? $data['statistics_predictions_enabled'] : 1);
         return $this->db->execute();
     }
 

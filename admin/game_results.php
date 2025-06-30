@@ -39,7 +39,7 @@
 
     <div class="content-card">
         <div class="predictions-header">
-            <h3>User Predictions</h3>
+        <h3>User Predictions</h3>
             <button type="button" class="btn btn-secondary" id="refresh-predictions">Refresh Predictions</button>
         </div>
         <div id="predictions-list">
@@ -623,16 +623,16 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 if (resultsData.success && resultsData.results) {
                     resultsData.results.forEach(result => {
-                        const winnerSelect = document.getElementById(`winner-${result.game_number}`);
-                        const score1Select = document.getElementById(`score1-${result.game_number}`);
-                        const score2Select = document.getElementById(`score2-${result.game_number}`);
-                        
-                        if (winnerSelect) winnerSelect.value = result.winner;
-                        
-                        const scores = result.final_score.split('-');
-                        if (score1Select && scores[0]) score1Select.value = scores[0];
-                        if (score2Select && scores[1]) score2Select.value = scores[1];
-                    });
+                    const winnerSelect = document.getElementById(`winner-${result.game_number}`);
+                    const score1Select = document.getElementById(`score1-${result.game_number}`);
+                    const score2Select = document.getElementById(`score2-${result.game_number}`);
+                    
+                    if (winnerSelect) winnerSelect.value = result.winner;
+                    
+                    const scores = result.final_score.split('-');
+                    if (score1Select && scores[0]) score1Select.value = scores[0];
+                    if (score2Select && scores[1]) score2Select.value = scores[1];
+                });
                 }
             }
         } catch (error) {

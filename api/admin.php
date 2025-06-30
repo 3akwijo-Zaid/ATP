@@ -121,6 +121,26 @@ switch ($action) {
         }
         break;
 
+    case 'revoke_admin':
+        if (!isAdmin()) { 
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']); 
+            break; 
+        }
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['user_id'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'User ID is required']);
+            break;
+        }
+        if ($user->revokeAdmin($data['user_id'])) {
+            echo json_encode(['success' => true, 'message' => 'Admin privileges revoked successfully.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to revoke admin privileges.']);
+        }
+        break;
+
     case 'toggle_featured':
         // Always return a JSON object with a message property
         $input = file_get_contents('php://input');

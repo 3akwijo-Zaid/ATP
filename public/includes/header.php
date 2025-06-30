@@ -23,8 +23,8 @@ require_once '../config/config.php';
             <a href="index.php" class="logo">Tennis Predictions</a>
             <ul>
                 <li><a href="index.php" <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'class="active"' : ''; ?>>Home</a></li>
+                <li><a href="predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'predictions.php' ? 'class="active"' : ''; ?>>Predictions</a></li>
                 <li><a href="fixtures.php" <?php echo basename($_SERVER['PHP_SELF']) == 'fixtures.php' ? 'class="active"' : ''; ?>>Fixtures</a></li>
-                <li><a href="statistics.php" <?php echo basename($_SERVER['PHP_SELF']) == 'statistics.php' ? 'class="active"' : ''; ?>>Statistics</a></li>
                 <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active"' : ''; ?>>Scoreboard</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
@@ -58,7 +58,6 @@ require_once '../config/config.php';
                 <li><a href="index.php" <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'class="active"' : ''; ?>>Home</a></li>
                 <li><a href="fixtures.php" <?php echo basename($_SERVER['PHP_SELF']) == 'fixtures.php' ? 'class="active"' : ''; ?>>Fixtures</a></li>
                 <li><a href="predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'predictions.php' ? 'class="active"' : ''; ?>>Predictions</a></li>
-                <li><a href="statistics.php" <?php echo basename($_SERVER['PHP_SELF']) == 'statistics.php' ? 'class="active"' : ''; ?>>Statistics</a></li>
                 <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active"' : ''; ?>>Scoreboard</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>

@@ -57,7 +57,7 @@ class User {
 
     public function getAllUsers() {
         // Return all users except those with empty/null usernames and the username 'admin'
-        $this->db->query('SELECT id, username, points, is_admin FROM users WHERE username IS NOT NULL AND username != "" AND username != "admin" ORDER BY username ASC');
+        $this->db->query('SELECT id, username, points, is_admin, country, created_at FROM users WHERE username IS NOT NULL AND username != "" AND username != "admin" ORDER BY username ASC');
         return $this->db->resultSet();
     }
 

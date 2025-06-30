@@ -339,6 +339,13 @@ main {
     max-width: none;
 }
 
+/* Table-specific container for full width tables */
+.container--table {
+    max-width: none;
+    padding: 0 var(--spacing-md);
+    overflow-x: auto;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
     margin: 0 0 var(--spacing-lg) 0;
@@ -394,17 +401,34 @@ h4 {
 
 /* Table Readability Fixes */
 th, td {
-    color: var(--text-primary) !important;
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
     background: transparent;
+    white-space: nowrap;
+    min-width: 100px;
 }
-.table-container th {
-    background: linear-gradient(90deg, #e0e7ff 0%, #f3f4f6 100%);
-    color: var(--primary-color) !important;
+
+th {
+    background: linear-gradient(90deg, #232a36 0%, #374151 100%);
+    font-weight: 700;
+    color: #e0e7ff;
+    position: sticky;
+    top: 0;
+    font-size: var(--font-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #374151;
+    z-index: 1;
+    white-space: nowrap;
 }
-.table-container td {
-    background: rgba(255,255,255,0.10);
-    color: var(--text-primary) !important;
+
+td {
+    color: #e0e7ff;
+    background: rgba(31,41,55,0.60);
     transition: background 0.2s;
+    white-space: nowrap;
+    overflow: visible;
 }
 
 /* Content Cards */
@@ -615,27 +639,30 @@ select {
     background: rgba(31,41,55,0.92);
     backdrop-filter: blur(12px);
     border-radius: var(--border-radius-lg);
-    overflow: hidden;
+    overflow: visible;
     box-shadow: var(--shadow-md);
     border: 1px solid rgba(0,0,0,0.18);
     margin-bottom: var(--spacing-xl);
+    width: 100%;
+    min-width: 100%;
 }
-
 
 table {
     width: 100%;
+    min-width: 100%;
     border-collapse: collapse;
     background: transparent;
+    table-layout: auto;
 }
-
 
 th, td {
     padding: var(--spacing-md);
     text-align: left;
     border-bottom: 1px solid var(--border-light);
     background: transparent;
+    white-space: nowrap;
+    min-width: 100px;
 }
-
 
 th {
     background: linear-gradient(90deg, #232a36 0%, #374151 100%);
@@ -648,15 +675,16 @@ th {
     letter-spacing: 0.05em;
     border-bottom: 2px solid #374151;
     z-index: 1;
+    white-space: nowrap;
 }
-
 
 td {
     color: #e0e7ff;
     background: rgba(31,41,55,0.60);
     transition: background 0.2s;
+    white-space: nowrap;
+    overflow: visible;
 }
-
 
 tbody tr:hover {
     background: rgba(37, 99, 235, 0.18);
@@ -664,6 +692,15 @@ tbody tr:hover {
 
 /* Modern Table for Mobile */
 @media (max-width: 480px) {
+    .table-container {
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+    
+    table {
+        min-width: 800px; /* Ensure minimum width for readability */
+    }
+    
     .table-mobile-cards {
         display: block;
     }
@@ -706,6 +743,18 @@ tbody tr:hover {
         width: 45%;
         font-weight: 600;
         color: var(--text-secondary);
+    }
+}
+
+/* Responsive table for medium screens */
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+    
+    table {
+        min-width: 700px;
     }
 }
 
@@ -1092,4 +1141,24 @@ footer {
 /* Admin Main Wrapper for Top Padding */
 .admin-main {
     padding-top: 2.5rem;
+}
+
+/* Badge styles */
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 3px;
+    margin: 1px;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: white;
 }

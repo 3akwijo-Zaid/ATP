@@ -420,6 +420,7 @@ select.form-control {
     padding: 1rem;
     margin-bottom: 1rem;
     border-left: 4px solid #4facfe;
+    color: #000;
 }
 
 .statistics-prediction-header {
@@ -431,12 +432,12 @@ select.form-control {
 
 .statistics-prediction-user {
     font-weight: 600;
-    color: #333;
+    color: #000 !important;
 }
 
 .statistics-prediction-accuracy {
     background: #28a745;
-    color: white;
+    color: #fff !important;
     padding: 0.25rem 0.5rem;
     border-radius: 5px;
     font-size: 0.9rem;
@@ -450,7 +451,8 @@ select.form-control {
 }
 
 .stat-prediction {
-    background: white;
+    color: #000 !important;
+    background: #fff;
     padding: 0.5rem;
     border-radius: 5px;
     text-align: center;
@@ -461,13 +463,28 @@ select.form-control {
 .stat-prediction.correct {
     background: #d4edda;
     border-color: #c3e6cb;
-    color: #155724;
+    color: #155724 !important;
 }
 
 .stat-prediction.incorrect {
     background: #f8d7da;
     border-color: #f5c6cb;
-    color: #721c24;
+    color: #721c24 !important;
+}
+
+/* Ensure all text in statistics predictions section is black by default, except for accuracy and correct/incorrect overrides */
+#statistics-predictions-section,
+#statistics-predictions-section * {
+    color: #000 !important;
+}
+
+.statistics-prediction-accuracy {
+    color: #fff !important;
+}
+
+.stat-prediction.correct,
+.stat-prediction.incorrect {
+    color: inherit !important;
 }
 
 @media (max-width: 768px) {

@@ -45,6 +45,8 @@ CREATE TABLE matches (
   winner_id INT,
   result_summary VARCHAR(255),
   competition_name VARCHAR(100), -- for legacy support
+  game_predictions_enabled TINYINT(1) DEFAULT 1,
+  statistics_predictions_enabled TINYINT(1) DEFAULT 1,
   FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
   FOREIGN KEY (player1_id) REFERENCES players(id) ON DELETE CASCADE,
   FOREIGN KEY (player2_id) REFERENCES players(id) ON DELETE CASCADE,
