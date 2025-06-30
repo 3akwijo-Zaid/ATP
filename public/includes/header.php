@@ -12,7 +12,7 @@ require_once '../config/config.php';
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tennis Predictions">
-    <link rel="manifest" href="../public/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/img/icon-192.png">
     <title>Tennis Predictions</title>
     <link rel="stylesheet" href="assets/css/style.css">
