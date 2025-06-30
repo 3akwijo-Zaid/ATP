@@ -30,7 +30,8 @@ require_once '../config/config.php';
                 <li><a href="players.php" <?php echo basename($_SERVER['PHP_SELF']) == 'players.php' ? 'class="active"' : ''; ?>>Players</a></li>
                 <li><a href="tournaments.php" <?php echo basename($_SERVER['PHP_SELF']) == 'tournaments.php' ? 'class="active"' : ''; ?>>Tournaments</a></li>
                 <li><a href="matches.php" <?php echo basename($_SERVER['PHP_SELF']) == 'matches.php' ? 'class="active"' : ''; ?>>Matches</a></li>
-                <li><a href="results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'results.php' ? 'class="active"' : ''; ?>>Results</a></li>
+                <li><a href="results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'results.php' ? 'class="active"' : ''; ?>>Results & Statistics</a></li>
+                <li><a href="game_results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'game_results.php' ? 'class="active"' : ''; ?>>Game Results</a></li>
                 <li><a href="settings.php" <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'class="active"' : ''; ?>>Settings</a></li>
                 <li><a href="logout.php" id="logout-btn">Logout</a></li>
             </ul>
@@ -50,7 +51,8 @@ require_once '../config/config.php';
                 <li><a href="players.php" <?php echo basename($_SERVER['PHP_SELF']) == 'players.php' ? 'class=\"active\"' : ''; ?>>Players</a></li>
                 <li><a href="tournaments.php" <?php echo basename($_SERVER['PHP_SELF']) == 'tournaments.php' ? 'class=\"active\"' : ''; ?>>Tournaments</a></li>
                 <li><a href="matches.php" <?php echo basename($_SERVER['PHP_SELF']) == 'matches.php' ? 'class=\"active\"' : ''; ?>>Matches</a></li>
-                <li><a href="results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'results.php' ? 'class=\"active\"' : ''; ?>>Results</a></li>
+                <li><a href="results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'results.php' ? 'class=\"active\"' : ''; ?>>Results & Statistics</a></li>
+                <li><a href="game_results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'game_results.php' ? 'class=\"active\"' : ''; ?>>Game Results</a></li>
                 <li><a href="settings.php" <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'class=\"active\"' : ''; ?>>Settings</a></li>
                 <li><a href="logout.php" id="logout-btn">Logout</a></li>
             </ul>

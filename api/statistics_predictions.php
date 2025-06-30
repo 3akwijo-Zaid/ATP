@@ -6,9 +6,9 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 require_once '../config/config.php';
-require_once '../src/classes/GamePrediction.php';
+require_once '../src/classes/StatisticsPrediction.php';
 
-$gamePrediction = new GamePrediction();
+$statisticsPrediction = new StatisticsPrediction();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -21,18 +21,18 @@ if ($method == 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
     $data['user_id'] = $_SESSION['user_id'];
     
-    if (!isset($data['match_id']) || !isset($data['game_number']) || 
-        !isset($data['predicted_winner']) || !isset($data['predicted_score'])) {
+    if (!isset($data['match_id']) || !isset($data['player_type']) || 
+        !isset($data['aces_predicted']) || !isset($data['double_faults_predicted'])) {
         echo json_encode(['success' => false, 'message' => 'Missing required fields']);
         exit();
     }
     
-    $result = $gamePrediction->submitGamePrediction(
+    $result = $statisticsPrediction->submitStatisticsPrediction(
         $data['user_id'],
         $data['match_id'],
-        $data['game_number'],
-        $data['predicted_winner'],
-        $data['predicted_score']
+        $data['player_type'],
+        $data['aces_predicted'],
+        $data['double_faults_predicted']
     );
     
     if (isset($result['success']) && $result['success']) {
@@ -52,37 +52,37 @@ if ($method == 'POST') {
     if (isset($_GET['match_id'])) {
         $matchId = $_GET['match_id'];
         
-        if (isset($_GET['set_completion'])) {
-            // Get set completion info
-            $setCompletion = $gamePrediction->getSet1Completion($matchId);
-            echo json_encode(['success' => true, 'set_completion' => $setCompletion]);
+        if (isset($_GET['user_predictions'])) {
+            // Get user's predictions for this match
+            $predictions = $statisticsPrediction->getStatisticsPredictionsForMatch($matchId, $userId);
+            echo json_encode(['success' => true, 'predictions' => $predictions]);
         } elseif (isset($_GET['results'])) {
-            // Get game results for match
-            $results = $gamePrediction->getGameResultsForMatch($matchId);
+            // Get statistics results for this match
+            $results = $statisticsPrediction->getStatisticsResultsForMatch($matchId);
             echo json_encode(['success' => true, 'results' => $results]);
         } else {
-            // Get predictions for match (admin view - all users)
+            // Get all predictions for this match (admin view)
             if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
-                $predictions = $gamePrediction->getGamePredictionsForMatch($matchId);
+                $predictions = $statisticsPrediction->getStatisticsPredictionsForMatch($matchId);
             } else {
                 // Regular user - only their predictions
-                $predictions = $gamePrediction->getGamePredictionsForMatch($matchId, $userId);
+                $predictions = $statisticsPrediction->getStatisticsPredictionsForMatch($matchId, $userId);
             }
             echo json_encode(['success' => true, 'predictions' => $predictions]);
         }
     } elseif (isset($_GET['user_predictions'])) {
         $matchId = isset($_GET['match_id']) ? $_GET['match_id'] : null;
-        $predictions = $gamePrediction->getGamePredictionsForUser($userId, $matchId);
+        $predictions = $statisticsPrediction->getStatisticsPredictionsForUser($userId, $matchId);
         echo json_encode(['success' => true, 'predictions' => $predictions]);
     } elseif (isset($_GET['stats'])) {
-        $stats = $gamePrediction->getGamePredictionStats($userId);
+        $stats = $statisticsPrediction->getStatisticsPredictionStats($userId);
         echo json_encode(['success' => true, 'stats' => $stats]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid request']);
     }
     
 } elseif ($method == 'PUT') {
-    // Admin only - for adding game results and set completion
+    // Admin only - for adding statistics results
     if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
         echo json_encode(['success' => false, 'message' => 'Admin access required']);
         exit();
@@ -90,37 +90,14 @@ if ($method == 'POST') {
     
     $data = json_decode(file_get_contents("php://input"), true);
     
-    if (isset($data['action']) && $data['action'] == 'set_completion') {
-        // Handle set completion
-        if (!isset($data['match_id']) || !isset($data['winner']) || 
-            !isset($data['final_game']) || !isset($data['final_score'])) {
-            echo json_encode(['success' => false, 'message' => 'Missing required fields for set completion']);
-            exit();
-        }
-        
-        $result = $gamePrediction->setSet1Completion(
-            $data['match_id'],
-            $data['winner'],
-            $data['final_game'],
-            $data['final_score']
-        );
-        
-        if ($result) {
-            // Calculate points after setting completion
-            $gamePrediction->calculateGamePoints($data['match_id']);
-            echo json_encode(['success' => true, 'message' => 'Set completion recorded and points calculated.']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to record set completion.']);
-        }
-        
-    } elseif (isset($data['action']) && $data['action'] == 'calculate_points') {
+    if (isset($data['action']) && $data['action'] == 'calculate_points') {
         // Handle points calculation
         if (!isset($data['match_id'])) {
             echo json_encode(['success' => false, 'message' => 'Match ID required for points calculation']);
             exit();
         }
         
-        $result = $gamePrediction->calculateGamePoints($data['match_id']);
+        $result = $statisticsPrediction->calculateStatisticsPoints($data['match_id']);
         if ($result) {
             echo json_encode(['success' => true, 'message' => 'Points calculated successfully.']);
         } else {
@@ -128,27 +105,26 @@ if ($method == 'POST') {
         }
         
     } else {
-        // Handle individual game result
-        if (!isset($data['match_id']) || !isset($data['game_number']) || 
-            !isset($data['winner']) || !isset($data['final_score'])) {
+        // Handle individual statistics result
+        if (!isset($data['match_id']) || !isset($data['player_type']) || 
+            !isset($data['aces_actual']) || !isset($data['double_faults_actual'])) {
             echo json_encode(['success' => false, 'message' => 'Missing required fields']);
             exit();
         }
         
-        $result = $gamePrediction->addGameResult(
+        $result = $statisticsPrediction->addStatisticsResult(
             $data['match_id'],
-            $data['game_number'],
-            $data['winner'],
-            $data['final_score'],
-            $data['game_duration'] ?? null
+            $data['player_type'],
+            $data['aces_actual'],
+            $data['double_faults_actual']
         );
         
         if ($result) {
-            // Calculate points for this game
-            $gamePrediction->calculateGamePoints($data['match_id']);
-            echo json_encode(['success' => true, 'message' => 'Game result added successfully.']);
+            // Calculate points for this match
+            $statisticsPrediction->calculateStatisticsPoints($data['match_id']);
+            echo json_encode(['success' => true, 'message' => 'Statistics result added successfully.']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to add game result.']);
+            echo json_encode(['success' => false, 'message' => 'Failed to add statistics result.']);
         }
     }
     
@@ -166,7 +142,7 @@ if ($method == 'POST') {
         exit();
     }
     
-    $result = $gamePrediction->deleteGamePredictions($userId, $matchId);
+    $result = $statisticsPrediction->deleteStatisticsPredictions($userId, $matchId);
     echo json_encode($result);
     
 } else {

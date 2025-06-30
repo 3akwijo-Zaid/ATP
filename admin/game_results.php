@@ -23,29 +23,6 @@
     </div>
 
     <div class="content-card">
-        <h4>Set 1 Completion</h4>
-        <div class="set-completion-form">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Set Winner:</label>
-                    <select id="set-winner" class="form-control">
-                        <option value="">Select Winner</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Final Game:</label>
-                    <input type="number" id="final-game" class="form-control" placeholder="e.g., 6, 7, 12" min="6" max="12">
-                </div>
-                <div class="form-group">
-                    <label>Final Score:</label>
-                    <input type="text" id="final-score" class="form-control" placeholder="e.g., 6-4, 7-5, 7-6(5)">
-                </div>
-            </div>
-            <button type="button" class="btn btn-success" id="save-set-completion">Save Set Completion</button>
-        </div>
-    </div>
-
-    <div class="content-card">
         <div class="game-results-grid" id="game-results-grid">
             <!-- Game result inputs will be generated here -->
         </div>
@@ -61,7 +38,10 @@
     </div>
 
     <div class="content-card">
-        <h3>User Predictions</h3>
+        <div class="predictions-header">
+            <h3>User Predictions</h3>
+            <button type="button" class="btn btn-secondary" id="refresh-predictions">Refresh Predictions</button>
+        </div>
         <div id="predictions-list">
             <!-- Predictions will be loaded here -->
         </div>
@@ -92,163 +72,40 @@
     border-radius: 8px;
     font-size: 1rem;
     background: rgba(255,255,255,0.9);
+    color: #333;
 }
 
 .form-control:focus {
     outline: none;
     background: white;
     box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
-}
-
-.results-header {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-    padding: 2rem;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.results-header h3 {
-    margin: 0 0 1rem 0;
-    color: #333;
-    font-size: 1.8rem;
-}
-
-.match-info {
-    color: #666;
-    font-size: 1.1rem;
-}
-
-.set-completion-section {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-    padding: 2rem;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.set-completion-section h4 {
-    margin: 0 0 1.5rem 0;
-    color: #333;
-    font-size: 1.4rem;
-    text-align: center;
-}
-
-.set-completion-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.form-group label {
-    font-weight: 600;
     color: #333;
 }
 
-.btn-success {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.btn-success:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-}
-
-.game-results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.game-result-card {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    border-radius: 15px;
-    padding: 1.5rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.game-result-card h4 {
-    margin: 0 0 1rem 0;
-    font-size: 1.3rem;
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.game-inputs {
-    display: grid;
-    gap: 1rem;
-}
-
-.input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.input-group label {
-    font-weight: 600;
-    min-width: 80px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-.input-group select,
-.input-group input {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.9);
-    font-size: 1rem;
-}
-
-.input-group select:focus,
-.input-group input:focus {
-    outline: none;
+.input-group select option {
+    color: #333;
     background: white;
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
 }
 
 .score-input {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    color: white;
 }
 
 .score-input input {
     width: 60px;
     text-align: center;
     font-weight: bold;
+    color: #333;
+    background: rgba(255,255,255,0.9);
 }
 
 .score-input span {
     font-weight: bold;
     font-size: 1.2rem;
+    color: white;
 }
 
 .results-controls {
@@ -302,6 +159,7 @@
 #message {
     margin: 0;
     font-weight: 600;
+    color: #333;
 }
 
 .predictions-section {
@@ -316,6 +174,29 @@
     margin-bottom: 1.5rem;
     text-align: center;
     font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.predictions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.predictions-header h3 {
+    color: #333;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.predictions-header .btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    color: #333;
 }
 
 .prediction-item {
@@ -344,6 +225,7 @@
     padding: 0.25rem 0.5rem;
     border-radius: 5px;
     font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .prediction-games {
@@ -372,6 +254,34 @@
     background: #f8d7da;
     border-color: #f5c6cb;
     color: #721c24;
+}
+
+.game-prediction.no-predictions {
+    background: #e2e3e5;
+    border-color: #d6d8db;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.game-prediction.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+    font-style: italic;
+}
+
+.predictions-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.predictions-error {
+    text-align: center;
+    padding: 2rem;
+    color: #721c24;
+    font-style: italic;
 }
 
 @media (max-width: 768px) {
@@ -411,6 +321,125 @@
         align-items: flex-start;
         gap: 0.5rem;
     }
+    
+    .predictions-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .predictions-header .btn {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.page-header h1 {
+    margin: 0 0 1rem 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.page-header p {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.content-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.results-header {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.results-header h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.match-info {
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.game-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.game-result-card {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 15px;
+    padding: 1.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.game-result-card h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.3rem;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    color: white;
+}
+
+.game-inputs {
+    display: grid;
+    gap: 1rem;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-group label {
+    font-weight: 600;
+    min-width: 80px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    color: white;
+}
+
+.input-group select,
+.input-group input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.9);
+    font-size: 1rem;
+    color: #333;
 }
 </style>
 
@@ -423,9 +452,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const gameResultsGrid = document.getElementById('game-results-grid');
     const saveResultsBtn = document.getElementById('save-results');
     const calculatePointsBtn = document.getElementById('calculate-points');
-    const saveSetCompletionBtn = document.getElementById('save-set-completion');
     const messageEl = document.getElementById('message');
     const predictionsList = document.getElementById('predictions-list');
+    const refreshPredictionsBtn = document.getElementById('refresh-predictions');
 
     let currentMatch = null;
 
@@ -584,53 +613,49 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load existing game results
     async function loadGameResults(matchId) {
         try {
-            const response = await fetch(`../api/game_predictions.php?match_id=${matchId}`);
+            const response = await fetch(`../api/game_predictions.php?match_id=${matchId}&set_completion=1`);
             const data = await response.json();
             
-            if (data.success && data.results) {
-                data.results.forEach(result => {
-                    const winnerSelect = document.getElementById(`winner-${result.game_number}`);
-                    const score1Select = document.getElementById(`score1-${result.game_number}`);
-                    const score2Select = document.getElementById(`score2-${result.game_number}`);
-                    const durationInput = document.getElementById(`duration-${result.game_number}`);
-                    
-                    if (winnerSelect) winnerSelect.value = result.winner;
-                    
-                    const scores = result.final_score.split('-');
-                    if (score1Select && scores[0]) score1Select.value = scores[0];
-                    if (score2Select && scores[1]) score2Select.value = scores[1];
-                    
-                    if (durationInput) durationInput.value = result.game_duration_seconds || '';
-                });
+            if (data.success && data.set_completion) {
+                // Load game results from a separate endpoint or use the game_results table
+                const resultsResponse = await fetch(`../api/game_predictions.php?match_id=${matchId}&results=1`);
+                const resultsData = await resultsResponse.json();
+                
+                if (resultsData.success && resultsData.results) {
+                    resultsData.results.forEach(result => {
+                        const winnerSelect = document.getElementById(`winner-${result.game_number}`);
+                        const score1Select = document.getElementById(`score1-${result.game_number}`);
+                        const score2Select = document.getElementById(`score2-${result.game_number}`);
+                        
+                        if (winnerSelect) winnerSelect.value = result.winner;
+                        
+                        const scores = result.final_score.split('-');
+                        if (score1Select && scores[0]) score1Select.value = scores[0];
+                        if (score2Select && scores[1]) score2Select.value = scores[1];
+                    });
+                }
             }
         } catch (error) {
             console.error('Error loading game results:', error);
         }
     }
 
-    // Load set completion
-    async function loadSetCompletion(matchId) {
-        try {
-            const response = await fetch(`../api/game_predictions.php?match_id=${matchId}&set_completion=1`);
-            const data = await response.json();
-            
-            if (data.success && data.set_completion) {
-                document.getElementById('set-winner').value = data.set_completion.winner;
-                document.getElementById('final-game').value = data.set_completion.final_game;
-                document.getElementById('final-score').value = data.set_completion.final_score;
-            }
-        } catch (error) {
-            console.error('Error loading set completion:', error);
-        }
-    }
-
-    // Helper function to format score display
-    function formatScoreDisplay(score) {
-        return score.replace(/game/g, 'GAME');
-    }
-
     // Load predictions
     async function loadPredictions(matchId) {
+        // Show loading state
+        predictionsList.innerHTML = `
+            <div class="prediction-item">
+                <div class="prediction-header">
+                    <span class="prediction-user">Loading...</span>
+                </div>
+                <div class="prediction-games">
+                    <div class="game-prediction no-predictions">
+                        Loading predictions...
+                    </div>
+                </div>
+            </div>
+        `;
+        
         try {
             const response = await fetch(`../api/game_predictions.php?match_id=${matchId}`);
             const data = await response.json();
@@ -670,9 +695,35 @@ document.addEventListener('DOMContentLoaded', async function() {
                     
                     predictionsList.appendChild(predictionItem);
                 });
+            } else {
+                // Show message when no predictions exist
+                predictionsList.innerHTML = `
+                    <div class="prediction-item">
+                        <div class="prediction-header">
+                            <span class="prediction-user">No Predictions</span>
+                        </div>
+                        <div class="prediction-games">
+                            <div class="game-prediction no-predictions">
+                                No users have made predictions for this match yet.
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         } catch (error) {
             console.error('Error loading predictions:', error);
+            predictionsList.innerHTML = `
+                <div class="prediction-item">
+                    <div class="prediction-header">
+                        <span class="prediction-user">Error</span>
+                    </div>
+                    <div class="prediction-games">
+                        <div class="game-prediction error">
+                            Failed to load predictions. Please try again.
+                        </div>
+                    </div>
+                </div>
+            `;
         }
     }
 
@@ -693,66 +744,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 matchTitle.textContent = `${currentMatch.player1_name} vs ${currentMatch.player2_name}`;
                 matchInfo.textContent = `${currentMatch.round} - ${new Date(currentMatch.start_time).toLocaleDateString()}`;
                 
-                // Update set winner options
-                const setWinnerSelect = document.getElementById('set-winner');
-                setWinnerSelect.innerHTML = '<option value="">Select Winner</option>';
-                setWinnerSelect.innerHTML += `<option value="player1">${currentMatch.player1_name}</option>`;
-                setWinnerSelect.innerHTML += `<option value="player2">${currentMatch.player2_name}</option>`;
-                
                 generateGameResults(currentMatch);
                 await loadGameResults(matchId);
-                await loadSetCompletion(matchId);
                 await loadPredictions(matchId);
                 
                 gameResultsContainer.style.display = 'block';
             }
         } catch (error) {
             console.error('Error loading match:', error);
-        }
-    });
-
-    // Save set completion
-    saveSetCompletionBtn.addEventListener('click', async function() {
-        if (!currentMatch) return;
-        
-        const winner = document.getElementById('set-winner').value;
-        const finalGame = document.getElementById('final-game').value;
-        const finalScore = document.getElementById('final-score').value;
-        
-        if (!winner || !finalGame || !finalScore) {
-            messageEl.textContent = 'Please fill in all set completion fields.';
-            messageEl.style.color = '#f44336';
-            return;
-        }
-        
-        try {
-            const response = await fetch('../api/game_predictions.php', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'set_completion',
-                    match_id: currentMatch.id,
-                    winner: winner,
-                    final_game: parseInt(finalGame),
-                    final_score: finalScore
-                })
-            });
-            
-            const data = await response.json();
-            if (data.success) {
-                messageEl.textContent = 'Set completion saved and points calculated!';
-                messageEl.style.color = '#4CAF50';
-                
-                // Reload predictions to show updated accuracy
-                await loadPredictions(currentMatch.id);
-            } else {
-                messageEl.textContent = data.message;
-                messageEl.style.color = '#f44336';
-            }
-        } catch (error) {
-            console.error('Error saving set completion:', error);
-            messageEl.textContent = 'Error saving set completion.';
-            messageEl.style.color = '#f44336';
         }
     });
 
@@ -847,6 +846,18 @@ document.addEventListener('DOMContentLoaded', async function() {
             messageEl.style.color = '#f44336';
         }
     });
+
+    // Refresh predictions
+    refreshPredictionsBtn.addEventListener('click', async function() {
+        if (!currentMatch) return;
+        
+        await loadPredictions(currentMatch.id);
+    });
+
+    // Helper function to format score display
+    function formatScoreDisplay(score) {
+        return score.replace(/game/g, 'GAME');
+    }
 
     // Initialize
     loadMatches();

@@ -29,7 +29,8 @@ class MatchManager {
     }
 
     public function getMatchById($id) {
-        $this->db->query('SELECT m.*, p1.name AS player1_name, p1.image AS player1_image, p1.country AS player1_country, p2.name AS player2_name, p2.image AS player2_image, p2.country AS player2_country FROM matches m 
+        $this->db->query('SELECT m.*, t.name AS tournament_name, t.logo AS tournament_logo, p1.name AS player1_name, p1.image AS player1_image, p1.country AS player1_country, p2.name AS player2_name, p2.image AS player2_image, p2.country AS player2_country FROM matches m 
+            JOIN tournaments t ON m.tournament_id = t.id 
             JOIN players p1 ON m.player1_id = p1.id 
             JOIN players p2 ON m.player2_id = p2.id 
             WHERE m.id = :id');

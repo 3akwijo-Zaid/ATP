@@ -12,6 +12,20 @@
     <div class="text-center mt-md">
         <a href="fixtures.php" class="btn btn--outline">View All Fixtures</a>
     </div>
+
+    <h2>Statistics Predictions</h2>
+    <div class="statistics-overview">
+        <div class="statistics-card">
+            <div class="statistics-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="#fff"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+            </div>
+            <div class="statistics-content">
+                <h3>Predict Player Statistics</h3>
+                <p>Make predictions for aces and double faults for each player in upcoming matches. Test your knowledge of player performance!</p>
+                <a href="statistics.php" class="btn btn--primary">View Statistics</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

@@ -1,4 +1,3 @@
-
 <?php
 ob_start();
 ini_set('display_errors', 0);
@@ -29,7 +28,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $profile['username'] = $username;
             $stats = $user->getStats($userId);
             $badges = $user->getBadges($userId);
-            $activity = $prediction->getRecentActivity($userId);
+            $activity = $prediction->getRecentActivity($userId, 3);
             ob_clean();
             echo json_encode([
                 'success' => true,

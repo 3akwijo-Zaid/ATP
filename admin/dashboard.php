@@ -35,7 +35,13 @@
             <span class="admin-dashboard-icon-bg" style="background: linear-gradient(135deg,#ff9800,#ffc107);">
                 <svg width="38" height="38" viewBox="0 0 48 48" fill="none"><rect x="6" y="32" width="10" height="8" rx="2" fill="#fff"/><rect x="19" y="24" width="10" height="16" rx="2" fill="#fff"/><rect x="32" y="28" width="10" height="12" rx="2" fill="#fff"/><circle cx="24" cy="20" r="4" fill="#ff9800"/><text x="24" y="24" text-anchor="middle" font-size="10" fill="#fff" font-family="Arial" font-weight="bold">1</text></svg>
             </span>
-            <span>Results</span>
+            <span>Results & Statistics</span>
+        </a>
+        <a href="game_results.php" class="admin-dashboard-card game-results">
+            <span class="admin-dashboard-icon-bg" style="background: linear-gradient(135deg,#e91e63,#f06292);">
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </span>
+            <span>Game Results</span>
         </a>
         <a href="settings.php" class="admin-dashboard-card settings">
             <span class="admin-dashboard-icon-bg" style="background: linear-gradient(135deg,#9c27b0,#e040fb);">
@@ -43,6 +49,40 @@
             </span>
             <span>Settings</span>
         </a>
+    </div>
+</div>
+
+<!-- Statistics Overview Section -->
+<div class="content-card">
+    <h2 style="color: #333; margin-bottom: 1.5rem; text-align: center;">System Overview</h2>
+    <div class="stats-overview-grid" id="stats-overview">
+        <div class="stats-card">
+            <div class="stats-icon" style="background: linear-gradient(135deg, #4CAF50, #8BC34A);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <div class="stats-content">
+                <h3 id="total-matches">-</h3>
+                <p>Total Matches</p>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-icon" style="background: linear-gradient(135deg, #2196F3, #03A9F4);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01 1l-6.68 8.89c-.31.42-.31.98 0 1.4.31.42.89.71 1.46.71H16v4h4z"/></svg>
+            </div>
+            <div class="stats-content">
+                <h3 id="total-users">-</h3>
+                <p>Registered Users</p>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-icon" style="background: linear-gradient(135deg, #FF9800, #FFC107);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <div class="stats-content">
+                <h3 id="total-predictions">-</h3>
+                <p>Total Predictions</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -105,6 +145,99 @@
     box-shadow: 0 8px 32px #ffd54f55, 0 0 0 10px #fff2;
     transform: scale(1.08) rotate(-2deg);
 }
+
+/* Statistics Overview Styles */
+.stats-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stats-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.stats-content p {
+    margin: 0;
+    color: #666;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .stats-overview-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stats-card {
+        padding: 1rem;
+    }
+    
+    .stats-content h3 {
+        font-size: 1.5rem;
+    }
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    // Load dashboard statistics
+    await loadDashboardStats();
+});
+
+async function loadDashboardStats() {
+    try {
+        // Load matches count
+        const matchesResponse = await fetch('../api/matches.php');
+        const matches = await matchesResponse.json();
+        document.getElementById('total-matches').textContent = matches.length;
+
+        // Load users count
+        const usersResponse = await fetch('../api/users.php');
+        const users = await usersResponse.json();
+        document.getElementById('total-users').textContent = users.length;
+
+        // Load predictions count (game predictions)
+        const gamePredictionsResponse = await fetch('../api/game_predictions.php?stats=1');
+        const gamePredictionsData = await gamePredictionsResponse.json();
+        const gamePredictionsCount = gamePredictionsData.success ? gamePredictionsData.stats.total_predictions : 0;
+
+        document.getElementById('total-predictions').textContent = gamePredictionsCount;
+
+    } catch (error) {
+        console.error('Error loading dashboard statistics:', error);
+    }
+}
+</script>
 
 <?php require_once 'includes/footer.php'; ?> 

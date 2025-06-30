@@ -181,7 +181,54 @@ function renderProfile(data) {
     }
     
     const activityList = document.getElementById('profile-activity-list');
-    if (activityList) activityList.innerHTML = (data.activity||[]).map(a => `<li>${a}</li>`).join('');
+    if (activityList) {
+        if (data.activity && data.activity.length > 0) {
+            const activityHtml = data.activity.map(activity => {
+                const date = new Date(activity.created_at).toLocaleDateString();
+                const time = new Date(activity.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                let activityText = '';
+                let activityIcon = '';
+                
+                switch (activity.type) {
+                    case 'match_prediction':
+                        activityIcon = '🎾';
+                        const winner = activity.prediction_data?.winner === 'player1' ? activity.player1_name : activity.player2_name;
+                        activityText = `Predicted ${winner} to win ${activity.tournament_name}`;
+                        break;
+                    case 'game_prediction':
+                        activityIcon = '🎯';
+                        const gameWinner = activity.predicted_winner === 'player1' ? activity.player1_name : activity.player2_name;
+                        activityText = `Predicted Point ${activity.game_number}: ${gameWinner} (${activity.predicted_score})`;
+                        break;
+                    case 'statistics_prediction':
+                        activityIcon = '📊';
+                        const playerName = activity.player_type === 'player1' ? activity.player1_name : activity.player2_name;
+                        activityText = `Predicted ${playerName}: ${activity.aces_predicted} aces, ${activity.double_faults_predicted} double faults`;
+                        break;
+                    default:
+                        activityIcon = '📝';
+                        activityText = 'Made a prediction';
+                }
+                
+                return `
+                    <li class="activity-item">
+                        <div class="activity-icon">${activityIcon}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">${activityText}</div>
+                            <div class="activity-meta">
+                                <span class="activity-tournament">${activity.tournament_name}</span>
+                                <span class="activity-date">${date} at ${time}</span>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+            activityList.innerHTML = activityHtml;
+        } else {
+            activityList.innerHTML = '<li class="activity-empty">No recent activity. Start making predictions to see your activity here!</li>';
+        }
+    }
     const editAvatar = document.getElementById('edit-avatar');
     if (editAvatar) editAvatar.value = p.avatar || '';
     populateCountryPicker(p.flag);
@@ -307,6 +354,61 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 .activity-list { list-style: none; padding: 0; color: #fff; font-size: 1.08em; }
 .activity-list li { margin-bottom: 0.7em; background: rgba(0,0,0,0.08); border-radius: 6px; padding: 0.5em 1em; }
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8em;
+    background: rgba(255, 213, 79, 0.1);
+    border: 1px solid rgba(255, 213, 79, 0.2);
+    border-radius: 8px;
+    padding: 0.8em 1em;
+    margin-bottom: 0.8em;
+    transition: all 0.2s ease;
+}
+.activity-item:hover {
+    background: rgba(255, 213, 79, 0.15);
+    border-color: rgba(255, 213, 79, 0.3);
+    transform: translateY(-1px);
+}
+.activity-icon {
+    font-size: 1.2em;
+    flex-shrink: 0;
+    margin-top: 0.1em;
+}
+.activity-content {
+    flex: 1;
+    min-width: 0;
+}
+.activity-text {
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 0.3em;
+    line-height: 1.3;
+}
+.activity-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: #b0bec5;
+}
+.activity-tournament {
+    color: #ffd54f;
+    font-weight: 500;
+}
+.activity-date {
+    color: #90a4ae;
+    font-style: italic;
+}
+.activity-empty {
+    text-align: center;
+    color: #90a4ae;
+    font-style: italic;
+    padding: 1em;
+    background: rgba(0,0,0,0.1);
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 213, 79, 0.3);
+}
 .profile-settings label { color: #ffd54f; font-weight: 600; display: block; margin-top: 0.7em; }
 .profile-settings input, .profile-settings select { width: 100%; padding: 0.6em; border-radius: 6px; border: 1.5px solid #ffd54f; background: #1a2327; color: #fff; margin-top: 0.2em; margin-bottom: 0.7em; font-size: 1.08em; }
 .profile-settings .btn { background: #4fc3f7; color: #fff; border: none; border-radius: 6px; padding: 0.7em 2em; font-size: 1.1em; font-weight: 600; margin-top: 0.5em; cursor: pointer; transition: background 0.2s; }

@@ -1,3 +1,13 @@
+<?php
+require_once 'Database.php';
+
+class Prediction {
+    private $db;
+
+    public function __construct() {
+        $this->db = new Database;
+    }
+
     /**
      * Compare tiebreaks for a set
      */
@@ -101,15 +111,6 @@
             $this->db->execute();
         }
         return true;
-    }
-<?php
-require_once 'Database.php';
-
-class Prediction {
-    private $db;
-
-    public function __construct() {
-        $this->db = new Database;
     }
 
     public function submit($userId, $matchId, $winner, $sets) {
@@ -221,102 +222,6 @@ class Prediction {
         return $predictions;
     }
 
-    public function calculatePoints($matchId) {
-        // Get point settings
-        $this->db->query('SELECT * FROM point_settings WHERE id = 1');
-        $pointSettings = $this->db->single();
-        
-        // Get match result
-        $this->db->query('SELECT m.*, p1.name as player1_name, p2.name as player2_name,
-                         ms.set_number, ms.player1_games, ms.player2_games
-                         FROM matches m
-                         JOIN players p1 ON m.player1_id = p1.id
-                         JOIN players p2 ON m.player2_id = p2.id
-                         LEFT JOIN match_sets ms ON m.id = ms.match_id
-                         WHERE m.id = :match_id AND m.status = "finished"
-                         ORDER BY ms.set_number ASC');
-        $this->db->bind(':match_id', $matchId);
-        $matchData = $this->db->resultSet();
-        
-        if (empty($matchData)) {
-            return false; // Match not finished
-        }
-        
-        $match = $matchData[0];
-        $sets = [];
-        foreach ($matchData as $row) {
-            if (isset($row['set_number'])) {
-                $sets[] = [
-                    'set_number' => $row['set_number'],
-                    'player1_games' => $row['player1_games'],
-                    'player2_games' => $row['player2_games']
-                ];
-            }
-        }
-        
-        // Get all predictions for this match
-        $predictions = $this->getMatchPredictions($matchId);
-        
-        foreach ($predictions as $prediction) {
-            $pointsAwarded = 0;
-            $correct = false;
-            
-            $predData = $prediction['prediction_data'];
-            
-            // Check match winner
-            $actualWinner = ($match['winner_id'] == $match['player1_id']) ? 'player1' : 'player2';
-            if ($predData['winner'] == $actualWinner) {
-                $pointsAwarded += $pointSettings['match_winner_points'];
-                $correct = true;
-            }
-            
-            // Check set predictions
-            if (isset($predData['sets']) && is_array($predData['sets'])) {
-                foreach ($predData['sets'] as $setIndex => $predictedSet) {
-                    if (isset($sets[$setIndex])) {
-                        $actualSet = $sets[$setIndex];
-                        
-                        // Check set winner
-                        $actualSetWinner = ($actualSet['player1_games'] > $actualSet['player2_games']) ? 'player1' : 'player2';
-                        $predictedSetWinner = ($predictedSet['player1'] > $predictedSet['player2']) ? 'player1' : 'player2';
-                        
-                        if ($actualSetWinner == $predictedSetWinner) {
-                            $pointsAwarded += $pointSettings['set_winner_points'];
-                        }
-                        
-                        // Check exact set score
-                        if ($actualSet['player1_games'] == $predictedSet['player1'] && 
-                            $actualSet['player2_games'] == $predictedSet['player2']) {
-                            $pointsAwarded += $pointSettings['set_score_points'];
-                        }
-                    }
-                }
-            }
-            
-            // Update prediction with points
-            $this->updatePredictionPoints($prediction['id'], $pointsAwarded, $correct);
-            
-            // Update user points
-            $this->updateUserPoints($prediction['user_id'], $pointsAwarded);
-        }
-        
-        return true;
-    }
-
-    private function updatePredictionPoints($predictionId, $points, $correct) {
-        $this->db->query('UPDATE predictions SET points_earned = :points, correct = :correct WHERE id = :id');
-        $this->db->bind(':points', $points);
-        $this->db->bind(':correct', $correct ? 1 : 0);
-        $this->db->bind(':id', $predictionId);
-        return $this->db->execute();
-    }
-
-    private function updateUserPoints($userId, $points) {
-        $this->db->query('UPDATE users SET points = points + :points WHERE id = :id');
-        $this->db->bind(':points', $points);
-        $this->db->bind(':id', $userId);
-        return $this->db->execute();
-    }
 
     public function getPredictionStats($userId) {
         $this->db->query('SELECT 
@@ -369,9 +274,79 @@ class Prediction {
      * @return array
      */
     public function getRecentActivity($userId, $limit = 10) {
-        $this->db->query('SELECT p.*, m.start_time, m.player1_id, m.player2_id FROM predictions p JOIN matches m ON p.match_id = m.id WHERE p.user_id = :user_id ORDER BY p.created_at DESC LIMIT :limit');
+        // Get match predictions with full details
+        $this->db->query('SELECT p.*, m.start_time, m.status, m.player1_id, m.player2_id,
+                         p1.name as player1_name, p2.name as player2_name,
+                         t.name as tournament_name, t.logo as tournament_logo
+                         FROM predictions p 
+                         JOIN matches m ON p.match_id = m.id
+                         JOIN players p1 ON m.player1_id = p1.id
+                         JOIN players p2 ON m.player2_id = p2.id
+                         JOIN tournaments t ON m.tournament_id = t.id
+                         WHERE p.user_id = :user_id 
+                         ORDER BY p.created_at DESC 
+                         LIMIT :limit');
         $this->db->bind(':user_id', $userId);
         $this->db->bind(':limit', $limit, PDO::PARAM_INT);
-        return $this->db->resultSet();
+        $matchPredictions = $this->db->resultSet();
+        
+        // Decode prediction data for each match prediction
+        foreach ($matchPredictions as &$prediction) {
+            $prediction['prediction_data'] = json_decode($prediction['prediction_data'], true);
+            $prediction['type'] = 'match_prediction';
+        }
+        
+        // Get game predictions with full details
+        $this->db->query('SELECT gp.*, m.start_time, m.status, m.player1_id, m.player2_id,
+                         p1.name as player1_name, p2.name as player2_name,
+                         t.name as tournament_name, t.logo as tournament_logo
+                         FROM game_predictions gp 
+                         JOIN matches m ON gp.match_id = m.id
+                         JOIN players p1 ON m.player1_id = p1.id
+                         JOIN players p2 ON m.player2_id = p2.id
+                         JOIN tournaments t ON m.tournament_id = t.id
+                         WHERE gp.user_id = :user_id 
+                         ORDER BY gp.created_at DESC 
+                         LIMIT :limit');
+        $this->db->bind(':user_id', $userId);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $gamePredictions = $this->db->resultSet();
+        
+        // Add type to game predictions
+        foreach ($gamePredictions as &$prediction) {
+            $prediction['type'] = 'game_prediction';
+        }
+        
+        // Get statistics predictions with full details
+        $this->db->query('SELECT sp.*, m.start_time, m.status, m.player1_id, m.player2_id,
+                         p1.name as player1_name, p2.name as player2_name,
+                         t.name as tournament_name, t.logo as tournament_logo
+                         FROM statistics_predictions sp 
+                         JOIN matches m ON sp.match_id = m.id
+                         JOIN players p1 ON m.player1_id = p1.id
+                         JOIN players p2 ON m.player2_id = p2.id
+                         JOIN tournaments t ON m.tournament_id = t.id
+                         WHERE sp.user_id = :user_id 
+                         ORDER BY sp.created_at DESC 
+                         LIMIT :limit');
+        $this->db->bind(':user_id', $userId);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $statisticsPredictions = $this->db->resultSet();
+        
+        // Add type to statistics predictions
+        foreach ($statisticsPredictions as &$prediction) {
+            $prediction['type'] = 'statistics_prediction';
+        }
+        
+        // Combine all predictions and sort by creation date
+        $allActivity = array_merge($matchPredictions, $gamePredictions, $statisticsPredictions);
+        
+        // Sort by created_at descending
+        usort($allActivity, function($a, $b) {
+            return strtotime($b['created_at']) - strtotime($a['created_at']);
+        });
+        
+        // Return only the requested limit
+        return array_slice($allActivity, 0, $limit);
     }
 }
