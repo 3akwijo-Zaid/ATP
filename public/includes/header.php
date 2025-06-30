@@ -13,9 +13,9 @@ require_once '../config/config.php';
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tennis Predictions">
     <link rel="manifest" href="../public/manifest.json">
-    <link rel="apple-touch-icon" href="../public/assets/img/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/img/icon-192.png">
     <title>Tennis Predictions</title>
-    <link rel="stylesheet" href="../public/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <header>
@@ -77,6 +77,6 @@ require_once '../config/config.php';
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
     
     <main>
-<script src="../public/assets/js/main.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html> 

@@ -1,7 +1,7 @@
 <?php require_once 'includes/header.php'; ?>
 <?php
 require_once __DIR__ . '/../src/classes/User.php';
-$avatar = '../public/assets/img/default-avatar.png';
+$avatar = 'assets/img/default-avatar.png';
 if (isset($_SESSION['user_id'])) {
     $user = new User();
     $profile = $user->getProfile($_SESSION['user_id']);
@@ -16,7 +16,7 @@ if (isset($_SESSION['user_id'])) {
         } 
         // Otherwise, it's a relative filename, prepend the correct path
         else {
-            $avatar = '../public/assets/img/' . $profile['avatar'];
+            $avatar = 'assets/img/' . $profile['avatar'];
         }
     }
     $country = $profile['flag'] ?? '';

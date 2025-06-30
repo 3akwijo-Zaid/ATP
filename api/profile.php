@@ -49,7 +49,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         // Handle avatar upload if present
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../public/assets/img/';
+            $uploadDir = __DIR__ . '/../public/assets/img/'; // This is correct for server-side file storage
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -68,7 +68,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 // Save avatar filename in DB
                 $user->updateProfile($userId, ['avatar' => $newFileName]);
                 ob_clean();
-                echo json_encode(['success' => true, 'avatar' => '/public/assets/img/' . $newFileName]);
+                echo json_encode(['success' => true, 'avatar' => 'assets/img/' . $newFileName]);
             } else {
                 ob_clean();
                 echo json_encode(['success' => false, 'error' => 'Failed to upload avatar.']);
