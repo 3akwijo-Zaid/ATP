@@ -765,15 +765,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             const winner = document.getElementById(`winner-${gameNum}`).value;
             const score1 = document.getElementById(`score1-${gameNum}`).value;
             const score2 = document.getElementById(`score2-${gameNum}`).value;
-            const duration = document.getElementById(`duration-${gameNum}`).value;
             
             if (winner && score1 && score2) {
                 results.push({
                     match_id: currentMatch.id,
                     game_number: gameNum,
                     winner: winner,
-                    final_score: `${score1}-${score2}`,
-                    game_duration: duration || null
+                    final_score: `${score1}-${score2}`
                 });
             }
         }

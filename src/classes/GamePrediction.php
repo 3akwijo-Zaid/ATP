@@ -161,15 +161,13 @@ class GamePrediction {
             return false; // No results to calculate
         }
 
-        // Get set completion info
-        $setCompletion = $this->getSet1Completion($matchId);
-
         // Get all predictions for this match
         $predictions = $this->getGamePredictionsForMatch($matchId);
         
         foreach ($predictions as $prediction) {
             $pointsAwarded = 0;
             $correct = false;
+            $oldPoints = isset($prediction['points_awarded']) ? (int)$prediction['points_awarded'] : 0;
             
             // Find corresponding game result
             $gameResult = null;
@@ -201,59 +199,11 @@ class GamePrediction {
             // Update prediction with points
             $this->updateGamePredictionPoints($prediction['id'], $pointsAwarded, $correct);
             
-            // Update user points
-            $this->updateUserPoints($prediction['user_id'], $pointsAwarded);
-        }
-
-        // Award set completion bonus if set is complete
-        if ($setCompletion) {
-            $this->awardSetCompletionBonus($matchId, $setCompletion, $pointSettings);
+            // Subtract old points, add new points
+            $this->updateUserPoints($prediction['user_id'], $pointsAwarded - $oldPoints);
         }
         
         return true;
-    }
-
-    private function awardSetCompletionBonus($matchId, $setCompletion, $pointSettings) {
-        // Get all users who made predictions for this match
-        $this->db->query('SELECT DISTINCT user_id FROM game_predictions WHERE match_id = :match_id');
-        $this->db->bind(':match_id', $matchId);
-        $users = $this->db->resultSet();
-        
-        foreach ($users as $user) {
-            $userId = $user['user_id'];
-            
-            // Check if user predicted the set winner correctly
-            $userPredictions = $this->getGamePredictionsForMatch($matchId, $userId);
-            $predictedSetWinner = $this->determinePredictedSetWinner($userPredictions);
-            
-            if ($predictedSetWinner == $setCompletion['winner']) {
-                // Award set completion bonus
-                $this->updateUserPoints($userId, $pointSettings['set1_complete_points']);
-                
-                // Log the bonus (optional - you could add a separate table for this)
-                $this->db->query('UPDATE game_predictions SET points_awarded = points_awarded + :bonus 
-                                 WHERE user_id = :user_id AND match_id = :match_id');
-                $this->db->bind(':bonus', $pointSettings['set1_complete_points']);
-                $this->db->bind(':user_id', $userId);
-                $this->db->bind(':match_id', $matchId);
-                $this->db->execute();
-            }
-        }
-    }
-
-    private function determinePredictedSetWinner($predictions) {
-        $player1Games = 0;
-        $player2Games = 0;
-        
-        foreach ($predictions as $prediction) {
-            if ($prediction['predicted_winner'] == 'player1') {
-                $player1Games++;
-            } else {
-                $player2Games++;
-            }
-        }
-        
-        return $player1Games > $player2Games ? 'player1' : 'player2';
     }
 
     private function updateGamePredictionPoints($predictionId, $points, $correct) {
