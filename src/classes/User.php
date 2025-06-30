@@ -241,23 +241,46 @@ class User {
 
     public function updateProfile($userId, $data) {
         $fields = [];
-        if (array_key_exists('avatar', $data) && $data['avatar'] !== '') {
+        $updates = [];
+        
+        // Handle avatar update
+        if (isset($data['avatar']) && $data['avatar'] !== '') {
             $fields[] = 'avatar = :avatar';
+            $updates[':avatar'] = $data['avatar'];
         }
-        if (!empty($data['country'])) {
+        
+        // Handle country update
+        if (isset($data['country']) && $data['country'] !== '') {
             $fields[] = 'country = :country';
+            $updates[':country'] = $data['country'];
         }
-        if (!empty($data['password'])) {
+        
+        // Handle password update
+        if (isset($data['password']) && $data['password'] !== '') {
             $fields[] = 'password_hash = :password_hash';
+            $updates[':password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
-        if (!$fields) return ['success'=>false,'error'=>'No changes'];
+        
+        // If no fields to update, return error
+        if (empty($fields)) {
+            return ['success' => false, 'error' => 'No changes to update'];
+        }
+        
+        // Build and execute the query
         $sql = 'UPDATE users SET ' . implode(', ', $fields) . ' WHERE id = :id';
         $this->db->query($sql);
-        if (array_key_exists('avatar', $data) && $data['avatar'] !== '') $this->db->bind(':avatar', $data['avatar']);
-        if (!empty($data['country'])) $this->db->bind(':country', $data['country']);
-        if (!empty($data['password'])) $this->db->bind(':password_hash', password_hash($data['password'], PASSWORD_DEFAULT));
+        
+        // Bind all parameters
+        foreach ($updates as $key => $value) {
+            $this->db->bind($key, $value);
+        }
         $this->db->bind(':id', $userId);
-        $ok = $this->db->execute();
-        return $ok ? ['success'=>true] : ['success'=>false,'error'=>'Update failed'];
+        
+        // Execute the update
+        if ($this->db->execute()) {
+            return ['success' => true, 'message' => 'Profile updated successfully'];
+        } else {
+            return ['success' => false, 'error' => 'Database update failed'];
+        }
     }
 } 
