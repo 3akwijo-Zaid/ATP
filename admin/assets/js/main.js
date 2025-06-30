@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = 'logout.php';
             }
         });
+        logoutBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'logout.php';
+            }
+        });
     }
 
     // Sidebar toggle for mobile
@@ -30,12 +36,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', openSidebar);
+        sidebarToggle.addEventListener('touchstart', openSidebar);
     }
     if (sidebarClose) {
         sidebarClose.addEventListener('click', closeSidebar);
+        sidebarClose.addEventListener('touchstart', closeSidebar);
     }
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('touchstart', closeSidebar);
     }
     // Close sidebar on escape key
     document.addEventListener('keydown', function(e) {
@@ -114,12 +123,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 2000);
             }
         });
+        button.addEventListener('touchstart', function() {
+            if (!this.classList.contains('loading') && this.type !== 'submit') {
+                this.classList.add('loading');
+                this.disabled = true;
+                setTimeout(() => {
+                    this.classList.remove('loading');
+                    this.disabled = false;
+                }, 2000);
+            }
+        });
     });
 
     // Mobile-friendly delete confirmations
     const deleteButtons = document.querySelectorAll('.btn-danger');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
+            const message = this.getAttribute('data-confirm') || 'Are you sure you want to delete this item?';
+            if (!confirm(message)) {
+                e.preventDefault();
+            }
+        });
+        button.addEventListener('touchstart', function(e) {
             const message = this.getAttribute('data-confirm') || 'Are you sure you want to delete this item?';
             if (!confirm(message)) {
                 e.preventDefault();

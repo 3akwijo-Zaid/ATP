@@ -12,10 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);
+        logoutBtn.addEventListener('touchstart', handleLogout);
     }
     
     if (sidebarLogoutBtn) {
         sidebarLogoutBtn.addEventListener('click', handleLogout);
+        sidebarLogoutBtn.addEventListener('touchstart', handleLogout);
     }
 
     // Mobile sidebar functionality
@@ -71,6 +73,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 openSidebar();
             }
         });
+        sidebarToggle.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (sidebarOpen) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
         
         // Keyboard support
         sidebarToggle.addEventListener('keydown', function(e) {
@@ -87,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('touchstart', closeSidebar);
     }
 
     // Close sidebar when clicking on a link (mobile)
@@ -95,6 +106,11 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebarLinks.forEach(link => {
             link.addEventListener('click', function() {
                 // Don't close for external links or admin panel
+                if (!this.href.includes('../admin/') && !this.href.startsWith('http')) {
+                    closeSidebar();
+                }
+            });
+            link.addEventListener('touchstart', function() {
                 if (!this.href.includes('../admin/') && !this.href.startsWith('http')) {
                     closeSidebar();
                 }

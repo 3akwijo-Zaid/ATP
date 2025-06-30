@@ -314,11 +314,13 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s;
+    pointer-events: none;
 }
 
 .sidebar-overlay.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 /* Main Content */

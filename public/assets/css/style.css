@@ -519,11 +519,14 @@
     opacity: 0;
     transition: opacity var(--transition-normal);
     display: none;
+    pointer-events: none;
     -webkit-tap-highlight-color: transparent;
   }
   
   .sidebar-overlay.open {
     opacity: 1;
+    display: block;
+    pointer-events: auto;
   }
   
   /* Enhanced Profile Components */
