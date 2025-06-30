@@ -323,7 +323,9 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(result => {
       if (result.success) {
         showMessage('Account created! Redirecting...', 'success');
-        setTimeout(() => { window.location.href = 'profile.php?welcome=1'; }, 1200);
+        // Redirect admin users to admin panel, regular users to profile
+        const redirectUrl = result.user && result.user.is_admin ? '../admin/dashboard.php' : 'profile.php?welcome=1';
+        setTimeout(() => { window.location.href = redirectUrl; }, 1200);
       } else {
         showMessage(result.message || 'Registration failed.', 'error');
       }

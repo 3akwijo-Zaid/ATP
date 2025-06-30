@@ -61,13 +61,8 @@ if ($method == 'POST') {
             $results = $statisticsPrediction->getStatisticsResultsForMatch($matchId);
             echo json_encode(['success' => true, 'results' => $results]);
         } else {
-            // Get all predictions for this match (admin view)
-            if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
-                $predictions = $statisticsPrediction->getStatisticsPredictionsForMatch($matchId);
-            } else {
-                // Regular user - only their predictions
-                $predictions = $statisticsPrediction->getStatisticsPredictionsForMatch($matchId, $userId);
-            }
+            // Always return all predictions for the match, regardless of admin status
+            $predictions = $statisticsPrediction->getStatisticsPredictionsForMatch($matchId);
             echo json_encode(['success' => true, 'predictions' => $predictions]);
         }
     } elseif (isset($_GET['user_predictions'])) {

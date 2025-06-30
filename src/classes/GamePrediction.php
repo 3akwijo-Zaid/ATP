@@ -105,21 +105,17 @@ class GamePrediction {
         return $this->db->resultSet();
     }
 
-    public function addGameResult($matchId, $gameNumber, $winner, $finalScore, $gameDuration = null) {
-        $this->db->query('INSERT INTO game_results (match_id, game_number, winner, final_score, game_duration_seconds) 
-                         VALUES (:match_id, :game_number, :winner, :final_score, :game_duration)
-                         ON DUPLICATE KEY UPDATE 
-                         winner = VALUES(winner), 
-                         final_score = VALUES(final_score), 
-                         game_duration_seconds = VALUES(game_duration_seconds)');
-        
+    public function addGameResult($matchId, $gameNumber, $winner, $finalScore) {
+        $this->db->query('INSERT INTO game_results (match_id, game_number, winner, final_score)
+            VALUES (:match_id, :game_number, :winner, :final_score)
+            ON DUPLICATE KEY UPDATE
+            winner = VALUES(winner),
+            final_score = VALUES(final_score)');
         $this->db->bind(':match_id', $matchId);
         $this->db->bind(':game_number', $gameNumber);
         $this->db->bind(':winner', $winner);
         $this->db->bind(':final_score', $finalScore);
-        $this->db->bind(':game_duration', $gameDuration);
-
-        return $this->db->execute();
+        $this->db->execute();
     }
 
     public function getGameResultsForMatch($matchId) {

@@ -198,7 +198,27 @@ body {
 .nav-list li a:hover,
 .nav-list li a:focus {
     background: rgba(255,255,255,0.1);
-    transform: translateX(2px);
+}
+
+/* Main Site Link Styling */
+.nav-list li a.main-site-link {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    margin: 0.5rem 0;
+    font-weight: 600;
+    position: relative;
+}
+
+.nav-list li a.main-site-link:hover,
+.nav-list li a.main-site-link:focus {
+    background: rgba(34, 197, 94, 0.3);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+.nav-list li a.main-site-link::before {
+    content: "🏠";
+    margin-right: 0.5rem;
+    font-size: 0.9em;
 }
 
 @media (min-width: 768px) {
@@ -295,6 +315,27 @@ body {
 .sidebar-nav li a:hover {
     background: rgba(255,255,255,0.1);
     transform: translateX(4px);
+}
+
+/* Main Site Link Styling for Sidebar */
+.sidebar-nav li a.main-site-link {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    margin: 0.5rem 0;
+    font-weight: 600;
+    position: relative;
+}
+
+.sidebar-nav li a.main-site-link:hover,
+.sidebar-nav li a.main-site-link:focus {
+    background: rgba(34, 197, 94, 0.3);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+.sidebar-nav li a.main-site-link::before {
+    content: "🏠";
+    margin-right: 0.5rem;
+    font-size: 0.9em;
 }
 
 @media (min-width: 768px) {

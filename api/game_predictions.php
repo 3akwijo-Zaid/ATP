@@ -61,13 +61,8 @@ if ($method == 'POST') {
             $results = $gamePrediction->getGameResultsForMatch($matchId);
             echo json_encode(['success' => true, 'results' => $results]);
         } else {
-            // Get predictions for match (admin view - all users)
-            if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
-                $predictions = $gamePrediction->getGamePredictionsForMatch($matchId);
-            } else {
-                // Regular user - only their predictions
-                $predictions = $gamePrediction->getGamePredictionsForMatch($matchId, $userId);
-            }
+            // Always return all predictions for the match, regardless of admin status
+            $predictions = $gamePrediction->getGamePredictionsForMatch($matchId);
             echo json_encode(['success' => true, 'predictions' => $predictions]);
         }
     } elseif (isset($_GET['user_predictions'])) {
@@ -139,8 +134,7 @@ if ($method == 'POST') {
             $data['match_id'],
             $data['game_number'],
             $data['winner'],
-            $data['final_score'],
-            $data['game_duration'] ?? null
+            $data['final_score']
         );
         
         if ($result) {

@@ -284,14 +284,16 @@ document.addEventListener('DOMContentLoaded', function() {
       })
     })
     .then(res => res.json())
-    .then(result => {
-      if (result.success) {
-        showMessage('Login successful! Redirecting...', 'success');
-        setTimeout(() => { window.location.href = 'profile.php'; }, 1200);
-      } else {
-        showMessage(result.message || 'Login failed.', 'error');
-      }
-    })
+          .then(result => {
+        if (result.success) {
+          showMessage('Login successful! Redirecting...', 'success');
+          // Redirect admin users to admin panel, regular users to profile
+          const redirectUrl = result.user && result.user.is_admin ? '../admin/dashboard.php' : 'profile.php';
+          setTimeout(() => { window.location.href = redirectUrl; }, 1200);
+        } else {
+          showMessage(result.message || 'Login failed.', 'error');
+        }
+      })
     .catch(() => showMessage('Network error. Please try again.', 'error'))
     .finally(() => setLoading(false));
   });

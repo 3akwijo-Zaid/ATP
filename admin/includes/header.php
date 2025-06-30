@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
-    header('Location: login.php');
+    header('Location: ../public/login.php');
     exit();
 }
 require_once '../config/config.php';
@@ -30,9 +30,9 @@ require_once '../config/config.php';
                 <li><a href="players.php" <?php echo basename($_SERVER['PHP_SELF']) == 'players.php' ? 'class="active"' : ''; ?>>Players</a></li>
                 <li><a href="tournaments.php" <?php echo basename($_SERVER['PHP_SELF']) == 'tournaments.php' ? 'class="active"' : ''; ?>>Tournaments</a></li>
                 <li><a href="matches.php" <?php echo basename($_SERVER['PHP_SELF']) == 'matches.php' ? 'class="active"' : ''; ?>>Matches</a></li>
-                <li><a href="results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'results.php' ? 'class="active"' : ''; ?>>Results & Statistics</a></li>
-                <li><a href="game_results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'game_results.php' ? 'class="active"' : ''; ?>>Game Results</a></li>
+                <li><a href="unified_predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'unified_predictions.php' ? 'class="active"' : ''; ?>>Predictions</a></li>
                 <li><a href="settings.php" <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'class="active"' : ''; ?>>Settings</a></li>
+                <li><a href="../public/index.php" class="main-site-link">Main Site</a></li>
                 <li><a href="logout.php" id="logout-btn">Logout</a></li>
             </ul>
         </nav>
@@ -51,9 +51,9 @@ require_once '../config/config.php';
                 <li><a href="players.php" <?php echo basename($_SERVER['PHP_SELF']) == 'players.php' ? 'class=\"active\"' : ''; ?>>Players</a></li>
                 <li><a href="tournaments.php" <?php echo basename($_SERVER['PHP_SELF']) == 'tournaments.php' ? 'class=\"active\"' : ''; ?>>Tournaments</a></li>
                 <li><a href="matches.php" <?php echo basename($_SERVER['PHP_SELF']) == 'matches.php' ? 'class=\"active\"' : ''; ?>>Matches</a></li>
-                <li><a href="results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'results.php' ? 'class=\"active\"' : ''; ?>>Results & Statistics</a></li>
-                <li><a href="game_results.php" <?php echo basename($_SERVER['PHP_SELF']) == 'game_results.php' ? 'class=\"active\"' : ''; ?>>Game Results</a></li>
+                <li><a href="unified_predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'unified_predictions.php' ? 'class=\"active\"' : ''; ?>>Predictions</a></li>
                 <li><a href="settings.php" <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'class=\"active\"' : ''; ?>>Settings</a></li>
+                <li><a href="../public/index.php" class="main-site-link">Main Site</a></li>
                 <li><a href="logout.php" id="logout-btn">Logout</a></li>
             </ul>
         </nav>

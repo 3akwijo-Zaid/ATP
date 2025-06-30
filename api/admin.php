@@ -39,38 +39,6 @@ function isAdmin() {
 }
 
 switch ($action) {
-    case 'login':
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Invalid JSON input.']);
-            break;
-        }
-        if (!isset($data['username']) || !isset($data['password'])) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Username and password are required.']);
-            break;
-        }
-        $username = trim($data['username']);
-        $password = $data['password'];
-        if ($username === '' || $password === '') {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Username and password cannot be empty.']);
-            break;
-        }
-        $adminUser = $admin->login($username, $password);
-        if ($adminUser) {
-            $_SESSION['user_id'] = $adminUser['id'];
-            $_SESSION['username'] = $adminUser['username'];
-            $_SESSION['is_admin'] = $adminUser['is_admin'];
-            echo json_encode(['success' => true, 'message' => 'Admin login successful.']);
-        } else {
-            http_response_code(401);
-            echo json_encode(['success' => false, 'message' => 'Invalid credentials.']);
-        }
-        break;
-
     case 'add_match':
         if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
         $data = json_decode(file_get_contents("php://input"), true);
