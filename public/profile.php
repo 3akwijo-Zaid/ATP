@@ -1,7 +1,7 @@
 <?php require_once 'includes/header.php'; ?>
 <?php
 require_once __DIR__ . '/../src/classes/User.php';
-$avatar = '/ATP/public/assets/img/default-avatar.png';
+$avatar = '../public/assets/img/default-avatar.png';
 if (isset($_SESSION['user_id'])) {
     $user = new User();
     $profile = $user->getProfile($_SESSION['user_id']);
@@ -16,7 +16,7 @@ if (isset($_SESSION['user_id'])) {
         } 
         // Otherwise, it's a relative filename, prepend the correct path
         else {
-            $avatar = '/ATP/public/assets/img/' . $profile['avatar'];
+            $avatar = '../public/assets/img/' . $profile['avatar'];
         }
     }
     $country = $profile['flag'] ?? '';
@@ -142,9 +142,9 @@ function renderProfile(data) {
     // Handle avatar path correctly
     let avatarPath = p.avatar;
     if (!avatarPath) {
-        avatarPath = '/ATP/public/assets/img/default-avatar.png';
+        avatarPath = 'assets/img/default-avatar.png';
     } else if (!avatarPath.startsWith('http') && !avatarPath.startsWith('/')) {
-        avatarPath = '/ATP/public/assets/img/' + avatarPath;
+        avatarPath = 'assets/img/' + avatarPath;
     }
     const avatarImg = document.getElementById('profile-avatar-img');
     if (avatarImg) avatarImg.src = avatarPath;

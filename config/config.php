@@ -6,4 +6,4 @@ define('DB_PASS', '');
 define('DB_NAME', 'tennis_predictions');
 
 // Other settings
-define('SITE_URL', 'http://localhost/ATP'); 
+define('SITE_URL', 'http://localhost'); 

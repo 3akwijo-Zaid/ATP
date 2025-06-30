@@ -103,7 +103,7 @@ class User {
         // Fix avatar path if it's a filename
         $avatar = $row['avatar'];
         if ($avatar && !preg_match('/^https?:\/\//', $avatar) && !str_starts_with($avatar, '/')) {
-            $avatar = '/ATP/public/assets/img/' . $avatar;
+            $avatar = 'public/assets/img/' . $avatar;
         }
         return [
             'username' => $row['username'],

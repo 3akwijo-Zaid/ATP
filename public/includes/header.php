@@ -12,10 +12,10 @@ require_once '../config/config.php';
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tennis Predictions">
-    <link rel="manifest" href="/ATP/public/manifest.json">
-    <link rel="apple-touch-icon" href="/ATP/public/assets/img/icon-192.png">
+    <link rel="manifest" href="../public/manifest.json">
+    <link rel="apple-touch-icon" href="../public/assets/img/icon-192.png">
     <title>Tennis Predictions</title>
-    <link rel="stylesheet" href="/ATP/public/assets/css/style.css">
+    <link rel="stylesheet" href="../public/assets/css/style.css">
 </head>
 <body>
     <header>
@@ -28,7 +28,7 @@ require_once '../config/config.php';
                 <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active"' : ''; ?>>Scoreboard</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                        <li><a href="/ATP/admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active"' : ''; ?>>Admin Panel</a></li>
+                        <li><a href="../admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active"' : ''; ?>>Admin Panel</a></li>
                     <?php endif; ?>
                     <li><a href="profile.php" <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'class="active"' : ''; ?>>Profile</a></li>
                     <li><a href="logout.php">Logout</a></li>
@@ -61,7 +61,7 @@ require_once '../config/config.php';
                 <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active"' : ''; ?>>Scoreboard</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                        <li><a href="/ATP/admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active"' : ''; ?>>Admin Panel</a></li>
+                        <li><a href="../admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active"' : ''; ?>>Admin Panel</a></li>
                     <?php endif; ?>
                     <li><a href="profile.php" <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'class="active"' : ''; ?>>Profile</a></li>
                     <li><a href="logout.php">Logout</a></li>
@@ -77,6 +77,6 @@ require_once '../config/config.php';
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
     
     <main>
-<script src="/ATP/public/assets/js/main.js"></script>
+<script src="../public/assets/js/main.js"></script>
 </body>
 </html> 
