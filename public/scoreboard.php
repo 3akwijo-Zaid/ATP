@@ -18,6 +18,17 @@
 </div>
 
 <style>
+@media (max-width: 425px) {
+    .scoreboard-table {
+        transform: translateX(0.6em);
+    }
+}
+@media (max-width: 375px) {
+    .scoreboard-table {
+        transform: translateX(0);
+    }
+}
+
 .scoreboard-table {
   width: 100%;
   border-collapse: collapse;

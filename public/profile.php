@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .profile-stats h3, .profile-activity h3 { color: #ffd54f; margin-top: 0; }
 .stats-row { display: flex; gap: 2em; justify-content: space-between; margin-bottom: 1em; }
 .stats-row div { text-align: center; font-size: 1.15em; color: #fff; }
+ul { list-style: none; padding: 0; margin: 0; }
 .profile-badges { 
     margin-top: 0.5em; 
     min-height: 2em;
@@ -298,6 +299,16 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 8px;
     border: 1px dashed rgba(255, 213, 79, 0.3);
 }
+@media (max-width: 425px) {
+    .profile-container {
+        padding-right: 1.5em;
+    }
+    .profile-stats, .profile-activity {
+        transform: translateX(0.6em);
+    }
+}
+
+
 .profile-settings label { color: #ffd54f; font-weight: 600; display: block; margin-top: 0.7em; }
 .profile-settings input, .profile-settings select { width: 100%; padding: 0.6em; border-radius: 6px; border: 1.5px solid #ffd54f; background: #1a2327; color: #fff; margin-top: 0.2em; margin-bottom: 0.7em; font-size: 1.08em; }
 .profile-settings .btn { background: #4fc3f7; color: #fff; border: none; border-radius: 6px; padding: 0.7em 2em; font-size: 1.1em; font-weight: 600; margin-top: 0.5em; cursor: pointer; transition: background 0.2s; }
