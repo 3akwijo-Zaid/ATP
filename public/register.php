@@ -1,4 +1,3 @@
-
 <?php require_once 'includes/header.php'; ?>
 
 
@@ -20,6 +19,12 @@
         <div class="register-group">
           <label for="reg-confirm">Confirm Password</label>
           <input type="password" id="reg-confirm" name="confirm" required placeholder="Confirm Password">
+        </div>
+        <div class="register-group">
+          <label for="reg-country">Country</label>
+          <select id="reg-country" name="country" required>
+            <?php include __DIR__ . '/../admin/includes/country_options.php'; ?>
+          </select>
         </div>
         <button type="submit" id="registerBtn" class="register-btn">Register</button>
         <!-- register-footer removed -->
@@ -260,6 +265,38 @@
     font-size: 1em;
   }
 }
+
+/* Style the country dropdown to fit the form and look modern */
+.register-group select {
+  padding: 0.85rem 1.1rem;
+  border: 1.5px solid #ffd54f99;
+  border-radius: 0.8rem;
+  font-size: 1.08rem;
+  background: rgba(26,35,39,0.92);
+  color: #fff;
+  transition: border 0.2s, background 0.2s, box-shadow 0.18s;
+  font-weight: 500;
+  box-shadow: 0 2px 8px #0002;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  outline: none;
+}
+.register-group select:focus {
+  border-color: #ffd54f;
+  background: #222c31;
+}
+.register-group select option {
+  color: #222;
+  background: #fffbe7;
+}
+@media (max-width: 600px) {
+  .register-group select {
+    font-size: 1em;
+    padding: 0.7rem 0.8rem;
+  }
+}
 </style>
 
 <script>
@@ -270,6 +307,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const confirm = document.getElementById('reg-confirm');
   const btn = document.getElementById('registerBtn');
   const msg = document.getElementById('register-message');
+  const country = document.getElementById('reg-country');
 
   function showMessage(text, type) {
     msg.textContent = text;
@@ -316,7 +354,8 @@ document.addEventListener('DOMContentLoaded', function() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         username: username.value.trim(),
-        password: password.value
+        password: password.value,
+        country: country.value
       })
     })
     .then(res => res.json())

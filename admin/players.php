@@ -25,22 +25,7 @@
         <div class="form-group">
             <label for="player_country">Country</label>
             <select id="player_country" required style="width:100%;padding:0.5em;color: #333;">
-                <option value="">Select country</option>
-                <option value="USA" data-flag="🇺🇸">🇺🇸 USA</option>
-                <option value="GBR" data-flag="🇬🇧">🇬🇧 United Kingdom</option>
-                <option value="ESP" data-flag="🇪🇸">🇪🇸 Spain</option>
-                <option value="FRA" data-flag="🇫🇷">🇫🇷 France</option>
-                <option value="GER" data-flag="🇩🇪">🇩🇪 Germany</option>
-                <option value="ITA" data-flag="🇮🇹">🇮🇹 Italy</option>
-                <option value="AUS" data-flag="🇦🇺">🇦🇺 Australia</option>
-                <option value="RUS" data-flag="🇷🇺">🇷🇺 Russia</option>
-                <option value="SRB" data-flag="🇷🇸">🇷🇸 Serbia</option>
-                <option value="ARG" data-flag="🇦🇷">🇦🇷 Argentina</option>
-                <option value="SUI" data-flag="🇨🇭">🇨🇭 Switzerland</option>
-                <option value="CRO" data-flag="🇭🇷">🇭🇷 Croatia</option>
-                <option value="CAN" data-flag="🇨🇦">🇨🇦 Canada</option>
-                <option value="JPN" data-flag="🇯🇵">🇯🇵 Japan</option>
-                <option value="Other" data-flag="🏳️">🏳️ Other</option>
+                <?php include __DIR__ . '/includes/country_options.php'; ?>
             </select>
         </div>
         <div id="playerPreview" style="display:flex;align-items:center;gap:1em;margin:1em 0 0.5em 0;padding:1em;background:#f8f9fa;border-radius:8px;"></div>
@@ -124,21 +109,7 @@ async function fetchPlayers() {
                                 <button type='button' class='btn btn-sm btn-secondary' onclick='this.previousElementSibling.previousElementSibling.click()'>📁</button>
                             </div>
                             <select class='edit-country' style='color: #333;'>
-                                <option value='USA' data-flag='🇺🇸'>🇺🇸 USA</option>
-                                <option value='GBR' data-flag='🇬🇧'>🇬🇧 United Kingdom</option>
-                                <option value='ESP' data-flag='🇪🇸'>🇪🇸 Spain</option>
-                                <option value='FRA' data-flag='🇫🇷'>🇫🇷 France</option>
-                                <option value='GER' data-flag='🇩🇪'>🇩🇪 Germany</option>
-                                <option value='ITA' data-flag='🇮🇹'>🇮🇹 Italy</option>
-                                <option value='AUS' data-flag='🇦🇺'>🇦🇺 Australia</option>
-                                <option value='RUS' data-flag='🇷🇺'>🇷🇺 Russia</option>
-                                <option value='SRB' data-flag='🇷🇸'>🇷🇸 Serbia</option>
-                                <option value='ARG' data-flag='🇦🇷'>🇦🇷 Argentina</option>
-                                <option value='SUI' data-flag='🇨🇭'>🇨🇭 Switzerland</option>
-                                <option value='CRO' data-flag='🇭🇷'>🇭🇷 Croatia</option>
-                                <option value='CAN' data-flag='🇨🇦'>🇨🇦 Canada</option>
-                                <option value='JPN' data-flag='🇯🇵'>🇯🇵 Japan</option>
-                                <option value='Other' data-flag='🏳️'>🏳️ Other</option>
+                                <?php include __DIR__ . '/includes/country_options.php'; ?>
                             </select>
                             <div class='edit-actions'>
                                 <button class='btn btn-sm btn-success' onclick='savePlayerEdit(${p.id})'>💾 Save</button>
