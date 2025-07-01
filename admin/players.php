@@ -13,14 +13,8 @@
             <input type="text" id="player_name" required style="color: #333;">
         </div>
         <div class="form-group">
-            <label for="player_image">Player Image</label>
-            <div class="image-upload-container">
-                <input type="file" id="player_image_file" accept="image/*" style="display: none;">
-                <input type="text" id="player_image_url" placeholder="Or paste image URL here" style="color: #333;">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('player_image_file').click()">
-                    📁 Upload Image
-                </button>
-            </div>
+            <label for="player_image_url">Player Image URL</label>
+            <input type="text" id="player_image_url" placeholder="Paste image URL here" style="color: #333;">
         </div>
         <div class="form-group">
             <label for="player_country">Country</label>
@@ -281,39 +275,7 @@ async function deletePlayer(id) {
 }
 
 // File upload handling
-document.getElementById('player_image_file').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    // Check file size (limit to 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-        alert('Image file is too large. Please select an image smaller than 2MB.');
-        this.value = '';
-        return;
-    }
-    
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-        alert('Please select a valid image file.');
-        this.value = '';
-        return;
-    }
-    
-    // For now, we'll use a simple approach - convert to data URL
-    // In production, you'd want to upload to server and get a URL back
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const dataUrl = e.target.result;
-        // Check if data URL is too long
-        if (dataUrl.length > 500000) { // ~500KB limit
-            alert('Image is too large when converted. Please use a smaller image or provide a URL instead.');
-            return;
-        }
-        document.getElementById('player_image_url').value = dataUrl;
-        updatePlayerPreview();
-    };
-    reader.readAsDataURL(file);
-});
+// Image upload logic removed
 
 // Form submission
 document.getElementById('add-player-form').addEventListener('submit', async function(e) {
@@ -331,26 +293,20 @@ document.getElementById('add-player-form').addEventListener('submit', async func
     const messageEl = document.getElementById('add-player-message');
     messageEl.textContent = 'Adding player...';
     messageEl.style.color = '#666';
-    
     try {
         const response = await fetch('../api/users.php?action=add_player', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, image: imageUrl, country })
         });
-        
         const result = await response.json();
-        
         if (response.ok && result.success) {
-            messageEl.textContent = result.message;
+            messageEl.textContent = result.message || 'Player added successfully';
             messageEl.style.color = '#28a745';
-            fetchPlayers();
-            e.target.reset();
-            updatePlayerPreview();
-            // Clear message after 3 seconds
+            // Wait 1 second after the message appears, then refresh
             setTimeout(() => {
-                messageEl.textContent = '';
-            }, 3000);
+                window.location.reload();
+            }, 1000);
         } else {
             messageEl.textContent = result.message || 'Failed to add player';
             messageEl.style.color = '#dc3545';
