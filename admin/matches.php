@@ -148,5 +148,13 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchMatches();
 });
 </script>
-
+<style>
+input,textarea,select,option {
+    color: #111 !important;
+}
+input::placeholder,
+textarea::placeholder {
+    color: #111 !important;
+    opacity: 1;
+}
 <?php require_once 'includes/footer.php'; ?> 
