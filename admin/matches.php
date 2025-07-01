@@ -130,9 +130,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const result = await response.json();
         addMessage.textContent = result.message;
-        if (response.ok) {
-            fetchMatches();
-            addMatchForm.reset();
+        if (response.ok && result.success !== false) {
+            setTimeout(() => {
+                location.reload(); // Wait 1 second before reloading
+            }, 1000);
         }
     });
     window.toggleFeatured = async function(matchId, current) {
@@ -157,4 +158,4 @@ textarea::placeholder {
     color: #111 !important;
     opacity: 1;
 }
-<?php require_once 'includes/footer.php'; ?> 
+<?php require_once 'includes/footer.php'; ?>
