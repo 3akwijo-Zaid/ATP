@@ -1559,11 +1559,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             const matchResponse = await fetch(`../api/predictions.php?match_id=${matchId}&user_id=${user_id}`);
             const matchData = await matchResponse.json();
             
-            console.log('Match prediction API response:', matchData);
+    
             
             if (matchData.success && matchData.prediction) {
                 const predData = matchData.prediction.prediction_data;
-                console.log('Prediction data:', predData);
+        
                 
                 // Set winner
                 if (predData.winner) {
@@ -1588,7 +1588,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 saveMatchBtn.disabled = true;
                 saveMatchBtn.textContent = 'Prediction Submitted';
             } else {
-                console.log('No match prediction found or API error');
+        
                 // Enable save button since no prediction exists
                 saveMatchBtn.disabled = false;
                 saveMatchBtn.textContent = 'Save Match Prediction';
@@ -1599,7 +1599,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const gameResponse = await fetch(`../api/game_predictions.php?match_id=${matchId}&user_predictions=1`);
                 const gameData = await gameResponse.json();
                 
-                console.log('Game prediction API response:', gameData);
+        
                 
                 if (gameData.success && gameData.predictions && gameData.predictions.length > 0) {
                     gameData.predictions.forEach(prediction => {
@@ -1618,7 +1618,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     saveGameBtn.disabled = true;
                     saveGameBtn.textContent = 'Game Predictions Submitted';
                 } else {
-                    console.log('No game predictions found or API error');
+            
                     // Enable save button since no predictions exist
                     saveGameBtn.disabled = false;
                     saveGameBtn.textContent = 'Save Game Predictions';
@@ -1630,7 +1630,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const statisticsResponse = await fetch(`../api/statistics_predictions.php?match_id=${matchId}&user_predictions=1`);
                 const statisticsData = await statisticsResponse.json();
                 
-                console.log('Statistics prediction API response:', statisticsData);
+        
                 
                 if (statisticsData.success && statisticsData.predictions && statisticsData.predictions.length > 0) {
                     statisticsData.predictions.forEach(prediction => {
@@ -1645,7 +1645,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     saveStatisticsBtn.disabled = true;
                     saveStatisticsBtn.textContent = 'Statistics Predictions Submitted';
                 } else {
-                    console.log('No statistics predictions found or API error');
+            
                     // Enable save button since no predictions exist
                     saveStatisticsBtn.disabled = false;
                     saveStatisticsBtn.textContent = 'Save Statistics Predictions';
@@ -1848,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
             
             const result = await response.json();
-            console.log('Save match prediction result:', result);
+    
             
             if (result.success) {
                 showMessage(result.message, 'success');
@@ -1873,7 +1873,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
                 
                 const result = await response.json();
-                console.log('Delete match prediction result:', result);
+        
                 
                 if (result.success) {
                     // Clear form fields
@@ -1931,7 +1931,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
                 
                 const result = await response.json();
-                console.log('Save game prediction result:', result);
+        
                 if (result.success) {
                     savedCount++;
                 }
@@ -1959,7 +1959,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
                 
                 const result = await response.json();
-                console.log('Delete game predictions result:', result);
+        
                 
                 if (result.success) {
                     // Clear form fields
@@ -2026,7 +2026,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
                 
                 const result = await response.json();
-                console.log('Save statistics prediction result:', result);
+        
                 if (result.success) {
                     savedCount++;
                 }
@@ -2054,7 +2054,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
                 
                 const result = await response.json();
-                console.log('Delete statistics predictions result:', result);
+        
                 
                 if (result.success) {
                     // Clear form fields

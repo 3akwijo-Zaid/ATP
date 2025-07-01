@@ -61,56 +61,11 @@ if (isset($_SESSION['user_id'])) {
             <ul id="profile-activity-list" class="list-none p-0 m-0"></ul>
         </div>
         <?php endif; ?>
-        <div class="profile-settings">
-            <h3>Edit Profile</h3>
-            <form id="profile-edit-form">
-                <label>Avatar URL: <input type="text" id="edit-avatar" placeholder="Paste image URL or upload below"></label><br>
-                <input type="file" id="upload-avatar" accept="image/*"><br>
-                <label>Country: <select id="edit-country"></select></label><br>
-                <label>Change Password: <input type="password" id="edit-password" placeholder="New password"></label><br>
-                <button type="submit" class="btn">Save Changes</button>
-                <span id="profile-edit-message"></span>
-            </form>
-        </div>
+
     </div>
 </div>
 <script>
-const countryList = [
-    { code: 'ES', flag: '🇪🇸', name: 'Spain' },
-    { code: 'FR', flag: '🇫🇷', name: 'France' },
-    { code: 'IT', flag: '🇮🇹', name: 'Italy' },
-    { code: 'US', flag: '🇺🇸', name: 'USA' },
-    { code: 'GB', flag: '🇬🇧', name: 'UK' },
-    { code: 'DE', flag: '🇩🇪', name: 'Germany' },
-    { code: 'RU', flag: '🇷🇺', name: 'Russia' },
-    { code: 'AU', flag: '🇦🇺', name: 'Australia' },
-    { code: 'AR', flag: '🇦🇷', name: 'Argentina' },
-    { code: 'PL', flag: '🇵🇱', name: 'Poland' },
-    { code: 'GR', flag: '🇬🇷', name: 'Greece' },
-    { code: 'SE', flag: '🇸🇪', name: 'Sweden' },
-    { code: 'BR', flag: '🇧🇷', name: 'Brazil' },
-    { code: 'CA', flag: '🇨🇦', name: 'Canada' },
-    { code: 'CH', flag: '🇨🇭', name: 'Switzerland' },
-    { code: 'NL', flag: '🇳🇱', name: 'Netherlands' },
-    { code: 'BE', flag: '🇧🇪', name: 'Belgium' },
-    { code: 'HR', flag: '🇭🇷', name: 'Croatia' },
-    { code: 'NO', flag: '🇳🇴', name: 'Norway' },
-    { code: 'CZ', flag: '🇨🇿', name: 'Czech Republic' },
-    { code: 'UA', flag: '🇺🇦', name: 'Ukraine' },
-    { code: 'JP', flag: '🇯🇵', name: 'Japan' },
-    { code: 'CN', flag: '🇨🇳', name: 'China' },
-    { code: 'IN', flag: '🇮🇳', name: 'India' },
-    { code: 'EG', flag: '🇪🇬', name: 'Egypt' },
-    { code: 'MA', flag: '🇲🇦', name: 'Morocco' },
-    { code: 'TN', flag: '🇹🇳', name: 'Tunisia' },
-    { code: 'KZ', flag: '🇰🇿', name: 'Kazakhstan' },
-    { code: 'SRB', flag: '🇷🇸', name: 'Serbia' },
-    { code: 'Other', flag: '🏳️', name: 'Other' }
-];
-function populateCountryPicker(selected) {
-    const sel = document.getElementById('edit-country');
-    sel.innerHTML = countryList.map(c => `<option value="${c.code}" ${selected === c.code ? 'selected' : ''}>${c.flag} ${c.name}</option>`).join('');
-}
+
 async function fetchProfile() {
     try {
         const res = await fetch('../api/profile.php');
@@ -229,86 +184,20 @@ function renderProfile(data) {
             activityList.innerHTML = '<li class="activity-empty">No recent activity. Start making predictions to see your activity here!</li>';
         }
     }
-    const editAvatar = document.getElementById('edit-avatar');
-    if (editAvatar) editAvatar.value = p.avatar || '';
-    populateCountryPicker(p.flag);
 }
 function getFlag(code) {
-    const c = countryList.find(c => c.code === code);
-    return c ? c.flag : '🏳️';
-}
-document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const fileInput = document.getElementById('upload-avatar');
-    const avatarUrl = document.getElementById('edit-avatar').value.trim();
-    const country = document.getElementById('edit-country').value;
-    const password = document.getElementById('edit-password').value;
-    const msg = document.getElementById('profile-edit-message');
-
-    let res, text, data;
-    // If a file is selected, use FormData and send as multipart/form-data
-    if (fileInput.files && fileInput.files[0]) {
-        const formData = new FormData();
-        formData.append('avatar', fileInput.files[0]);
-        if (country) formData.append('country', country);
-        if (password) formData.append('password', password);
-
-        res = await fetch('../api/profile.php', {
-            method: 'POST',
-            body: formData
-        });
-        text = await res.text();
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-            msg.textContent = 'Server error: ' + text;
-            setTimeout(() => { msg.textContent = ''; }, 5000);
-            return;
-        }
-    } else {
-        // Otherwise, send JSON (for avatar URL or other fields)
-        const payload = { avatar: avatarUrl, country };
-        if (password) payload.password = password;
-        res = await fetch('../api/profile.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        text = await res.text();
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-            msg.textContent = 'Server error: ' + text;
-            setTimeout(() => { msg.textContent = ''; }, 5000);
-            return;
-        }
-    }
-    if (data.success) {
-        msg.textContent = 'Profile updated!';
-        // If on welcome page, redirect to home after saving changes
-        if (window.location.search.includes('welcome=1')) {
-            setTimeout(() => { window.location.href = 'index.php'; }, 1000);
-        } else {
-            fetchProfile();
-        }
-    } else {
-        msg.textContent = data.error || 'Update failed.';
-    }
-    setTimeout(() => { msg.textContent = ''; }, 3000);
-});
-document.getElementById('upload-avatar').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-        document.getElementById('edit-avatar').value = evt.target.result;
-        document.getElementById('profile-avatar-img').src = evt.target.result;
+    // Simple flag mapping for display purposes
+    const flagMap = {
+        'ES': '🇪🇸', 'FR': '🇫🇷', 'IT': '🇮🇹', 'US': '🇺🇸', 'GB': '🇬🇧', 'DE': '🇩🇪',
+        'RU': '🇷🇺', 'AU': '🇦🇺', 'AR': '🇦🇷', 'PL': '🇵🇱', 'GR': '🇬🇷', 'SE': '🇸🇪',
+        'BR': '🇧🇷', 'CA': '🇨🇦', 'CH': '🇨🇭', 'NL': '🇳🇱', 'BE': '🇧🇪', 'HR': '🇭🇷',
+        'NO': '🇳🇴', 'CZ': '🇨🇿', 'UA': '🇺🇦', 'JP': '🇯🇵', 'CN': '🇨🇳', 'IN': '🇮🇳',
+        'EG': '🇪🇬', 'MA': '🇲🇦', 'TN': '🇹🇳', 'KZ': '🇰🇿', 'SRB': '🇷🇸'
     };
-    reader.readAsDataURL(file);
-});
+    return flagMap[code] || '🏳️';
+}
 document.addEventListener('DOMContentLoaded', function() {
-    populateCountryPicker(); // Populate country select with all options, no selection
-    fetchProfile(); // Then fetch and update with user data
+    fetchProfile();
 });
 </script>
 <style>
@@ -319,8 +208,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .profile-flag { font-size: 2em; margin-left: 0.3em; }
 .profile-meta { color: #b0bec5; font-size: 1.08em; margin-top: 0.2em; }
 .profile-sections { display: flex; flex-wrap: wrap; gap: 2em; }
-.profile-stats, .profile-activity, .profile-settings { background: rgba(255,255,255,0.08); border-radius: 12px; box-shadow: 0 1px 6px #0002; padding: 1.2em 1.5em; flex: 1 1 260px; min-width: 260px; }
-.profile-stats h3, .profile-activity h3, .profile-settings h3 { color: #ffd54f; margin-top: 0; }
+.profile-stats, .profile-activity { background: rgba(255,255,255,0.08); border-radius: 12px; box-shadow: 0 1px 6px #0002; padding: 1.2em 1.5em; flex: 1 1 260px; min-width: 260px; }
+.profile-stats h3, .profile-activity h3 { color: #ffd54f; margin-top: 0; }
 .stats-row { display: flex; gap: 2em; justify-content: space-between; margin-bottom: 1em; }
 .stats-row div { text-align: center; font-size: 1.15em; color: #fff; }
 .profile-badges { 

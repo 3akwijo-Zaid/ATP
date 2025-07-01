@@ -1,4 +1,20 @@
 <?php
+// Error handling
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+set_exception_handler(function($e) {
+    http_response_code(500);
+    echo json_encode(['success'=>false, 'error'=>'Server error: ' . $e->getMessage()]);
+    exit;
+});
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    echo json_encode(['success'=>false, 'error'=>"PHP error [$errno]: $errstr in $errfile on line $errline"]);
+    exit;
+});
+
 session_start();
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");

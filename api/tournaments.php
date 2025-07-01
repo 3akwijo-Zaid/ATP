@@ -1,14 +1,26 @@
 <?php
-header('Content-Type: application/json');
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Error handling
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
 set_exception_handler(function($e) {
     http_response_code(500);
     echo json_encode(['success'=>false, 'error'=>'Server error: ' . $e->getMessage()]);
     exit;
 });
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    echo json_encode(['success'=>false, 'error'=>"PHP error [$errno]: $errstr in $errfile on line $errline"]);
+    exit;
+});
+
+session_start();
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
 require_once '../src/classes/Tournament.php';
 require_once '../config/config.php';
 

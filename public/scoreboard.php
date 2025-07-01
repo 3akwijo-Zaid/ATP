@@ -60,50 +60,84 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.style.display = 'flex';
         modalTitle.textContent = `Predictions for ${username}`;
         modalContent.innerHTML = '<p>Loading...</p>';
-        // Fetch all predictions for this user
-        const response = await fetch(`../api/predictions.php?user_id=${userId}`);
-        const predictions = await response.json();
-        if (!Array.isArray(predictions) || predictions.length === 0) {
-            modalContent.innerHTML = '<p>No predictions found.</p>';
-            return;
-        }
-        // Fetch all matches to get match info and lock status
-        const matchesResp = await fetch('../api/matches.php');
-        const matches = await matchesResp.json();
-        // Only show predictions for locked/finished matches
-        const now = new Date();
-        const lockedPreds = predictions.filter(pred => {
-            const match = matches.find(m => m.id == pred.match_id);
-            if (!match) return false;
-            const start = new Date(match.start_time);
-            return (start - now) / 1000 <= 3600 || match.status === 'finished';
-        });
-        if (lockedPreds.length === 0) {
-            modalContent.innerHTML = '<p>No public predictions yet (only shown after match lock).</p>';
-            return;
-        }
-        modalContent.innerHTML = lockedPreds.map(pred => {
-            const match = matches.find(m => m.id == pred.match_id);
-            let sets = '';
-            try {
-                // Support both stringified and already-parsed prediction_data
-                const data = typeof pred.prediction_data === 'string' ? JSON.parse(pred.prediction_data) : pred.prediction_data;
-                // Defensive: support both player1_games/player2_games and player1/player2
-                sets = (data.sets || []).map((s, i) => {
-                    const p1 = s.player1_games !== undefined ? s.player1_games : (s.player1 !== undefined ? s.player1 : '');
-                    const p2 = s.player2_games !== undefined ? s.player2_games : (s.player2 !== undefined ? s.player2 : '');
-                    return `<li>Set ${i+1}: ${p1}-${p2}</li>`;
-                }).join('');
-                sets = sets ? `<ul style="margin:0.5em 0 0 1em;">${sets}</ul>` : '';
-                // Defensive: winner may be 'player1', 'player2', or a name
-                let winner = data.winner;
-                if (winner === 'player1' && match && match.player1) winner = match.player1;
-                if (winner === 'player2' && match && match.player2) winner = match.player2;
-                return `<div style="margin-bottom:1.2em;"><strong>${match ? (match.player1 + ' vs ' + match.player2) : 'Match'} </strong><br>Predicted winner: <b>${winner || ''}</b>${sets}</div>`;
-            } catch (e) {
-                return '';
+        
+        try {
+            // Fetch all predictions for this user
+            const response = await fetch(`../api/predictions.php?user_id=${userId}`);
+            const data = await response.json();
+            
+            if (!data.success || !data.predictions || data.predictions.length === 0) {
+                modalContent.innerHTML = '<p>No predictions found.</p>';
+                return;
             }
-        }).join('');
+            
+            const predictions = data.predictions;
+            
+            // Fetch all matches to get match info and lock status
+            const matchesResp = await fetch('../api/matches.php');
+            const matches = await matchesResp.json();
+            
+            // Only show predictions for locked/finished matches
+            const now = new Date();
+            const lockedPreds = predictions.filter(pred => {
+                const match = matches.find(m => m.id == pred.match_id);
+                if (!match) return false;
+                const start = new Date(match.start_time);
+                return (start - now) / 1000 <= 3600 || match.status === 'finished';
+            });
+            
+            if (lockedPreds.length === 0) {
+                modalContent.innerHTML = '<p>No public predictions yet (only shown after match lock).</p>';
+                return;
+            }
+            
+            modalContent.innerHTML = lockedPreds.map(pred => {
+                const match = matches.find(m => m.id == pred.match_id);
+                let sets = '';
+                let winner = '';
+                
+                try {
+                    // Support both stringified and already-parsed prediction_data
+                    const predData = typeof pred.prediction_data === 'string' ? JSON.parse(pred.prediction_data) : pred.prediction_data;
+                    
+                    // Get winner
+                    if (predData.winner === 'player1' && match) {
+                        winner = match.player1_name || match.player1;
+                    } else if (predData.winner === 'player2' && match) {
+                        winner = match.player2_name || match.player2;
+                    } else {
+                        winner = predData.winner || '';
+                    }
+                    
+                    // Get sets
+                    if (predData.sets && Array.isArray(predData.sets)) {
+                        sets = predData.sets.map((s, i) => {
+                            const p1 = s.player1_games !== undefined ? s.player1_games : (s.player1 !== undefined ? s.player1 : '');
+                            const p2 = s.player2_games !== undefined ? s.player2_games : (s.player2 !== undefined ? s.player2 : '');
+                            return `<li>Set ${i+1}: ${p1}-${p2}</li>`;
+                        }).join('');
+                        sets = sets ? `<ul style="margin:0.5em 0 0 1em;">${sets}</ul>` : '';
+                    }
+                    
+                    const matchName = match ? `${match.player1_name || match.player1} vs ${match.player2_name || match.player2}` : 'Match';
+                    return `<div style="margin-bottom:1.2em;padding:1em;background:#f5f5f5;border-radius:8px;">
+                        <strong>${matchName}</strong><br>
+                        Predicted winner: <b style="color:#2563eb;">${winner}</b>
+                        ${sets}
+                    </div>`;
+                } catch (e) {
+                    console.error('Error parsing prediction:', e);
+                    return `<div style="margin-bottom:1.2em;padding:1em;background:#f5f5f5;border-radius:8px;">
+                        <strong>${match ? `${match.player1_name || match.player1} vs ${match.player2_name || match.player2}` : 'Match'}</strong><br>
+                        <em>Prediction data unavailable</em>
+                    </div>`;
+                }
+            }).join('');
+            
+        } catch (error) {
+            console.error('Error fetching predictions:', error);
+            modalContent.innerHTML = '<p>Error loading predictions. Please try again.</p>';
+        }
     };
 
     closeModal.onclick = () => { modal.style.display = 'none'; };

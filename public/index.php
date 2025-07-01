@@ -48,12 +48,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="match-players">
                             <div class="match-player">
                                 ${match.player1_image ? `<img src=\"${match.player1_image}\" class=\"match-player-img\">` : ''}
-                                <div class="match-player-name">${match.player1_name}</div>
+                                <div class="match-player-name">
+                                    <div class="player-first-name">${match.player1_name.split(' ')[0] || match.player1_name}</div>
+                                    <div class="player-last-name">${match.player1_name.split(' ').slice(1).join(' ') || ''}</div>
+                                </div>
                             </div>
                             <div class="match-vs">vs</div>
                             <div class="match-player">
                                 ${match.player2_image ? `<img src=\"${match.player2_image}\" class=\"match-player-img\">` : ''}
-                                <div class="match-player-name">${match.player2_name}</div>
+                                <div class="match-player-name">
+                                    <div class="player-first-name">${match.player2_name.split(' ')[0] || match.player2_name}</div>
+                                    <div class="player-last-name">${match.player2_name.split(' ').slice(1).join(' ') || ''}</div>
+                                </div>
                             </div>
                         </div>
 
@@ -488,6 +494,23 @@ function startFixturesCountdowns() {
     font-weight: bold;
     margin-top: 0.4em;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+}
+
+.match-card .player-first-name {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.match-card .player-last-name {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #b0bec5;
+    line-height: 1.1;
 }
 </style>
 

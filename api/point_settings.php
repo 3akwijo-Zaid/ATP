@@ -1,6 +1,9 @@
 <?php
 session_start();
 header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 require_once '../config/config.php';
 require_once '../src/classes/Database.php';
 

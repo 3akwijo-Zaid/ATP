@@ -103,7 +103,7 @@ class Prediction {
                     }
                 }
             }
-            // TODO: Add game-level and set1-complete points if needed
+    
             // Update prediction points
             $this->db->query('UPDATE predictions SET points_awarded = :points WHERE id = :id');
             $this->db->bind(':points', $points);

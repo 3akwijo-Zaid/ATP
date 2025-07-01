@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
     matchSelect.addEventListener('change', function() {
         const matchId = this.value;
         selectedMatch = matches.find(m => m.id == matchId);
-        console.log('Selected match:', selectedMatch);
+
         matchStatus.textContent = selectedMatch ? `Status: ${selectedMatch.status}` : '';
         if (selectedMatch) {
             renderMatchResultForm(selectedMatch);
@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let winnerId = null;
             if (winnerName === match.player1_name) winnerId = Number(match.player1_id);
             if (winnerName === match.player2_name) winnerId = Number(match.player2_id);
-            console.log('Winner ID to send:', winnerId, typeof winnerId); // DEBUG
+
             // Validate winner
             const actualWinner = p1Sets > p2Sets ? match.player1_name : match.player2_name;
             if (winnerName !== actualWinner) {
@@ -861,4 +861,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php require_once 'includes/footer.php'; ?> 
+<?php require_once 'includes/footer.php'; ?>
+
+<?php
+// Add to all pages
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+?> 

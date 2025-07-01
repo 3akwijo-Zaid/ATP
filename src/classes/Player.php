@@ -9,11 +9,16 @@ class Player {
     }
 
     public function createPlayer($data) {
-        $this->db->query('INSERT INTO players (name, image, country) VALUES (:name, :image, :country)');
-        $this->db->bind(':name', $data['name']);
-        $this->db->bind(':image', $data['image']);
-        $this->db->bind(':country', $data['country']);
-        return $this->db->execute();
+        try {
+            $this->db->query('INSERT INTO players (name, image, country) VALUES (:name, :image, :country)');
+            $this->db->bind(':name', $data['name']);
+            $this->db->bind(':image', $data['image']);
+            $this->db->bind(':country', $data['country']);
+            return $this->db->execute();
+        } catch (Exception $e) {
+            error_log("Player creation error: " . $e->getMessage());
+            throw new Exception("Failed to create player: " . $e->getMessage());
+        }
     }
 
     public function getAllPlayers() {
@@ -34,17 +39,27 @@ class Player {
     }
 
     public function updatePlayer($id, $data) {
-        $this->db->query('UPDATE players SET name = :name, image = :image, country = :country WHERE id = :id');
-        $this->db->bind(':id', $id);
-        $this->db->bind(':name', $data['name']);
-        $this->db->bind(':image', $data['image']);
-        $this->db->bind(':country', $data['country']);
-        return $this->db->execute();
+        try {
+            $this->db->query('UPDATE players SET name = :name, image = :image, country = :country WHERE id = :id');
+            $this->db->bind(':id', $id);
+            $this->db->bind(':name', $data['name']);
+            $this->db->bind(':image', $data['image']);
+            $this->db->bind(':country', $data['country']);
+            return $this->db->execute();
+        } catch (Exception $e) {
+            error_log("Player update error: " . $e->getMessage());
+            throw new Exception("Failed to update player: " . $e->getMessage());
+        }
     }
 
     public function deletePlayer($id) {
-        $this->db->query('DELETE FROM players WHERE id = :id');
-        $this->db->bind(':id', $id);
-        return $this->db->execute();
+        try {
+            $this->db->query('DELETE FROM players WHERE id = :id');
+            $this->db->bind(':id', $id);
+            return $this->db->execute();
+        } catch (Exception $e) {
+            error_log("Player deletion error: " . $e->getMessage());
+            throw new Exception("Failed to delete player: " . $e->getMessage());
+        }
     }
 } 
