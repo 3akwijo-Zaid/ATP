@@ -142,7 +142,7 @@ async function renderFixtures(data) {
                     featuredHtml = `<button class='btn btn-featured ${m.featured == 1 ? 'btn-featured-on' : 'btn-featured-off'}' data-match-id='${m.id}' data-featured='${m.featured || 0}'>${m.featured == 1 ? '★ Featured' : '☆ Make Featured'}</button>`;
                 }
 
-                html += `<div class='fixture-card'>
+                html += `<div class='fixture-card${m.status === 'finished' ? ' finished-card' : ''}'>
                 <div class='fixture-tournament'>
                     ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
                     <span>${m.tournament_name} (${m.round})</span>
@@ -164,7 +164,7 @@ async function renderFixtures(data) {
                         ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
                     </div>
                     <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
-                    <div class='fixture-result'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
+                    <div class='fixture-result${m.status === 'finished' ? ' finished-result' : ''}'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
                     <div class='fixture-prediction-action'>
                         ${predictionHtml}
                         ${IS_ADMIN ? `<div style='margin-top:0.7em;'>${featuredHtml}</div>` : ''}
@@ -367,10 +367,82 @@ fetchTournaments().then(fetchFixtures);
     background-color: #2196f3;
     color: white;
 }
-.fixture-status.upcoming { color: #4fc3f7; }
-.fixture-status.in_progress { color: #ff9800; }
-.fixture-status.finished { color: #43a047; }
-.fixture-result { color: #b0bec5; font-size: 0.98em; }
+.fixture-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.22em 1.2em;
+    font-size: 1em;
+    font-weight: 700;
+    border-radius: var(--radius-xl);
+    margin: 0.2em 0;
+    letter-spacing: 0.5px;
+    text-transform: capitalize;
+    background: var(--surface-medium);
+    border: 2px solid transparent;
+    box-shadow: var(--shadow-md);
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    min-width: 110px;
+    justify-content: center;
+}
+.fixture-status.upcoming {
+    color: #4fc3f7;
+    background: rgba(33, 150, 243, 0.10);
+    border-color: #4fc3f7;
+}
+.fixture-status.in_progress {
+    color: var(--primary-teal);
+    background: rgba(23, 162, 184, 0.13);
+    border-color: var(--primary-teal);
+}
+.fixture-status.finished {
+    color: #43a047;
+    background: none;
+    border: none;
+    font-weight: 500;
+    box-shadow: none;
+    padding-left: 0;
+    text-align: center;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+.status-icon {
+    font-size: 1.1em;
+    color: var(--primary-gold-darker);
+    margin-right: 0.2em;
+    vertical-align: middle;
+}
+.fixture-result {
+    color: var(--text-secondary);
+    font-size: 1.05em;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    padding: 0.3em 1.1em;
+    border-radius: var(--radius-lg);
+    background: none;
+    border: none;
+    display: inline-block;
+    min-width: 90px;
+    font-weight: 500;
+    box-shadow: none;
+    border-bottom: 1.5px solid var(--surface-medium);
+}
+.fixture-result.finished-result {
+    color:rgb(255, 255, 255);
+    background: none;
+    border: none;
+    font-weight: 500;
+    border-bottom: 2px solid rgb(255, 255, 255);
+    box-shadow: none;
+    padding-left: 0;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .fixture-prediction-action { margin-top: 0.7rem; }
 .btn-featured {
     margin-left: 0.2em;
@@ -425,6 +497,11 @@ fetchTournaments().then(fetchFixtures);
     font-weight: bold;
     align-self: center;
     font-size: 1.1em;
+}
+.fixture-card.finished-card {
+    border-left: 6px solid #43a047; /* Green for finished */
+    box-shadow: 0 4px 24px 0 rgba(67, 160, 71, 0.10);
+    background: rgba(34,52,58,0.98);
 }
 </style>
 <?php require_once 'includes/footer.php'; ?> 
