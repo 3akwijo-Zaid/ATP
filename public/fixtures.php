@@ -8,7 +8,7 @@
 </head>
 <div class="container container--full mt-4">
     <h2>Fixtures & Results</h2>
-    <div class="mb-3">
+    <div class="mb-3" style="margin-left: 0.5em;">
         <label for="tournamentFilter" class="form-label">Filter by Tournament:</label>
         <select id="tournamentFilter" class="styled-select"></select><br>
     </div><br>
