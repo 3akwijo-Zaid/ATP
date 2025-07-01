@@ -188,16 +188,24 @@ fetchTournaments().then(fetchFixtures);
     color: #f44336;
     font-size: 1.1em;
 }
+.fixture-day { 
+    margin-bottom: 2rem; 
+}
 
-.fixture-day { margin-bottom:2rem; }
-.fixture-list { display:flex; flex-wrap:wrap; gap:1rem; }
+.fixture-list { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 1rem; 
+}
+
 .fixture-card {
     background: rgba(34,52,58,0.95); /* dark, semi-transparent */
     border-radius: 12px;
     box-shadow: 0 4px 16px #0003;
     padding: 1.2rem;
+    /* Key change: use flex-basis to control width and ensure 4 per row max */
+    flex: 1 1 calc(25% - 0.75rem);
     min-width: 260px;
-    flex: 1 1 260px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -207,9 +215,48 @@ fetchTournaments().then(fetchFixtures);
     color: #e0e0e0;
     transition: box-shadow 0.2s, transform 0.2s;
 }
+
 .fixture-card:hover {
     box-shadow: 0 8px 32px #0005;
     transform: translateY(-2px) scale(1.015);
+}
+
+/* Media queries for responsive behavior */
+@media (max-width: 1200px) {
+    .fixture-card {
+        flex: 1 1 calc(33.333% - 0.67rem); /* 3 per row on medium screens */
+    }
+}
+
+@media (max-width: 900px) {
+    .fixture-card {
+        flex: 1 1 calc(50% - 0.5rem); /* 2 per row on smaller screens */
+    }
+}
+
+@media (max-width: 600px) {
+    .fixture-card {
+        flex: 1 1 100%; /* 1 per row on mobile */
+    }
+}
+@media (max-width: 425px) {
+    .fixture-list {
+        gap: 0.5rem; /* Reduce gap on mobile */
+        padding-left: 1rem; /* Add left padding to compensate for right gap */
+    }
+    
+    .fixture-card {
+        flex: 1 1 100%; /* 1 per row on mobile */
+        min-width: unset; /* Remove min-width constraint on mobile */
+        margin: 0; /* Remove any margins */
+        width: 100%; /* Force full width */
+    }
+}
+@media (max-width: 375px) {
+    .fixture-list {
+        padding-left: 0;
+        margin-left: 0;
+    }
 }
 .fixture-time { font-weight: bold; color: #4fc3f7; font-size: 1.1em; }
 .fixture-players { display: flex; align-items: center; gap: 0.7em; margin-bottom: 0.2em; justify-content: center; text-align: center; }
