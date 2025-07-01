@@ -32,7 +32,7 @@ class Admin {
     public function updatePointSettings($data) {
         $this->db->query('UPDATE point_settings SET 
                          match_winner_points = :match_winner, 
-                         set_winner_points = :set_winner, 
+                         match_score_points = :match_score, 
                          set_score_points = :set_score,
                          tiebreak_score_points = :tiebreak_score,
                          game_winner_points = :game_winner,
@@ -41,7 +41,7 @@ class Admin {
                          set1_complete_points = :set1_complete
                          WHERE id = 1');
         $this->db->bind(':match_winner', $data['match_winner_points']);
-        $this->db->bind(':set_winner', $data['set_winner_points']);
+        $this->db->bind(':match_score', $data['match_score_points']);
         $this->db->bind(':set_score', $data['set_score_points']);
         $this->db->bind(':tiebreak_score', $data['tiebreak_score_points'] ?? 0);
         $this->db->bind(':game_winner', $data['game_winner_points'] ?? 2);

@@ -71,17 +71,20 @@ class Prediction {
             }
             // Set and tiebreak points
             if (isset($data['sets']) && is_array($data['sets'])) {
+                // Award match_score_points if the predicted set scores match the actual set scores for the whole match
+                $predSetScores = [];
+                $actualSetScores = [];
                 foreach ($data['sets'] as $i => $predSet) {
                     if (!isset($actualSets[$i])) continue;
                     $actualSet = $actualSets[$i];
-                    // Set winner
-                    if (
-                        (isset($predSet['player1']) && isset($predSet['player2'])) &&
-                        ((intval($predSet['player1']) > intval($predSet['player2']) && intval($actualSet['player1_games']) > intval($actualSet['player2_games'])) ||
-                         (intval($predSet['player2']) > intval($predSet['player1']) && intval($actualSet['player2_games']) > intval($actualSet['player1_games'])))
-                    ) {
-                        $points += intval($settings['set_winner_points']);
-                    }
+                    $predSetScores[] = [
+                        'player1' => intval($predSet['player1']),
+                        'player2' => intval($predSet['player2'])
+                    ];
+                    $actualSetScores[] = [
+                        'player1' => intval($actualSet['player1_games']),
+                        'player2' => intval($actualSet['player2_games'])
+                    ];
                     // Set score
                     if (
                         isset($predSet['player1']) && isset($predSet['player2']) &&
@@ -101,6 +104,10 @@ class Prediction {
                     ) {
                         $points += intval($settings['tiebreak_score_points'] ?? 0);
                     }
+                }
+                // Award match_score_points if all set scores match
+                if ($predSetScores === $actualSetScores) {
+                    $points += intval($settings['match_score_points']);
                 }
             }
     

@@ -31,11 +31,11 @@
             </span>
             <span>Matches</span>
         </a>
-        <a href="results.php" class="admin-dashboard-card results">
+        <a href="unified_predictions.php" class="admin-dashboard-card results">
             <span class="admin-dashboard-icon-bg" style="background: linear-gradient(135deg,#ff9800,#ffc107);">
                 <svg width="38" height="38" viewBox="0 0 48 48" fill="none"><rect x="6" y="32" width="10" height="8" rx="2" fill="#fff"/><rect x="19" y="24" width="10" height="16" rx="2" fill="#fff"/><rect x="32" y="28" width="10" height="12" rx="2" fill="#fff"/><circle cx="24" cy="20" r="4" fill="#ff9800"/><text x="24" y="24" text-anchor="middle" font-size="10" fill="#fff" font-family="Arial" font-weight="bold">1</text></svg>
             </span>
-            <span>Results & Statistics</span>
+            <span>Predictions</span>
         </a>
         <a href="game_results.php" class="admin-dashboard-card game-results">
             <span class="admin-dashboard-icon-bg" style="background: linear-gradient(135deg,#e91e63,#f06292);">

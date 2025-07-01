@@ -14,8 +14,8 @@
                 <input type="number" id="match_winner_points" required min="0" max="100">
             </div>
             <div class="form-group">
-                <label for="set-winner">Correct Set Winner</label>
-                <input type="number" id="set_winner_points" required min="0" max="50">
+                <label for="match-score">Correct Match Score</label>
+                <input type="number" id="match_score_points" required min="0" max="100">
             </div>
             <div class="form-group">
                 <label for="set-score">Correct Set Score</label>
@@ -153,7 +153,7 @@
 document.addEventListener('DOMContentLoaded', async function() {
     const form = document.getElementById('point-settings-form');
     const matchWinnerInput = document.getElementById('match_winner_points');
-    const setWinnerInput = document.getElementById('set_winner_points');
+    const matchScoreInput = document.getElementById('match_score_points');
     const setScoreInput = document.getElementById('set_score_points');
     const gameWinnerInput = document.getElementById('game_winner_points');
     const gameScoreInput = document.getElementById('game_score_points');
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (result.success && result.settings) {
             const settings = result.settings;
             matchWinnerInput.value = settings.match_winner_points || 10;
-            setWinnerInput.value = settings.set_winner_points || 3;
+            matchScoreInput.value = settings.match_score_points || 10;
             setScoreInput.value = settings.set_score_points || 5;
             gameWinnerInput.value = settings.game_winner_points || 2;
             gameScoreInput.value = settings.game_score_points || 5;
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         e.preventDefault();
         const payload = {
             match_winner_points: parseInt(matchWinnerInput.value),
-            set_winner_points: parseInt(setWinnerInput.value),
+            match_score_points: parseInt(matchScoreInput.value),
             set_score_points: parseInt(setScoreInput.value),
             tiebreak_score_points: parseInt(tiebreakScoreInput.value),
             game_winner_points: parseInt(gameWinnerInput.value),

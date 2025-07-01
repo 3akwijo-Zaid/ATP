@@ -144,7 +144,7 @@ CREATE TABLE statistics_predictions (
 CREATE TABLE point_settings (
   id INT PRIMARY KEY,
   match_winner_points INT DEFAULT 10,
-  set_winner_points INT DEFAULT 3,
+  match_score_points INT DEFAULT 10,
   set_score_points INT DEFAULT 5,
   tiebreak_score_points INT DEFAULT 0,
   game_winner_points INT DEFAULT 2,
@@ -176,8 +176,8 @@ CREATE TABLE joker_predictions (
   UNIQUE KEY unique_user_tournament_round (user_id, tournament_id, round)
 );
 
-INSERT INTO point_settings (id, match_winner_points, set_winner_points, set_score_points, 
+INSERT INTO point_settings (id, match_winner_points, match_score_points, set_score_points, 
                            game_winner_points, game_score_points, exact_game_score_points, 
                            set1_complete_points, aces_exact_points, aces_close_points, 
                            double_faults_exact_points, double_faults_close_points) VALUES
-(1, 10, 3, 5, 2, 5, 10, 20, 5, 2, 5, 2);
+(1, 10, 10, 5, 2, 5, 10, 20, 5, 2, 5, 2);

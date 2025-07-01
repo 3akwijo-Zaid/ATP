@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate input
     $fields = [
         'match_winner_points' => [0, 100],
-        'set_winner_points' => [0, 50],
+        'match_score_points' => [0, 100],
         'set_score_points' => [0, 50],
         'tiebreak_score_points' => [0, 30],
         'game_winner_points' => [0, 20],
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Update settings
     $db->query('UPDATE point_settings SET 
         match_winner_points = :match_winner_points,
-        set_winner_points = :set_winner_points,
+        match_score_points = :match_score_points,
         set_score_points = :set_score_points,
         tiebreak_score_points = :tiebreak_score_points,
         game_winner_points = :game_winner_points,

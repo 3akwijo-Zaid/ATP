@@ -53,12 +53,25 @@ if ($method === 'POST') {
     echo json_encode($result);
     
 } elseif ($method === 'GET') {
-    // Get predictions
-    if (isset($_GET['match_id'])) {
-        $matchId = $_GET['match_id'];
-        // Always return all predictions for this match
-        $matchPredictions = $prediction->getMatchPredictions($matchId);
-        echo json_encode(['success' => true, 'predictions' => $matchPredictions]);
+    if (isset($_GET['user_id'])) {
+        // Return only the current user's prediction for the match
+        $userId = intval($_GET['user_id']);
+        $matchId = intval($_GET['match_id']);
+        $prediction = $prediction->getUserPrediction($userId, $matchId);
+        echo json_encode([
+            'success' => true,
+            'prediction' => $prediction
+        ]);
+        exit;
+    } else if (isset($_GET['match_id'])) {
+        // Return all predictions for the match
+        $matchId = intval($_GET['match_id']);
+        $predictions = $prediction->getMatchPredictions($matchId);
+        echo json_encode([
+            'success' => true,
+            'predictions' => $predictions
+        ]);
+        exit;
     } else {
         // Get all user predictions for the logged-in user
         $userId = $_SESSION['user_id'];
