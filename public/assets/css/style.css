@@ -408,11 +408,20 @@
     border-radius: var(--radius-sm);
     transition: background var(--transition-fast);
     -webkit-tap-highlight-color: transparent;
+    outline: none !important;
   }
   
   .hamburger:hover,
   .hamburger:focus {
     background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .hamburger:focus {
+    outline: none !important;
+  }
+  
+  .hamburger:focus-visible {
+    outline: none !important;
   }
   
   .hamburger span {
@@ -1298,4 +1307,15 @@
   .sidebar .logo-img {
     max-height: 2rem;
     margin-right: 0.5rem;
+  }
+
+  /* Remove all outlines from logo and logo image, including on focus and focus-visible */
+  .logo,
+  .logo:focus,
+  .logo:focus-visible,
+  .logo-img,
+  .logo-img:focus,
+  .logo-img:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
   }
