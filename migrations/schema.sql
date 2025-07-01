@@ -161,6 +161,21 @@ CREATE TABLE point_settings (
 INSERT INTO users (username, password_hash, is_admin) VALUES
 ('admin', '$2y$10$VylwYl4DOU9xqc1b7k/ssuHlTz9L8tFq.eX6B.3h5JqD8mR.4kS2K', 1);
 
+-- JOKER PREDICTIONS TABLE
+CREATE TABLE joker_predictions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  tournament_id INT NOT NULL,
+  round VARCHAR(32) NOT NULL,
+  match_id INT NOT NULL,
+  prediction_type ENUM('match', 'game', 'statistics') NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+  FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_user_tournament_round (user_id, tournament_id, round)
+);
+
 INSERT INTO point_settings (id, match_winner_points, set_winner_points, set_score_points, 
                            game_winner_points, game_score_points, exact_game_score_points, 
                            set1_complete_points, aces_exact_points, aces_close_points, 

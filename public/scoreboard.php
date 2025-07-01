@@ -1,4 +1,5 @@
 <?php require_once 'includes/header.php'; ?>
+<?php $current_username = $_SESSION['username'] ?? null; ?>
 
 <div class="container container--full">
     <h1>Scoreboard</h1>
@@ -16,6 +17,91 @@
     </div>
 </div>
 
+<style>
+.scoreboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2em 0 1em 0;
+  background: #232b33;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px 0 #0006;
+}
+.scoreboard-table th, .scoreboard-table td {
+  padding: 1em 0.7em;
+  text-align: left;
+  font-size: 1.08em;
+}
+.scoreboard-table th {
+  background: #16243a;
+  color: #ffd54f;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #23394d;
+}
+.scoreboard-table tr {
+  border-bottom: 1px solid #23394d;
+  transition: background 0.18s;
+}
+.scoreboard-table tr.current-user {
+  background: #2e3a4d !important;
+  font-weight: 700;
+  color: #ffd54f;
+}
+.scoreboard-table tr:hover {
+  background: #263143;
+}
+.scoreboard-table td.rank-badge {
+  font-size: 1.2em;
+  font-weight: 900;
+  text-align: center;
+}
+.scoreboard-table .medal-icon {
+  width: 28px;
+  height: 28px;
+  vertical-align: middle;
+  margin-right: 0.2em;
+}
+.scoreboard-table .medal-gold { fill: #ffd700; }
+.scoreboard-table .medal-silver { fill: #b0bec5; }
+.scoreboard-table .medal-bronze { fill: #ff9800; }
+.scoreboard-table .scoreboard-btn {
+  background: #ffd54f;
+  color: #16243a;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4em 1em;
+  font-size: 0.98em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.scoreboard-table .scoreboard-btn:hover {
+  background: #fffde7;
+  color: #ffd54f;
+}
+.scoreboard-table td, .scoreboard-table th {
+  color: #fff;
+}
+.scoreboard-table tr.current-user td {
+  color: #ffd54f;
+}
+.scoreboard-table th.rank-header, .scoreboard-table td.rank-badge {
+  text-align: center;
+  vertical-align: middle;
+  width: 60px;
+  padding-left: 0;
+  padding-right: 0;
+}
+.scoreboard-table td.rank-badge svg {
+  display: block;
+  margin: 0 auto;
+}
+@media (max-width: 600px) {
+  .scoreboard-table th, .scoreboard-table td { padding: 0.6em 0.3em; font-size: 0.98em; }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const scoreboardList = document.getElementById('scoreboard-list');
@@ -23,6 +109,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeModal = document.getElementById('close-modal');
     const modalTitle = document.getElementById('modal-title');
     const modalContent = document.getElementById('modal-content');
+    const currentUsername = <?php echo json_encode($current_username); ?>;
+
+    // SVG medal icons
+    const medalSVG = {
+      gold: `<svg class="medal-icon medal-gold" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" stroke="#fff8e1" stroke-width="2"/><circle cx="16" cy="16" r="10"/></svg>`,
+      silver: `<svg class="medal-icon medal-silver" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" stroke="#fff8e1" stroke-width="2"/><circle cx="16" cy="16" r="10"/></svg>`,
+      bronze: `<svg class="medal-icon medal-bronze" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" stroke="#fff8e1" stroke-width="2"/><circle cx="16" cy="16" r="10"/></svg>`
+    };
 
     async function fetchScoreboard() {
         try {
@@ -33,17 +127,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Filter out the 'admin' user
                 const filteredUsers = users.filter(u => u.username && u.username.toLowerCase() !== 'admin');
                 if (filteredUsers.length > 0) {
-                    scoreboardList.innerHTML = '';
+                    let html = '<table class="scoreboard-table">';
+                    html += '<thead><tr><th>Rank</th><th>User</th><th>Points</th><th></th></tr></thead><tbody>';
                     filteredUsers.forEach((user, index) => {
-                        const userElement = document.createElement('div');
-                        userElement.className = 'list-item';
-                        userElement.innerHTML = `
-                            <span><strong>${index + 1}. ${user.username}</strong></span>
-                            <span>${user.points} Points</span>
-                            <button class="btn" style="width:auto;padding:0.4em 1em;font-size:0.9em;" onclick="viewPredictions(${user.id}, '${user.username}')">View Predictions</button>
-                        `;
-                        scoreboardList.appendChild(userElement);
+                        let badge = '';
+                        if (index === 0) badge = medalSVG.gold;
+                        else if (index === 1) badge = medalSVG.silver;
+                        else if (index === 2) badge = medalSVG.bronze;
+                        const isCurrent = currentUsername && user.username === currentUsername;
+                        html += `<tr class="${isCurrent ? 'current-user' : ''}">
+                            <td class="rank-badge">${badge || (index+1)}</td>
+                            <td>${user.username}${isCurrent ? ' <span style=\'color:#ffd54f;font-weight:700;\'>(You)</span>' : ''}</td>
+                            <td>${user.points}</td>
+                            <td><button class="scoreboard-btn" onclick="viewPredictions(${user.id}, '${user.username.replace(/'/g, "&#39;")}')">View Predictions</button></td>
+                        </tr>`;
                     });
+                    html += '</tbody></table>';
+                    scoreboardList.innerHTML = html;
                 } else {
                     scoreboardList.innerHTML = '<p>No users on the scoreboard yet.</p>';
                 }
@@ -120,14 +220,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     const matchName = match ? `${match.player1_name || match.player1} vs ${match.player2_name || match.player2}` : 'Match';
-                    return `<div style="margin-bottom:1.2em;padding:1em;background:#f5f5f5;border-radius:8px;">
+                    return `<div style="margin-bottom:1.2em;padding:1em;background:#263143;border-radius:8px;color:#ffd54f;">
                         <strong>${matchName}</strong><br>
-                        Predicted winner: <b style="color:#2563eb;">${winner}</b>
+                        Predicted winner: <b style="color:#ffd54f;">${winner}</b>
                         ${sets}
                     </div>`;
                 } catch (e) {
                     console.error('Error parsing prediction:', e);
-                    return `<div style="margin-bottom:1.2em;padding:1em;background:#f5f5f5;border-radius:8px;">
+                    return `<div style="margin-bottom:1.2em;padding:1em;background:#263143;border-radius:8px;color:#ffd54f;">
                         <strong>${match ? `${match.player1_name || match.player1} vs ${match.player2_name || match.player2}` : 'Match'}</strong><br>
                         <em>Prediction data unavailable</em>
                     </div>`;

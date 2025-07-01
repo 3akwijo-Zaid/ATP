@@ -183,6 +183,9 @@ class StatisticsPrediction {
             $this->updateUserPoints($prediction['user_id'], $pointsAwarded);
         }
         
+        // Apply joker multipliers after regular points calculation
+        $this->applyJokerMultipliers($matchId);
+        
         return true;
     }
 
@@ -199,6 +202,15 @@ class StatisticsPrediction {
         $this->db->bind(':points', $points);
         $this->db->bind(':user_id', $userId);
         return $this->db->execute();
+    }
+    
+    /**
+     * Apply joker multipliers to statistics predictions
+     */
+    private function applyJokerMultipliers($matchId) {
+        require_once 'Joker.php';
+        $joker = new Joker();
+        $joker->applyJokerMultiplier($matchId);
     }
 
     public function getStatisticsPredictionStats($userId) {

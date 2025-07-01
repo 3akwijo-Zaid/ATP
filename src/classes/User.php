@@ -50,8 +50,8 @@ class User {
 
 
     public function getScoreboard() {
-        // Exclude admin users and users with empty/null usernames
-        $this->db->query('SELECT id, username, points FROM users WHERE (is_admin = 0 OR is_admin IS NULL) AND username IS NOT NULL AND username != "" AND username != "admin" ORDER BY points DESC');
+        // Exclude only the user with username 'admin'
+        $this->db->query('SELECT id, username, points FROM users WHERE username IS NOT NULL AND username != "" AND username != "admin" ORDER BY points DESC');
         return $this->db->resultSet();
     }
 

@@ -287,6 +287,15 @@ $user_id = isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : 0;
     </div>
     <div class="atp-section-title">Set Scores</div>
     <div class="atp-sets-grid" id="sets-grid"></div>
+    <div class="joker-section" id="joker-section-match" style="margin:1em 0 0.5em 0;display:none;">
+      <label class="joker-label" style="display:flex;align-items:center;gap:0.5em;cursor:pointer;">
+        <input type="checkbox" id="joker-checkbox-match" style="width:1.2em;height:1.2em;">
+        <span class="joker-text" style="font-weight:600;color:#ffd54f;">🎯 Use Joker (Double Points for this match)</span>
+      </label>
+      <div class="joker-info" style="font-size:0.95em;color:#ffd54f;opacity:0.85;">
+        <small>You can use one joker per round to double your points for a match of your choice.</small>
+      </div>
+    </div>
     <div class="atp-btn-row">
       <button type="button" class="atp-btn atp-btn-primary" id="save-match-prediction">Save Match Prediction</button>
       <button type="button" class="atp-btn atp-btn-secondary" id="clear-match-prediction">Clear</button>
@@ -1851,17 +1860,30 @@ document.addEventListener('DOMContentLoaded', async function() {
     
             
             if (result.success) {
-                showMessage(result.message, 'success');
+                // If joker checkbox is checked and not already used, set joker
+                if (jokerCheckboxMatch && jokerCheckboxMatch.checked && !jokerUsedForThisRound) {
+                    const { tournament_id, round } = getTournamentAndRound();
+                    await fetch('../api/joker.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            tournament_id,
+                            round,
+                            match_id: match.id,
+                            prediction_type: 'match'
+                        })
+                    });
+                }
+                showMessage('Prediction saved successfully!', 'success');
                 saveMatchBtn.disabled = true;
                 saveMatchBtn.textContent = 'Prediction Submitted';
-                await loadExistingPredictions();
+                await fetchJokerStatus(); // Refresh joker UI
                 await loadPredictionSummary();
             } else {
-                showMessage(result.message, 'error');
+                showMessage(result.message || 'Failed to save prediction.', 'error');
             }
         } catch (error) {
-            console.error('Error saving match prediction:', error);
-            showMessage('Error saving prediction. Please try again.', 'error');
+            showMessage('Error saving prediction.', 'error');
         }
     });
 
@@ -2100,6 +2122,56 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }, 5000);
     }
+
+    const jokerSectionMatch = document.getElementById('joker-section-match');
+    const jokerCheckboxMatch = document.getElementById('joker-checkbox-match');
+    let jokerUsedForThisRound = false;
+    let jokerMatchId = null;
+    let jokerPredictionType = null;
+
+    // Helper: get tournament_id and round from match object
+    function getTournamentAndRound() {
+        return {
+            tournament_id: match.tournament_id,
+            round: match.round
+        };
+    }
+
+    // Fetch joker status for this round
+    async function fetchJokerStatus() {
+        if (!match) return;
+        const { tournament_id, round } = getTournamentAndRound();
+        const res = await fetch(`../api/joker.php?tournament_id=${tournament_id}&round=${encodeURIComponent(round)}`);
+        const data = await res.json();
+        if (data.success && data.joker) {
+            jokerUsedForThisRound = true;
+            jokerMatchId = data.joker.match_id;
+            jokerPredictionType = data.joker.prediction_type;
+            // If this match and type, pre-check the box and disable
+            if (parseInt(jokerMatchId) === parseInt(match.id) && jokerPredictionType === 'match') {
+                jokerSectionMatch.style.display = '';
+                jokerCheckboxMatch.checked = true;
+                jokerCheckboxMatch.disabled = true;
+                jokerSectionMatch.querySelector('.joker-info').innerHTML = '<small>You have used your joker for this match (double points will apply).</small>';
+            } else {
+                // Joker used elsewhere in this round
+                jokerSectionMatch.style.display = '';
+                jokerCheckboxMatch.checked = false;
+                jokerCheckboxMatch.disabled = true;
+                jokerSectionMatch.querySelector('.joker-info').innerHTML = '<small>You have already used your joker for this round on another match or prediction type.</small>';
+            }
+        } else {
+            // Joker not used yet for this round
+            jokerUsedForThisRound = false;
+            jokerSectionMatch.style.display = '';
+            jokerCheckboxMatch.checked = false;
+            jokerCheckboxMatch.disabled = false;
+            jokerSectionMatch.querySelector('.joker-info').innerHTML = '<small>You can use one joker per round to double your points for a match of your choice.</small>';
+        }
+    }
+
+    // Call fetchJokerStatus after match is loaded
+    await fetchJokerStatus();
 });
 </script>
 

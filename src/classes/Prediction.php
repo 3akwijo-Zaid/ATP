@@ -109,8 +109,27 @@ class Prediction {
             $this->db->bind(':points', $points);
             $this->db->bind(':id', $prediction['id']);
             $this->db->execute();
+            
+            // Update user points
+            $this->db->query('UPDATE users SET points = points + :points WHERE id = :user_id');
+            $this->db->bind(':points', $points);
+            $this->db->bind(':user_id', $prediction['user_id']);
+            $this->db->execute();
         }
+        
+        // Apply joker multipliers after regular points calculation
+        $this->applyJokerMultipliers($matchId);
+        
         return true;
+    }
+    
+    /**
+     * Apply joker multipliers to match predictions
+     */
+    private function applyJokerMultipliers($matchId) {
+        require_once 'Joker.php';
+        $joker = new Joker();
+        $joker->applyJokerMultiplier($matchId);
     }
 
     public function submit($userId, $matchId, $winner, $sets) {
