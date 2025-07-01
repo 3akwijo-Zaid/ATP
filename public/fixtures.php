@@ -23,7 +23,49 @@ const IS_ADMIN = <?php echo (isset($_SESSION['is_admin']) && $_SESSION['is_admin
 function getFlagCode(code) {
     // Map 3-letter to 2-letter codes
     const map = {
-        'USA': 'us', 'GBR': 'gb', 'ESP': 'es', 'FRA': 'fr', 'GER': 'de', 'ITA': 'it', 'AUS': 'au', 'RUS': 'ru', 'SRB': 'rs', 'ARG': 'ar', 'SUI': 'ch', 'CRO': 'hr', 'CAN': 'ca', 'JPN': 'jp', 'UK': 'gb', 'ENG': 'gb', 'FR': 'fr', 'DE': 'de', 'IT': 'it', 'AU': 'au', 'RU': 'ru', 'RS': 'rs', 'AR': 'ar', 'CH': 'ch', 'HR': 'hr', 'CA': 'ca', 'JP': 'jp', 'Other': 'un'
+        'AFG': 'af', 'ALB': 'al', 'DZA': 'dz', 'AND': 'ad', 'AGO': 'ao', 'ARG': 'ar', 'ARM': 'am', 'AUS': 'au', 'AUT': 'at', 'AZE': 'az',
+        'BHS': 'bs', 'BHR': 'bh', 'BGD': 'bd', 'BRB': 'bb', 'BLR': 'by', 'BEL': 'be', 'BLZ': 'bz', 'BEN': 'bj', 'BTN': 'bt', 'BOL': 'bo',
+        'BIH': 'ba', 'BWA': 'bw', 'BRA': 'br', 'BRN': 'bn', 'BGR': 'bg', 'BFA': 'bf', 'BDI': 'bi', 'KHM': 'kh', 'CMR': 'cm', 'CAN': 'ca',
+        'CPV': 'cv', 'CAF': 'cf', 'TCD': 'td', 'CHL': 'cl', 'CHN': 'cn', 'COL': 'co', 'COM': 'km', 'COG': 'cg', 'COD': 'cd', 'CRI': 'cr',
+        'CIV': 'ci', 'HRV': 'hr', 'CUB': 'cu', 'CYP': 'cy', 'CZE': 'cz', 'DNK': 'dk', 'DJI': 'dj', 'DMA': 'dm', 'DOM': 'do', 'ECU': 'ec',
+        'EGY': 'eg', 'SLV': 'sv', 'GNQ': 'gq', 'ERI': 'er', 'EST': 'ee', 'SWZ': 'sz', 'ETH': 'et', 'FJI': 'fj', 'FIN': 'fi', 'FRA': 'fr',
+        'GAB': 'ga', 'GMB': 'gm', 'GEO': 'ge', 'DEU': 'de', 'GHA': 'gh', 'GRC': 'gr', 'GRD': 'gd', 'GTM': 'gt', 'GIN': 'gn', 'GNB': 'gw',
+        'GUY': 'gy', 'HTI': 'ht', 'HND': 'hn', 'HUN': 'hu', 'ISL': 'is', 'IND': 'in', 'IDN': 'id', 'IRN': 'ir', 'IRQ': 'iq',
+        // 'ISR': 'il', // Excluded
+        'ITA': 'it', 'JAM': 'jm', 'JPN': 'jp', 'JOR': 'jo', 'KAZ': 'kz', 'KEN': 'ke', 'KIR': 'ki', 'PRK': 'kp', 'KOR': 'kr',
+        'KWT': 'kw', 'KGZ': 'kg', 'LAO': 'la', 'LVA': 'lv', 'LBN': 'lb', 'LSO': 'ls', 'LBR': 'lr', 'LBY': 'ly', 'LIE': 'li', 'LTU': 'lt',
+        'LUX': 'lu', 'MDG': 'mg', 'MWI': 'mw', 'MYS': 'my', 'MDV': 'mv', 'MLI': 'ml', 'MLT': 'mt', 'MHL': 'mh', 'MRT': 'mr', 'MUS': 'mu',
+        'MEX': 'mx', 'FSM': 'fm', 'MDA': 'md', 'MCO': 'mc', 'MNG': 'mn', 'MNE': 'me', 'MAR': 'ma', 'MOZ': 'mz', 'MMR': 'mm', 'NAM': 'na',
+        'NRU': 'nr', 'NPL': 'np', 'NLD': 'nl', 'NZL': 'nz', 'NIC': 'ni', 'NER': 'ne', 'NGA': 'ng', 'MKD': 'mk', 'NOR': 'no', 'OMN': 'om',
+        'PAK': 'pk', 'PLW': 'pw', 'PSE': 'ps', 'PAN': 'pa', 'PNG': 'pg', 'PRY': 'py', 'PER': 'pe', 'PHL': 'ph', 'POL': 'pl', 'PRT': 'pt',
+        'QAT': 'qa', 'ROU': 'ro', 'RUS': 'ru', 'RWA': 'rw', 'KNA': 'kn', 'LCA': 'lc', 'VCT': 'vc', 'WSM': 'ws', 'SMR': 'sm', 'STP': 'st',
+        'SAU': 'sa', 'SEN': 'sn', 'SRB': 'rs', 'SYC': 'sc', 'SLE': 'sl', 'SGP': 'sg', 'SVK': 'sk', 'SVN': 'si', 'SLB': 'sb', 'SOM': 'so',
+        'ZAF': 'za', 'SSD': 'ss', 'ESP': 'es', 'LKA': 'lk', 'SDN': 'sd', 'SUR': 'sr', 'SWE': 'se', 'CHE': 'ch', 'SYR': 'sy', 'TWN': 'tw',
+        'TJK': 'tj', 'TZA': 'tz', 'THA': 'th', 'TLS': 'tl', 'TGO': 'tg', 'TON': 'to', 'TTO': 'tt', 'TUN': 'tn', 'TUR': 'tr', 'TKM': 'tm',
+        'TUV': 'tv', 'UGA': 'ug', 'UKR': 'ua', 'ARE': 'ae', 'GBR': 'gb', 'USA': 'us', 'URY': 'uy', 'UZB': 'uz', 'VUT': 'vu', 'VEN': 've',
+        'VNM': 'vn', 'YEM': 'ye', 'ZMB': 'zm', 'ZWE': 'zw', 'Other': 'un',
+        // Also support 2-letter codes for flexibility
+        'AF': 'af', 'AL': 'al', 'DZ': 'dz', 'AD': 'ad', 'AO': 'ao', 'AR': 'ar', 'AM': 'am', 'AU': 'au', 'AT': 'at', 'AZ': 'az',
+        'BS': 'bs', 'BH': 'bh', 'BD': 'bd', 'BB': 'bb', 'BY': 'by', 'BE': 'be', 'BZ': 'bz', 'BJ': 'bj', 'BT': 'bt', 'BO': 'bo',
+        'BA': 'ba', 'BW': 'bw', 'BR': 'br', 'BN': 'bn', 'BG': 'bg', 'BF': 'bf', 'BI': 'bi', 'KH': 'kh', 'CM': 'cm', 'CA': 'ca',
+        'CV': 'cv', 'CF': 'cf', 'TD': 'td', 'CL': 'cl', 'CN': 'cn', 'CO': 'co', 'KM': 'km', 'CG': 'cg', 'CD': 'cd', 'CR': 'cr',
+        'CI': 'ci', 'HR': 'hr', 'CU': 'cu', 'CY': 'cy', 'CZ': 'cz', 'DK': 'dk', 'DJ': 'dj', 'DM': 'dm', 'DO': 'do', 'EC': 'ec',
+        'EG': 'eg', 'SV': 'sv', 'GQ': 'gq', 'ER': 'er', 'EE': 'ee', 'SZ': 'sz', 'ET': 'et', 'FJ': 'fj', 'FI': 'fi', 'FR': 'fr',
+        'GA': 'ga', 'GM': 'gm', 'GE': 'ge', 'DE': 'de', 'GH': 'gh', 'GR': 'gr', 'GD': 'gd', 'GT': 'gt', 'GN': 'gn', 'GW': 'gw',
+        'GY': 'gy', 'HT': 'ht', 'HN': 'hn', 'HU': 'hu', 'IS': 'is', 'IN': 'in', 'ID': 'id', 'IR': 'ir', 'IQ': 'iq',
+        // 'IL': 'il', // Excluded
+        'IT': 'it', 'JM': 'jm', 'JP': 'jp', 'JO': 'jo', 'KZ': 'kz', 'KE': 'ke', 'KI': 'ki', 'KP': 'kp', 'KR': 'kr',
+        'KW': 'kw', 'KG': 'kg', 'LA': 'la', 'LV': 'lv', 'LB': 'lb', 'LS': 'ls', 'LR': 'lr', 'LY': 'ly', 'LI': 'li', 'LT': 'lt',
+        'LU': 'lu', 'MG': 'mg', 'MW': 'mw', 'MY': 'my', 'MV': 'mv', 'ML': 'ml', 'MT': 'mt', 'MH': 'mh', 'MR': 'mr', 'MU': 'mu',
+        'MX': 'mx', 'FM': 'fm', 'MD': 'md', 'MC': 'mc', 'MN': 'mn', 'ME': 'me', 'MA': 'ma', 'MZ': 'mz', 'MM': 'mm', 'NA': 'na',
+        'NR': 'nr', 'NP': 'np', 'NL': 'nl', 'NZ': 'nz', 'NI': 'ni', 'NE': 'ne', 'NG': 'ng', 'MK': 'mk', 'NO': 'no', 'OM': 'om',
+        'PK': 'pk', 'PW': 'pw', 'PS': 'ps', 'PA': 'pa', 'PG': 'pg', 'PY': 'py', 'PE': 'pe', 'PH': 'ph', 'PL': 'pl', 'PT': 'pt',
+        'QA': 'qa', 'RO': 'ro', 'RU': 'ru', 'RW': 'rw', 'KN': 'kn', 'LC': 'lc', 'VC': 'vc', 'WS': 'ws', 'SM': 'sm', 'ST': 'st',
+        'SA': 'sa', 'SN': 'sn', 'RS': 'rs', 'SC': 'sc', 'SL': 'sl', 'SG': 'sg', 'SK': 'sk', 'SI': 'si', 'SB': 'sb', 'SO': 'so',
+        'ZA': 'za', 'SS': 'ss', 'ES': 'es', 'LK': 'lk', 'SD': 'sd', 'SR': 'sr', 'SE': 'se', 'CH': 'ch', 'SY': 'sy', 'TW': 'tw',
+        'TJ': 'tj', 'TZ': 'tz', 'TH': 'th', 'TL': 'tl', 'TG': 'tg', 'TO': 'to', 'TT': 'tt', 'TN': 'tn', 'TR': 'tr', 'TM': 'tm',
+        'TV': 'tv', 'UG': 'ug', 'UA': 'ua', 'AE': 'ae', 'GB': 'gb', 'US': 'us', 'UY': 'uy', 'UZ': 'uz', 'VU': 'vu', 'VE': 've',
+        'VN': 'vn', 'YE': 'ye', 'ZM': 'zm', 'ZW': 'zw'
     };
     if (!code) return 'un';
     code = code.toUpperCase();
