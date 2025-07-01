@@ -1172,3 +1172,130 @@
     font-size: 1.2em;
     vertical-align: middle;
   }
+
+  /* --- Navigation Bar Enhancements --- */
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    position: relative;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-links li {
+    display: flex;
+  }
+
+  .nav-links a {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--fluid-lg);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+    position: relative;
+    background: none;
+  }
+
+  .nav-links a .nav-icon {
+    font-size: 1.2em;
+    margin-right: 0.3em;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .nav-links a.active,
+  .nav-links a[aria-current="page"] {
+    color: var(--primary-gold);
+    background: rgba(255, 213, 79, 0.13);
+    box-shadow: 0 2px 12px rgba(255, 213, 79, 0.3);
+  }
+
+  .nav-links a:hover,
+  .nav-links a:focus {
+    color: var(--primary-gold);
+    background: rgba(255, 213, 79, 0.08);
+    box-shadow: 0 2px 8px rgba(255, 213, 79, 0.2);
+    outline: none;
+  }
+
+  /* Hide nav-links on mobile, show hamburger */
+  @media (max-width: 900px) {
+    .nav-links {
+      display: none;
+    }
+    .hamburger {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 901px) {
+    .sidebar {
+      display: none !important;
+    }
+    .sidebar-overlay {
+      display: none !important;
+    }
+    .nav-links {
+      display: flex !important;
+    }
+    .hamburger {
+      display: none !important;
+    }
+  }
+
+  /* Sidebar nav icons */
+  .sidebar-nav .nav-icon {
+    font-size: 1.2em;
+    margin-right: 0.5em;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Focus ring for accessibility */
+  .nav-links a:focus-visible, .sidebar-nav ul li a:focus-visible {
+    outline: 2px solid var(--primary-gold);
+    outline-offset: 2px;
+  }
+
+  /* Logo image sizing for all screens */
+  .logo-img {
+    max-height: 2.2rem;
+    width: auto;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .logo-img {
+      max-height: 2.8rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .logo-img {
+      max-height: 3.2rem;
+    }
+  }
+
+  .sidebar .logo-img {
+    max-height: 2rem;
+    margin-right: 0.5rem;
+  }

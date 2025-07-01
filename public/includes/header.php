@@ -16,58 +16,64 @@ require_once '../config/config.php';
     <link rel="apple-touch-icon" href="assets/img/icon-192.png">
     <title>Tennis Predictions</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
 </head>
 <body>
     <header>
-        <nav>
-            <a href="index.php" class="logo">Tennis Predictions</a>
-            <ul>
-                <li><a href="index.php" <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'class="active"' : ''; ?>>Home</a></li>
-                <li><a href="predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'predictions.php' ? 'class="active"' : ''; ?>>Predictions</a></li>
-                <li><a href="fixtures.php" <?php echo basename($_SERVER['PHP_SELF']) == 'fixtures.php' ? 'class="active"' : ''; ?>>Fixtures</a></li>
-                <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active"' : ''; ?>>Scoreboard</a></li>
+        <nav class="navbar" aria-label="Main navigation">
+            <a href="index.php" class="logo" aria-label="Tennis Predictions Home">
+                <img src="assets/img/icon-192.png" class="logo-img">
+                Tennis Predictions
+            </a>
+            <button class="hamburger" id="sidebar-toggle" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false" tabindex="0">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.php" <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span> Home</a></li>
+                <li><a href="predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'predictions.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span> Predictions</a></li>
+                <li><a href="fixtures.php" <?php echo basename($_SERVER['PHP_SELF']) == 'fixtures.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span> Fixtures</a></li>
+                <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span> Scoreboard</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                        <li><a href="../admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active"' : ''; ?>>Admin Panel</a></li>
+                        <li><a href="../admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-screwdriver-wrench"></i></span> Admin Panel</a></li>
                     <?php endif; ?>
-                    <li><a href="profile.php" <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'class="active"' : ''; ?>>Profile</a></li>
-                    <li><a href="logout.php">Logout</a></li>
+                    <li><a href="profile.php" <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span> Profile</a></li>
+                    <li><a href="logout.php"><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-right-from-bracket"></i></span> Logout</a></li>
                 <?php else: ?>
-                    <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>Login</a></li>
-                    <li><a href="register.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active"' : ''; ?>>Register</a></li>
+                    <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span> Login</a></li>
+                    <li><a href="register.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-pen-to-square"></i></span> Register</a></li>
                 <?php endif; ?>
             </ul>
         </nav>
     </header>
     
-    <!-- Hamburger Icon for Mobile -->
-    <button class="hamburger" id="sidebar-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-    
     <!-- Sidebar for Mobile -->
-    <aside class="sidebar" id="sidebar" aria-label="Navigation menu">
+    <aside class="sidebar" id="sidebar" aria-label="Navigation menu" tabindex="-1">
         <div class="sidebar-header flex justify-between items-center">
-            <a href="index.php" class="logo">Tennis Predictions</a>
-            <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation menu">&times;</button>
+            <a href="index.php" class="logo">
+                <img src="assets/img/icon-192.png" class="logo-img">
+                Tennis Predictions
+            </a>
+            <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation menu" tabindex="0">&times;</button>
         </div>
-        <nav class="sidebar-nav">
+        <nav class="sidebar-nav" aria-label="Sidebar navigation">
             <ul>
-                <li><a href="index.php" <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'class="active"' : ''; ?>>Home</a></li>
-                <li><a href="fixtures.php" <?php echo basename($_SERVER['PHP_SELF']) == 'fixtures.php' ? 'class="active"' : ''; ?>>Fixtures</a></li>
-                <li><a href="predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'predictions.php' ? 'class="active"' : ''; ?>>Predictions</a></li>
-                <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active"' : ''; ?>>Scoreboard</a></li>
+                <li><a href="index.php" <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span> Home</a></li>
+                <li><a href="fixtures.php" <?php echo basename($_SERVER['PHP_SELF']) == 'fixtures.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span> Fixtures</a></li>
+                <li><a href="predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'predictions.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span> Predictions</a></li>
+                <li><a href="scoreboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'scoreboard.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span> Scoreboard</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                        <li><a href="../admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active"' : ''; ?>>Admin Panel</a></li>
+                        <li><a href="../admin/dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-screwdriver-wrench"></i></span> Admin Panel</a></li>
                     <?php endif; ?>
-                    <li><a href="profile.php" <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'class="active"' : ''; ?>>Profile</a></li>
-                    <li><a href="logout.php">Logout</a></li>
+                    <li><a href="profile.php" <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span> Profile</a></li>
+                    <li><a href="logout.php"><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-right-from-bracket"></i></span> Logout</a></li>
                 <?php else: ?>
-                    <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>Login</a></li>
-                    <li><a href="register.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active"' : ''; ?>>Register</a></li>
+                    <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span> Login</a></li>
+                    <li><a href="register.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active" aria-current="page"' : ''; ?>><span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-pen-to-square"></i></span> Register</a></li>
                 <?php endif; ?>
             </ul>
         </nav>
