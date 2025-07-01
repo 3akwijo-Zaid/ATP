@@ -375,20 +375,16 @@ function startFixturesCountdowns() {
 }
 
 @media (max-width: 425px) {
-    #featured-matches {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
+    .fixtures-preview-list, a.btn--outline {
+        transform: translateX(0.6em);
     }
 }
 
-@media (max-width: 320px) {
-    #featured-matches {
+@media (max-width: 375px) {
+    .fixtures-preview-list, a.btn--outline { 
         margin: 0 !important;
         padding: 0 !important;
+        transform: translateX(0);
     }
 }
 
