@@ -107,7 +107,7 @@ async function renderFixtures(data) {
                             ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixture-player-img'>` : ''}
                             <b>${m.player1_name}</b> <span class='fi fi-${getFlagCode(m.player1_country)} flag-icon'></span>
                         </span>
-                        <span style='margin: 0 0.5em; font-weight: bold;'>vs</span>
+                        <span class='fixture-vs'>vs</span>
                         <span class='fixture-player'>
                             ${m.player2_image ? `<img src='${m.player2_image}' alt='${m.player2_name}' class='fixture-player-img'>` : ''}
                             <b>${m.player2_name}</b> <span class='fi fi-${getFlagCode(m.player2_country)} flag-icon'></span>
@@ -238,18 +238,34 @@ fetchTournaments().then(fetchFixtures);
     .fixture-card {
         flex: 1 1 100%; /* 1 per row on mobile */
     }
+    .fixture-player-img {
+        width: 28px;
+        height: 28px;
+    }
+    .fixture-players {
+        grid-auto-flow: row;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 0.2em;
+    }
+    .fixture-vs {
+        margin: 0.2em 0;
+    }
 }
 @media (max-width: 425px) {
     .fixture-list {
         gap: 0.5rem; /* Reduce gap on mobile */
         padding-left: 1rem; /* Add left padding to compensate for right gap */
     }
-    
     .fixture-card {
         flex: 1 1 100%; /* 1 per row on mobile */
         min-width: unset; /* Remove min-width constraint on mobile */
         margin: 0; /* Remove any margins */
         width: 100%; /* Force full width */
+    }
+    .fixture-player-img {
+        width: 22px;
+        height: 22px;
     }
 }
 @media (max-width: 375px) {
@@ -259,9 +275,30 @@ fetchTournaments().then(fetchFixtures);
     }
 }
 .fixture-time { font-weight: bold; color: #4fc3f7; font-size: 1.1em; }
-.fixture-players { display: flex; align-items: center; gap: 0.7em; margin-bottom: 0.2em; justify-content: center; text-align: center; }
+.fixture-players {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: 1fr;
+    grid-template-columns: auto auto auto;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7em;
+    margin-bottom: 0.2em;
+    text-align: center;
+}
 .fixture-player { display: flex; align-items: center; gap: 0.3em; font-size: 1.08em; font-weight: 500; justify-content: center; text-align: center; }
-.fixture-player-img { width: 36px; height: 36px; object-fit: cover; border-radius: 50%; border: 2px solid #4fc3f7; background: #1a2327; margin-right: 0.2em; box-shadow: 0 2px 8px #0002; }
+.fixture-player-img {
+    width: 36px;
+    height: 36px;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #4fc3f7;
+    background: #1a2327;
+    margin-right: 0.2em;
+    box-shadow: 0 2px 8px #0002;
+}
 .fixture-tournament { 
     color: #ffd54f; 
     font-weight: 500; 
@@ -352,6 +389,13 @@ fetchTournaments().then(fetchFixtures);
 .styled-select:focus {
     border: 2px solid #4fc3f7;
     box-shadow: 0 4px 16px #4fc3f755;
+}
+.fixture-vs {
+    font-weight: bold;
+    font-size: 1.1em;
+    align-self: center;
+    justify-self: center;
+    margin: 0;
 }
 </style>
 <?php require_once 'includes/footer.php'; ?> 
