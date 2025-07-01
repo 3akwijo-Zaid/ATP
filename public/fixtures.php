@@ -101,6 +101,10 @@ async function renderFixtures(data) {
                 }
 
                 html += `<div class='fixture-card'>
+                <div class='fixture-tournament'>
+                    ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
+                    <span>${m.tournament_name} (${m.round})</span>
+                </div>
                     <div class='fixture-time'>${m.start_time.substr(11,5)}</div>
                     <div class='fixture-players'>
                         <span class='fixture-player'>
@@ -112,10 +116,6 @@ async function renderFixtures(data) {
                             ${m.player2_image ? `<img src='${m.player2_image}' alt='${m.player2_name}' class='fixture-player-img'>` : ''}
                             <b>${m.player2_name}</b> <span class='fi fi-${getFlagCode(m.player2_country)} flag-icon'></span>
                         </span>
-                    </div>
-                    <div class='fixture-tournament'>
-                        ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
-                        <span>${m.tournament_name} (${m.round})</span>
                     </div>
                     <div class='fixture-prediction-types'>
                         ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}

@@ -154,6 +154,7 @@ async function fetchFixturesPreview() {
                 }
 
                 html += `<div class='fixtures-preview-card' data-start='${m.start_time}' data-fixture-idx='${fixtureIndex}'>
+                    <div class='fixtures-preview-tournament'>${m.tournament_name} (${m.round})</div>
                     <div class='fixtures-preview-time'>${m.start_time.substr(11,5)}</div>
                     <div class='fixtures-preview-players'>
                         <span class='fixtures-preview-player'>
@@ -166,7 +167,6 @@ async function fetchFixturesPreview() {
                             <b>${m.player2_name}</b>
                         </span>
                     </div>
-                    <div class='fixtures-preview-tournament'>${m.tournament_name} (${m.round})</div>
                     <span class='fixtures-preview-badge ${badgeClass}' style='background:${badgeColor};color:#fff;padding:0.25em 0.9em;border-radius:1em;font-size:0.97em;'>${badge}</span>
                     <span class='fixtures-preview-countdown' id='fixture-countdown-${fixtureIndex}'></span>
                 </div>`;
