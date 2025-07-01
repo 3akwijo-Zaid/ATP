@@ -243,9 +243,7 @@ fetchTournaments().then(fetchFixtures);
         height: 28px;
     }
     .fixture-players {
-        grid-auto-flow: row;
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
+        flex-direction: column;
         gap: 0.2em;
     }
     .fixture-vs {
@@ -275,17 +273,7 @@ fetchTournaments().then(fetchFixtures);
     }
 }
 .fixture-time { font-weight: bold; color: #4fc3f7; font-size: 1.1em; }
-.fixture-players {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: 1fr;
-    grid-template-columns: auto auto auto;
-    align-items: center;
-    justify-content: center;
-    gap: 0.7em;
-    margin-bottom: 0.2em;
-    text-align: center;
-}
+.fixture-players { display: flex; align-items: center; gap: 0.7em; margin-bottom: 0.2em; justify-content: center; text-align: center; flex-wrap: wrap; }
 .fixture-player { display: flex; align-items: center; gap: 0.3em; font-size: 1.08em; font-weight: 500; justify-content: center; text-align: center; }
 .fixture-player-img {
     width: 36px;
@@ -391,11 +379,10 @@ fetchTournaments().then(fetchFixtures);
     box-shadow: 0 4px 16px #4fc3f755;
 }
 .fixture-vs {
+    margin: 0 0.5em;
     font-weight: bold;
-    font-size: 1.1em;
     align-self: center;
-    justify-self: center;
-    margin: 0;
+    font-size: 1.1em;
 }
 </style>
 <?php require_once 'includes/footer.php'; ?> 
