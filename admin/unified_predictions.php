@@ -1,4 +1,12 @@
-<?php require_once 'includes/header.php'; ?>
+
+<?php
+// Add to all pages
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+require_once 'includes/header.php';
+?>
 
 <div class="page-header">
     <h1>Unified Predictions Management</h1>
@@ -863,10 +871,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php require_once 'includes/footer.php'; ?>
 
-<?php
-// Add to all pages
-header("X-Content-Type-Options: nosniff");
-header("X-Frame-Options: DENY");
-header("X-XSS-Protection: 1; mode=block");
-header("Referrer-Policy: strict-origin-when-cross-origin");
-?> 

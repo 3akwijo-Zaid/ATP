@@ -1,25 +1,14 @@
 /* Black placeholder color for all inputs, textareas, selects, options, and date/time fields */
+input,
+textarea,
+select,
+option {
+    color: #111 !important;
+}
 input::placeholder,
-textarea::placeholder,
-input[type="date"],
-input[type="datetime-local"],
-input[type="month"],
-input[type="week"],
-input[type="time"],
-select:invalid,
-select option[disabled],
-select option[hidden] {
+textarea::placeholder {
     color: #111 !important;
     opacity: 1;
-}
-select,
-option,
-input[type="date"],
-input[type="datetime-local"],
-input[type="month"],
-input[type="week"],
-input[type="time"] {
-    color: #111 !important;
 }
 /* Admin Panel - Modern Design System */
 
