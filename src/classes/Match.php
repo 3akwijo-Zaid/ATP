@@ -26,7 +26,7 @@ class MatchManager {
         $this->db->query('SELECT m.*, p1.name AS player1_name, p1.image AS player1_image, p1.country AS player1_country, p2.name AS player2_name, p2.image AS player2_image, p2.country AS player2_country FROM matches m 
             JOIN players p1 ON m.player1_id = p1.id 
             JOIN players p2 ON m.player2_id = p2.id 
-            ORDER BY m.start_time ASC');
+            ORDER BY m.start_time DESC');
         return $this->db->resultSet();
     }
 
