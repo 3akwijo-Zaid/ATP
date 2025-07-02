@@ -26,7 +26,7 @@ class MatchManager {
         $this->db->query('SELECT m.*, p1.name AS player1_name, p1.image AS player1_image, p1.country AS player1_country, p2.name AS player2_name, p2.image AS player2_image, p2.country AS player2_country FROM matches m 
             JOIN players p1 ON m.player1_id = p1.id 
             JOIN players p2 ON m.player2_id = p2.id 
-            ORDER BY m.start_time DESC');
+            ORDER BY m.start_time ASC');
         return $this->db->resultSet();
     }
 
@@ -162,7 +162,7 @@ class MatchManager {
             $sql .= ' WHERE m.tournament_id = :tid';
             $params[':tid'] = $tournamentId;
         }
-        $sql .= ' ORDER BY m.start_time DESC';
+        $sql .= ' ORDER BY m.start_time ASC';
         $this->db->query($sql);
         foreach ($params as $k => $v) $this->db->bind($k, $v);
         $matches = $this->db->resultSet();
