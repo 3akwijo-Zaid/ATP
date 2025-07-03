@@ -83,6 +83,6 @@ require_once '../config/config.php';
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
     
     <main>
-<script src="assets/js/main.js"></script>
+<script src="assets/js/main.js?v=20240608"></script>
 </body>
 </html> 
