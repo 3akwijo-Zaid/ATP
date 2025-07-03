@@ -1,8 +1,8 @@
 <?php require_once 'includes/header.php'; ?>
 
 <div class="container container--full">
-    <h1>Welcome to Tennis Predictions</h1>
-    <p class="text-center mb-lg">Predict match outcomes and compete on the scoreboard!</p>
+    <h1 class="text-center">Tennis Predictions</h1>
+    <p class="text-center mb-lg">Test your tennis knowledge—predict match results, game scores, and player stats to climb the leaderboard. Ready to serve your best picks?</p>
 
     <h2>Featured Matches</h2>
     <div id="featured-matches" class="featured-matches"></div>
