@@ -123,14 +123,24 @@ async function renderFixtures(data) {
                 let predictionHtml = '';
                 if (USER_ID) {
                     const prediction = await fetchPrediction(m.id);
+                    // Determine locked by time: lock if match start_time is in the past
+                    let isLocked = false;
+                    if (m.start_time) {
+                        // Parse as UTC if possible, fallback to local
+                        const matchTime = new Date(m.start_time.replace(/ /, 'T') + 'Z');
+                        const now = new Date();
+                        isLocked = matchTime < now;
+                    }
                     if (m.status === 'upcoming') {
-                        if (prediction) {
-                            predictionHtml = `<button class='btn btn-outline-success btn-sm' onclick='window.location="predictions.php?match_id=${m.id}"'>View/Edit Prediction</button>`;
+                        if (isLocked) {
+                            predictionHtml = `<button class='btn btn-locked btn-sm' disabled>Locked</button>`;
+                        } else if (prediction) {
+                            predictionHtml = `<button class='btn btn-outline-success btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View/Edit Prediction</button>`;
                         } else {
-                            predictionHtml = `<button class='btn btn-primary btn-sm' onclick='window.location="predictions.php?match_id=${m.id}"'>Predict</button>`;
+                            predictionHtml = `<button class='btn btn-primary btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>Predict</button>`;
                         }
                     } else if (prediction) {
-                        predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location="predictions.php?match_id=${m.id}"'>View Your Prediction</button>`;
+                        predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View Your Prediction</button>`;
                     }
                 } else {
                     predictionHtml = `<a href='login.php' class='btn btn-secondary btn-sm'>Login to Predict</a>`;
@@ -218,6 +228,15 @@ document.addEventListener('click', async function(e) {
 fetchTournaments().then(fetchFixtures);
 </script>
 <style>
+
+.btn-locked {
+    background: #f44336 !important;
+    border-color: #f44336 !important;
+    color: #fff !important;
+    cursor: not-allowed !important;
+    font-weight: 600;
+    opacity: 1;
+}
 .loading {
     text-align: center;
     padding: 2rem;
@@ -470,6 +489,15 @@ fetchTournaments().then(fetchFixtures);
     background: #232b2f;
     color: #ffd54f;
     border-color: #ffd54f;
+}
+
+.btn-locked {
+    background: #f44336 !important;
+    border-color: #f44336 !important;
+    color: #fff !important;
+    cursor: not-allowed !important;
+    font-weight: 600;
+    opacity: 1;
 }
 .btn-featured:hover {
     background: #fffde7;
