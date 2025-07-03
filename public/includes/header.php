@@ -11,10 +11,27 @@ require_once '../config/config.php';
     <meta name="description" content="Predict tennis match outcomes and compete on the scoreboard">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Basic Meta Tags -->
+    <title>Tennis Jma3a | Your Tennis Hub</title>
+    <meta name="description" content="Tennis Jma3a is your go-to platform for discovering tennis events, joining local clubs, and connecting with players in your area." />
+
+    <!-- Open Graph Tags (for Facebook, WhatsApp, LinkedIn, etc.) -->
+    <meta property="og:title" content="Tennis Jma3a | Your Tennis Hub" />
+    <meta property="og:description" content="Discover tennis events, join clubs, and connect with tennis lovers near you with Tennis Jma3a." />
+    <meta property="og:image" content="http://tennis-jma3a.site/public/assets/img/icon-192.png" />
+    <meta property="og:url" content="http://tennis-jma3a.site/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card (for Twitter/X previews) -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Tennis Jma3a | Your Tennis Hub" />
+    <meta name="twitter:description" content="Discover tennis events, join clubs, and connect with tennis lovers near you with Tennis Jma3a." />
+    <meta name="twitter:image" content="http://tennis-jma3a.site/public/assets/img/icon-192.png" />
+
     <meta name="apple-mobile-web-app-title" content="Tennis Predictions">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/img/icon-192.png">
-    <title>Tennis Predictions</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
@@ -24,7 +41,7 @@ require_once '../config/config.php';
         <nav class="navbar" aria-label="Main navigation">
             <a href="index.php" class="logo" aria-label="Tennis Predictions Home">
                 <img src="assets/img/icon-192.png" class="logo-img">
-                Tennis Predictions
+                Tennis Jma3a
             </a>
             <button class="hamburger" id="sidebar-toggle" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false" tabindex="0">
                 <span></span>
