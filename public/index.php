@@ -2,7 +2,7 @@
 
 <div class="container container--full">
     <h1 class="text-center">Tennis Predictions</h1>
-    <p class="text-center mb-lg">Test your tennis knowledge—predict match results, game scores, and player stats to climb the leaderboard. Ready to serve your best picks?</p>
+    <p class="text-center mb-lg">Predict tennis results and climb the leaderboard!</p>
 
     <h2>Featured Matches</h2>
     <div id="featured-matches" class="featured-matches"></div>
