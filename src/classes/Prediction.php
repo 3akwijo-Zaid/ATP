@@ -140,14 +140,14 @@ class Prediction {
     }
 
     public function submit($userId, $matchId, $winner, $sets) {
-        // Check if prediction is locked (1 hour before match)
+        // Check if prediction is locked (5 minutes before match)
         $this->db->query('SELECT start_time FROM matches WHERE id = :match_id');
         $this->db->bind(':match_id', $matchId);
         $match = $this->db->single();
         
         if ($match) {
             $startTime = strtotime($match['start_time']);
-            if ($startTime - time() <= 3600) {
+            if ($startTime - time() <= 300) {
                 return ['success' => false, 'message' => 'Predictions are locked for this match.'];
             }
         }
@@ -270,14 +270,14 @@ class Prediction {
     }
 
     public function deletePrediction($userId, $matchId) {
-        // Check if prediction is locked (1 hour before match)
+        // Check if prediction is locked (5 minutes before match)
         $this->db->query('SELECT start_time FROM matches WHERE id = :match_id');
         $this->db->bind(':match_id', $matchId);
         $match = $this->db->single();
         
         if ($match) {
             $startTime = strtotime($match['start_time']);
-            if ($startTime - time() <= 3600) {
+            if ($startTime - time() <= 300) {
                 return ['success' => false, 'message' => 'Predictions are locked for this match.'];
             }
         }

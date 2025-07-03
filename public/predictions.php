@@ -1232,7 +1232,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const now = new Date();
             const timeDiff = (startTime - now) / 1000; // seconds
             
-            if (timeDiff <= 3600) {
+            if (timeDiff <= 300) {
                 lockMessage.style.display = 'block';
                 document.querySelectorAll('.atp-card').forEach(card => {
                     card.style.display = 'none';

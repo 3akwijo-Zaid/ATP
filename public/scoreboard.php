@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const match = matches.find(m => m.id == pred.match_id);
                 if (!match) return false;
                 const start = new Date(match.start_time);
-                return (start - now) / 1000 <= 3600 || match.status === 'finished';
+                return (start - now) / 1000 <= 300 || match.status === 'finished';
             });
             
             if (lockedPreds.length === 0) {

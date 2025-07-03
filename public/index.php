@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const matchId = card.getAttribute('data-match-id');
                 const countdownEl = document.getElementById(`featured-countdown-${idx}`);
                 const secondsToStart = Math.floor((start - now) / 1000);
-                const secondsToLock = secondsToStart - 3600;
+                const secondsToLock = secondsToStart - 300;
 
                 if (secondsToLock > 0) {
                     countdownEl.textContent = `Predict Now (closes in ${formatCountdown(secondsToLock)})`;
@@ -127,7 +127,7 @@ async function fetchFixturesPreview() {
                 const startTime = new Date(m.start_time);
                 const now = new Date();
                 const secondsToStart = Math.floor((startTime - now) / 1000);
-                const secondsToLock = secondsToStart - 3600;
+                const secondsToLock = secondsToStart - 300;
 
                 let badge = '', badgeColor = '', badgeClass = '';
 
@@ -194,7 +194,7 @@ function startFixturesCountdowns() {
             const start = new Date(card.getAttribute('data-start'));
             const now = new Date();
             const secondsToStart = Math.floor((start - now) / 1000);
-            const secondsToLock = secondsToStart - 3600;
+            const secondsToLock = secondsToStart - 300;
             let countdownText = '';
 
             const badgeClass = card.querySelector('.fixtures-preview-badge').classList;
