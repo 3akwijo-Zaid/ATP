@@ -155,7 +155,7 @@ async function fetchFixturesPreview() {
 
                 html += `<div class='fixtures-preview-card' data-start='${m.start_time}' data-fixture-idx='${fixtureIndex}'>
                     <div class='fixtures-preview-tournament'>${m.tournament_name} (${m.round})</div>
-                    <div class='fixtures-preview-time'>${m.start_time.substr(11,5)}</div>
+                    <div class='fixtures-preview-time'><span class='match-date' data-utc1='${m.start_time}'></span></div>
                     <div class='fixtures-preview-players'>
                         <span class='fixtures-preview-player'>
                             ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixtures-preview-player-img'>` : ''}

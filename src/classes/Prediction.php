@@ -176,7 +176,7 @@ class Prediction {
         $predictionData = [
             'winner' => $winner,
             'sets' => $sets,
-            'submitted_at' => date('Y-m-d H:i:s')
+            'submitted_at' => (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d\TH:i:sP')
         ];
 
         // Insert prediction (no overwrite)
@@ -186,7 +186,7 @@ class Prediction {
         $this->db->bind(':user_id', $userId);
         $this->db->bind(':match_id', $matchId);
         $this->db->bind(':prediction_data', json_encode($predictionData));
-        $this->db->bind(':created_at', date('Y-m-d H:i:s'));
+        $this->db->bind(':created_at', (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d\TH:i:sP'));
 
         if ($this->db->execute()) {
             return ['success' => true, 'message' => 'Prediction submitted successfully.'];

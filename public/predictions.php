@@ -1213,7 +1213,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             matchDetails.innerHTML = `
                 <h1>${match.player1_name} vs ${match.player2_name}</h1>
                 <p>${match.tournament_name} - ${match.round}</p>
-                <p>${new Date(match.start_time).toLocaleString()}</p>
+                <p><span class='match-date' data-utc1='${match.start_time}'></span></p>
             `;
             
             // Update player names and avatars

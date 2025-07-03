@@ -147,7 +147,7 @@ async function renderFixtures(data) {
                     ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
                     <span>${m.tournament_name} (${m.round})</span>
                 </div>
-                    <div class='fixture-time'>${m.start_time.substr(11,5)}</div>
+                    <div class='fixture-time'><span class='match-date' data-utc1='${m.start_time}'></span></div>
                     <div class='fixture-players'>
                         <span class='fixture-player'>
                             ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixture-player-img'>` : ''}

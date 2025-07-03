@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>${user.username}</td>
                             <td>${user.points || 0}</td>
                             <td>${user.country || '-'}</td>
-                            <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
+                            <td>${user.created_at ? `<span class='match-date' data-utc1='${user.created_at}'></span>` : '-'}</td>
                             <td>${user.is_admin == 1 ? '<span class="badge badge-success">Admin</span>' : '<span class="badge badge-secondary">User</span>'}</td>
                             <td>
                                 ${user.is_admin == 0 && currentAdmin === 'admin' ? 

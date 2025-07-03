@@ -282,4 +282,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    document.querySelectorAll('.match-date[data-utc1]').forEach(function(el) {
+        const utc1String = el.getAttribute('data-utc1');
+        if (utc1String) {
+            const localDate = new Date(utc1String);
+            el.textContent = localDate.toLocaleString(undefined, {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+    });
 }); 

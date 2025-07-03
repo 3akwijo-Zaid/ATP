@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${m.round}</td>
                 <td>${m.player1_name || ''}</td>
                 <td>${m.player2_name || ''}</td>
-                <td>${m.start_time}</td>
+                <td><span class='match-date' data-utc1='${m.start_time}'></span></td>
                 <td>${m.status || 'upcoming'}</td>
                 <td><button onclick='toggleFeatured(${m.id}, ${m.featured || 0})' class='btn btn-sm ${m.featured ? 'btn-success' : 'btn-secondary'}'>${m.featured ? 'Featured' : 'Not Featured'}</button></td>
                 <td>${gamePred} ${statsPred}</td>

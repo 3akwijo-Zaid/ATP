@@ -109,7 +109,7 @@ function renderProfile(data) {
     const flagEl = document.getElementById('profile-flag');
     if (flagEl) flagEl.textContent = getFlag(p.flag);
     const joinDateEl = document.getElementById('profile-join-date');
-    if (joinDateEl) joinDateEl.textContent = 'Joined: ' + p.join_date;
+    if (joinDateEl) joinDateEl.innerHTML = 'Joined: <span class="match-date" data-utc1="' + p.join_date + '"></span>';
     const rankEl = document.getElementById('profile-rank');
     if (rankEl) rankEl.textContent = 'Rank: ' + p.rank;
     const pointsEl = document.getElementById('profile-points');
@@ -173,7 +173,7 @@ function renderProfile(data) {
                             <div class="activity-text">${activityText}</div>
                             <div class="activity-meta">
                                 <span class="activity-tournament">${activity.tournament_name}</span>
-                                <span class="activity-date">${date} at ${time}</span>
+                                <span class="activity-date"><span class="match-date" data-utc1="${activity.created_at}"></span></span>
                             </div>
                         </div>
                     </li>
