@@ -211,8 +211,12 @@ function renderProfile(data) {
         </div>
         <div class="profile-tab-content" id="tab-headtohead" style="display:none;">
             ${s.top_rival_username ? `<div class="grid grid--responsive-sm gap-md mb-lg text-center">
-                <div><b>${s.top_rival_username}</b><br>Top Rival </div>
+                <div><b>${s.top_rival_username}</b><br>Top Rival</div>
                 <div><b>${s.win_rate_vs_rival !== null ? s.win_rate_vs_rival + '%' : '-'}</b><br>Win Rate vs. Rival</div>
+                <div><b>${s.total_duels_vs_rival ?? 0}</b><br>Total Duels</div>
+                <div><b>${s.user_wins_vs_rival ?? 0}</b><br>Your Wins</div>
+                <div><b>${s.rival_wins_vs_user ?? 0}</b><br>Rival Wins</div>
+                <div><b>${s.ties_vs_rival ?? 0}</b><br>Ties</div>
             </div>` : '<div style="text-align:center;color:#b0bec5;">No rival data yet.</div>'}
         </div>
         <div class="profile-tab-content" id="tab-timing" style="display:none;">
@@ -341,8 +345,12 @@ function renderProfile(data) {
             <div class="profile-stats-section">
                 <div class="profile-section-title">Head-to-Head</div>
                 ${s.top_rival_username ? `<div class="grid grid--responsive-sm gap-md mb-lg text-center">
-                    <div><b>${s.top_rival_username}</b><br>Top Rival (${s.top_rival_overlap} matches)</div>
+                    <div><b>${s.top_rival_username}</b><br>Top Rival</div>
                     <div><b>${s.win_rate_vs_rival !== null ? s.win_rate_vs_rival + '%' : '-'}</b><br>Win Rate vs. Rival</div>
+                    <div><b>${s.total_duels_vs_rival ?? 0}</b><br>Total Duels</div>
+                    <div><b>${s.user_wins_vs_rival ?? 0}</b><br>Your Wins</div>
+                    <div><b>${s.rival_wins_vs_user ?? 0}</b><br>Rival Wins</div>
+                    <div><b>${s.ties_vs_rival ?? 0}</b><br>Ties</div>
                 </div>` : '<div style="text-align:center;color:#b0bec5;">No rival data yet.</div>'}
             </div>
             <div class="profile-stats-section">

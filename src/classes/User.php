@@ -191,6 +191,7 @@ class User {
         $rows = $this->db->resultSet();
         $bestScore = -1;
         $trueRival = null;
+        $userWins = 0; $rivalWins = 0; $ties = 0; $totalDuels = 0;
         foreach ($rows as $row) {
             $decisive = $row['user_wins'] + $row['rival_wins'];
             $win_ratio = $decisive > 0 ? $row['user_wins'] / $decisive : 0;
@@ -203,37 +204,21 @@ class User {
                 $trueRival['score'] = $score;
                 $trueRival['win_ratio'] = $win_ratio;
             }
+            if ($row['user_wins'] > 0) $userWins++;
+            if ($row['rival_wins'] > 0) $rivalWins++;
+            if ($row['overlap'] > 0) $ties++;
         }
+        $totalDuels = $userWins + $rivalWins + $ties;
+        $winRateVsRival = $totalDuels > 0 ? round($userWins / $totalDuels * 100, 1) : null;
+        $rivalCloseness = round($trueRival['closeness'] * 100, 1);
         $topRivalUsername = null;
         $topRivalOverlap = null;
-        $winRateVsRival = null;
-        $rivalCloseness = null;
         if ($trueRival) {
             // Get username
             $this->db->query('SELECT username FROM users WHERE id = :id');
             $this->db->bind(':id', $trueRival['user_id']);
             $topRivalUsername = $this->db->single()['username'] ?? null;
             $topRivalOverlap = $trueRival['overlap'];
-
-            // Calculate win rate vs rival based on points_awarded
-            $this->db->query('
-                SELECT p1.points_awarded as user_points, p2.points_awarded as rival_points
-                FROM predictions p1
-                JOIN predictions p2 ON p1.match_id = p2.match_id AND p2.user_id = :rival_id
-                WHERE p1.user_id = :user_id
-            ');
-            $this->db->bind(':user_id', $userId);
-            $this->db->bind(':rival_id', $trueRival['user_id']);
-            $rows = $this->db->resultSet();
-            $userWins = 0; $rivalWins = 0; $ties = 0;
-            foreach ($rows as $row) {
-                if ($row['user_points'] > $row['rival_points']) $userWins++;
-                elseif ($row['user_points'] < $row['rival_points']) $rivalWins++;
-                else $ties++;
-            }
-            $totalDuels = $userWins + $rivalWins + $ties;
-            $winRateVsRival = $totalDuels > 0 ? round($userWins / $totalDuels * 100, 1) : null;
-            $rivalCloseness = round($trueRival['closeness'] * 100, 1);
         }
         // Prediction timing
         $this->db->query('SELECT p.created_at, m.start_time FROM predictions p JOIN matches m ON p.match_id = m.id WHERE p.user_id = :id');
@@ -269,6 +254,10 @@ class User {
             'win_rate_vs_rival' => $winRateVsRival,
             'rival_closeness' => $rivalCloseness,
             'rival_score' => $bestScore,
+            'user_wins_vs_rival' => $userWins,
+            'rival_wins_vs_user' => $rivalWins,
+            'ties_vs_rival' => $ties,
+            'total_duels_vs_rival' => $totalDuels,
             'avg_time_before_match' => $avgTimeBeforeMatch,
             'last_minute_predictions' => $lastMinuteCount
         ];
