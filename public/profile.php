@@ -211,7 +211,7 @@ function renderProfile(data) {
         </div>
         <div class="profile-tab-content" id="tab-headtohead" style="display:none;">
             ${s.top_rival_username ? `<div class="grid grid--responsive-sm gap-md mb-lg text-center">
-                <div><b>${s.top_rival_username}</b><br>Top Rival</div>
+                <div><b>${s.top_rival_username}</b><br>Top Rival </div>
                 <div><b>${s.win_rate_vs_rival !== null ? s.win_rate_vs_rival + '%' : '-'}</b><br>Win Rate vs. Rival</div>
             </div>` : '<div style="text-align:center;color:#b0bec5;">No rival data yet.</div>'}
         </div>
