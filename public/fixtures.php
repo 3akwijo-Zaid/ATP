@@ -203,6 +203,7 @@ async function renderFixtures(data) {
     let resultsHtml = '<div class="fixtures-section-title-wrapper"><div class="fixtures-section-title">Match Results</div></div>';
     let hasUpcoming = false;
     let hasResults = false;
+    let finishedMatchesFlat = [];
     if (!data || !data.length) {
         upcomingHtml += '<p>No upcoming matches found.</p>';
         resultsHtml += '<p>No match results found.</p>';
@@ -273,60 +274,102 @@ async function renderFixtures(data) {
                 }
                 upcomingHtml += `</div></div>`;
             }
-            // Group finished matches
+            // Collect finished matches for flat pagination
             const finishedMatches = day.matches.filter(m => m.status === 'finished');
             if (finishedMatches.length) {
                 hasResults = true;
-                resultsHtml += `<div class='fixture-day'><h4>${friendlyDate}</h4><div class='fixture-list'>`;
-                for (const m of finishedMatches) {
-                    let predictionHtml = '';
-                    if (USER_ID) {
-                        const prediction = await fetchPrediction(m.id);
-                        if (prediction) {
-                            predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View Your Prediction</button>`;
-                        }
-                    }
-                    let featuredHtml = '';
-                    if (IS_ADMIN) {
-                        featuredHtml = `<button class='btn btn-featured ${m.featured == 1 ? 'btn-featured-on' : 'btn-featured-off'}' data-match-id='${m.id}' data-featured='${m.featured || 0}'>${m.featured == 1 ? '★ Featured' : '☆ Make Featured'}</button>`;
-                    }
-                    resultsHtml += `<div class='fixture-card finished-card'>
-                        <div class='fixture-tournament'>
-                            ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
-                            <span>${m.tournament_name} (${m.round})</span>
-                        </div>
-                        <div class='fixture-time'><span class='match-date time-only' data-utc1='${m.start_time}'></span></div>
-                        <div class='fixture-players'>
-                            <span class='fixture-player'>
-                                ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixture-player-img'>` : ''}
-                                <b>${m.player1_name}</b> <span class='fi fi-${getFlagCode(m.player1_country)} flag-icon'></span>
-                            </span>
-                            <span class='fixture-vs'>vs</span>
-                            <span class='fixture-player'>
-                                ${m.player2_image ? `<img src='${m.player2_image}' alt='${m.player2_name}' class='fixture-player-img'>` : ''}
-                                <b>${m.player2_name}</b> <span class='fi fi-${getFlagCode(m.player2_country)} flag-icon'></span>
-                            </span>
-                        </div>
-                        <div class='fixture-prediction-types'>
-                            ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
-                            ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
-                        </div>
-                        <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
-                        <div class='fixture-result finished-result'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
-                        <div class='fixture-prediction-action'>
-                            ${predictionHtml}
-                            ${IS_ADMIN ? `<div style='margin-top:0.7em;'>${featuredHtml}</div>` : ''}
-                        </div>
-                    </div>`;
-                }
-                resultsHtml += `</div></div>`;
+                finishedMatches.forEach(m => finishedMatchesFlat.push({ ...m, date: day.date }));
             }
         }
-        if (!hasUpcoming) upcomingHtml += '<p>No upcoming matches found.</p>';
-        if (!hasResults) resultsHtml += '<p>No match results found.</p>';
+        // Sort finished matches by date descending, then by start_time descending
+        finishedMatchesFlat.sort((a, b) => {
+            if (a.date !== b.date) return b.date.localeCompare(a.date);
+            return (b.start_time || '').localeCompare(a.start_time || '');
+        });
+        // Pagination logic
+        let showCount = 5;
+        let shown = 0;
+        function renderResultsBatch() {
+            let html = '';
+            let lastDate = null;
+            let count = 0;
+            for (let i = 0; i < finishedMatchesFlat.length && count < showCount; i++) {
+                const m = finishedMatchesFlat[i];
+                if (m.date !== lastDate) {
+                    html += `<div class='fixture-day'><h4>${getFriendlyDateLabel(m.date)}</h4><div class='fixture-list'>`;
+                    lastDate = m.date;
+                }
+                let predictionHtml = '';
+                if (USER_ID) {
+                    const prediction = m._userPrediction; // Pre-fetched if needed
+                    if (prediction) {
+                        predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location.href=\"predictions.php?match_id=${m.id}\"'>View Your Prediction</button>`;
+                    }
+                }
+                let featuredHtml = '';
+                if (IS_ADMIN) {
+                    featuredHtml = `<button class='btn btn-featured ${m.featured == 1 ? 'btn-featured-on' : 'btn-featured-off'}' data-match-id='${m.id}' data-featured='${m.featured || 0}'>${m.featured == 1 ? '★ Featured' : '☆ Make Featured'}</button>`;
+                }
+                html += `<div class='fixture-card finished-card'>
+                    <div class='fixture-tournament'>
+                        ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
+                        <span>${m.tournament_name} (${m.round})</span>
+                    </div>
+                    <div class='fixture-time'><span class='match-date time-only' data-utc1='${m.start_time}'></span></div>
+                    <div class='fixture-players'>
+                        <span class='fixture-player'>
+                            ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixture-player-img'>` : ''}
+                            <b>${m.player1_name}</b> <span class='fi fi-${getFlagCode(m.player1_country)} flag-icon'></span>
+                        </span>
+                        <span class='fixture-vs'>vs</span>
+                        <span class='fixture-player'>
+                            ${m.player2_image ? `<img src='${m.player2_image}' alt='${m.player2_name}' class='fixture-player-img'>` : ''}
+                            <b>${m.player2_name}</b> <span class='fi fi-${getFlagCode(m.player2_country)} flag-icon'></span>
+                        </span>
+                    </div>
+                    <div class='fixture-prediction-types'>
+                        ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
+                        ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
+                    </div>
+                    <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
+                    <div class='fixture-result finished-result'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
+                    <div class='fixture-prediction-action'>
+                        ${predictionHtml}
+                        ${IS_ADMIN ? `<div style='margin-top:0.7em;'>${featuredHtml}</div>` : ''}
+                    </div>
+                </div>`;
+                count++;
+                shown++;
+                // Close day div if next match is a different day or last in batch
+                if (i + 1 === finishedMatchesFlat.length || finishedMatchesFlat[i + 1].date !== lastDate || count === showCount) {
+                    html += `</div></div>`;
+                }
+            }
+            document.getElementById('match-results-list').innerHTML = resultsHtml + html;
+            // Show More button
+            let showMoreBtn = document.getElementById('show-more-results-btn');
+            if (shown < finishedMatchesFlat.length) {
+                if (!showMoreBtn) {
+                    showMoreBtn = document.createElement('button');
+                    showMoreBtn.id = 'show-more-results-btn';
+                    showMoreBtn.className = 'btn btn--outline';
+                    showMoreBtn.textContent = 'Show More Results';
+                    showMoreBtn.style.display = 'block';
+                    showMoreBtn.style.margin = '2em auto';
+                    showMoreBtn.style.textAlign = 'center';
+                    showMoreBtn.onclick = function() {
+                        showCount += 5;
+                        renderResultsBatch();
+                    };
+                    document.getElementById('match-results-list').appendChild(showMoreBtn);
+                }
+            } else if (showMoreBtn) {
+                showMoreBtn.remove();
+            }
+        }
+        renderResultsBatch();
     }
     document.getElementById('upcoming-matches-list').innerHTML = upcomingHtml;
-    document.getElementById('match-results-list').innerHTML = resultsHtml;
     if (typeof updateMatchDates === 'function') updateMatchDates();
     startFixturesCountdowns();
 }
@@ -490,6 +533,13 @@ fetchTournaments().then(fetchFixtures);
     }
     .fixture-vs {
         margin: 0.2em 0;
+    }
+    #show-more-results-btn.btn--outline {
+        padding: 0.5em 1.2em !important;
+        font-size: 0.97em !important;
+        min-width: 120px;
+        max-width: 90vw;
+        transform: translateX(10px);
     }
 }
 @media (max-width: 425px) {
