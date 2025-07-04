@@ -1248,11 +1248,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             const gameCard = document.querySelector('.atp-game-card');
             const statisticsCard = document.querySelector('.atp-statistics-card');
             
-            if (match.game_predictions_enabled === 0) {
+            if (match.game_predictions_enabled !== 1) {
                 if (gameCard) gameCard.style.display = 'none';
             }
             
-            if (match.statistics_predictions_enabled === 0) {
+            if (match.statistics_predictions_enabled !== 1) {
                 if (statisticsCard) statisticsCard.style.display = 'none';
             }
             
@@ -1608,7 +1608,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             
             // Load game predictions (only if enabled)
-            if (match.game_predictions_enabled !== 0) {
+            if (match.game_predictions_enabled === 1) {
                 const gameResponse = await fetch(`../api/game_predictions.php?match_id=${matchId}&user_predictions=1`);
                 const gameData = await gameResponse.json();
                 
@@ -1639,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             
             // Load statistics predictions (only if enabled)
-            if (match.statistics_predictions_enabled !== 0) {
+            if (match.statistics_predictions_enabled === 1) {
                 const statisticsResponse = await fetch(`../api/statistics_predictions.php?match_id=${matchId}&user_predictions=1`);
                 const statisticsData = await statisticsResponse.json();
                 
@@ -1685,13 +1685,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             fetchTypes.push('match');
             
             // Only fetch game predictions if enabled
-            if (match.game_predictions_enabled !== 0) {
+            if (match.game_predictions_enabled === 1) {
                 fetchPromises.push(fetch(`../api/game_predictions.php?match_id=${matchId}&user_predictions=1`));
                 fetchTypes.push('game');
             }
             
             // Only fetch statistics predictions if enabled
-            if (match.statistics_predictions_enabled !== 0) {
+            if (match.statistics_predictions_enabled === 1) {
                 fetchPromises.push(fetch(`../api/statistics_predictions.php?match_id=${matchId}&user_predictions=1`));
                 fetchTypes.push('statistics');
             }
@@ -1730,7 +1730,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             
             // Game prediction summary (only if enabled)
-            if (match.game_predictions_enabled !== 0) {
+            if (match.game_predictions_enabled === 1) {
                 if (gameData && gameData.success && gameData.predictions && gameData.predictions.length > 0) {
                     // Sort predictions by game number
                     const sortedPredictions = gameData.predictions.sort((a, b) => a.game_number - b.game_number);
@@ -1764,7 +1764,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             
             // Statistics prediction summary (only if enabled)
-            if (match.statistics_predictions_enabled !== 0) {
+            if (match.statistics_predictions_enabled === 1) {
                 if (statisticsData && statisticsData.success && statisticsData.predictions && statisticsData.predictions.length > 0) {
                     summaryHTML += `
                         <div style="margin-bottom: 1rem;">
