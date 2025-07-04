@@ -46,6 +46,14 @@
 const USER_ID = <?php echo $user_id; ?>;
 const IS_ADMIN = <?php echo (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) ? 'true' : 'false'; ?>;
 
+function formatCountdown(seconds) {
+    if (seconds < 0) seconds = 0;
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
+}
+
 function getFlagCode(code) {
     // Map 3-letter to 2-letter codes
     const map = {
@@ -112,6 +120,44 @@ function getFriendlyDateLabel(dateStr) {
     return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
+function getMatchStatus(match) {
+    const startTime = new Date(match.start_time);
+    const now = new Date();
+    const secondsToStart = Math.floor((startTime - now) / 1000);
+    const secondsToLock = secondsToStart - 300; // 5 minutes before start
+
+    if (match.status === 'finished') {
+        return { status: 'finished', text: 'Finished', color: '#43a047', class: 'finished' };
+    } else if (match.status === 'in_progress') {
+        return { status: 'in_progress', text: 'In Progress', color: '#2196f3', class: 'in_progress' };
+    } else if (secondsToLock > 0) {
+        return { status: 'open', text: 'Prediction open', color: '#43a047', class: 'open' };
+    } else if (secondsToStart > 0) {
+        return { status: 'locked', text: 'Locked', color: '#ff9800', class: 'locked' };
+    } else {
+        return { status: 'started', text: 'Match started', color: '#757575', class: 'started' };
+    }
+}
+
+function getCountdownText(match) {
+    const startTime = new Date(match.start_time);
+    const now = new Date();
+    const secondsToStart = Math.floor((startTime - now) / 1000);
+    const secondsToLock = secondsToStart - 300;
+
+    if (match.status === 'finished') {
+        return '';
+    } else if (match.status === 'in_progress') {
+        return 'Live';
+    } else if (secondsToLock > 0) {
+        return formatCountdown(secondsToLock) + ' left to predict';
+    } else if (secondsToStart > 0) {
+        return 'Locked (' + formatCountdown(secondsToStart) + ' to start)';
+    } else {
+        return ''; // Empty when match has started to avoid duplication
+    }
+}
+
 async function fetchTournaments() {
     try {
         const res = await fetch('../api/tournaments.php');
@@ -172,22 +218,19 @@ async function renderFixtures(data) {
                     let predictionHtml = '';
                     if (USER_ID) {
                         const prediction = await fetchPrediction(m.id);
+                        const matchStatus = getMatchStatus(m);
                         let isLocked = false;
-                        if (m.start_time) {
-                            const matchTime = new Date(m.start_time.replace(/ /, 'T') + 'Z');
-                            const now = new Date();
-                            isLocked = matchTime < now;
+                        
+                        if (matchStatus.status === 'locked' || matchStatus.status === 'started') {
+                            isLocked = true;
                         }
-                        if (m.status === 'upcoming') {
-                            if (isLocked) {
-                                predictionHtml = `<button class='btn btn-locked btn-sm' disabled>Locked</button>`;
-                            } else if (prediction) {
-                                predictionHtml = `<button class='btn btn-outline-success btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View/Edit Prediction</button>`;
-                            } else {
-                                predictionHtml = `<button class='btn btn-primary btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>Predict</button>`;
-                            }
+                        
+                        if (isLocked) {
+                            predictionHtml = `<button class='btn btn-locked btn-sm' disabled>Locked</button>`;
                         } else if (prediction) {
-                            predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View Your Prediction</button>`;
+                            predictionHtml = `<button class='btn btn-outline-success btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View/Edit Prediction</button>`;
+                        } else {
+                            predictionHtml = `<button class='btn btn-primary btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>Predict</button>`;
                         }
                     } else {
                         predictionHtml = `<a href='login.php' class='btn btn-secondary btn-sm'>Login to Predict</a>`;
@@ -196,7 +239,9 @@ async function renderFixtures(data) {
                     if (IS_ADMIN) {
                         featuredHtml = `<button class='btn btn-featured ${m.featured == 1 ? 'btn-featured-on' : 'btn-featured-off'}' data-match-id='${m.id}' data-featured='${m.featured || 0}'>${m.featured == 1 ? '★ Featured' : '☆ Make Featured'}</button>`;
                     }
-                    upcomingHtml += `<div class='fixture-card'>
+                    
+                    const matchStatus = getMatchStatus(m);
+                    upcomingHtml += `<div class='fixture-card' data-start='${m.start_time}' data-match-id='${m.id}'>
                         <div class='fixture-tournament'>
                             ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
                             <span>${m.tournament_name} (${m.round})</span>
@@ -217,7 +262,8 @@ async function renderFixtures(data) {
                             ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
                             ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
                         </div>
-                        <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
+                        <div class='fixture-status ${matchStatus.class}' style='background:${matchStatus.color};color:#fff;'>${matchStatus.text}</div>
+                        <div class='fixture-countdown' id='fixture-countdown-${m.id}'></div>
                         <div class='fixture-result'></div>
                         <div class='fixture-prediction-action'>
                             ${predictionHtml}
@@ -282,6 +328,38 @@ async function renderFixtures(data) {
     document.getElementById('upcoming-matches-list').innerHTML = upcomingHtml;
     document.getElementById('match-results-list').innerHTML = resultsHtml;
     if (typeof updateMatchDates === 'function') updateMatchDates();
+    startFixturesCountdowns();
+}
+
+function startFixturesCountdowns() {
+    setInterval(() => {
+        document.querySelectorAll('.fixture-card[data-start]').forEach(card => {
+            const startTime = new Date(card.getAttribute('data-start'));
+            const matchId = card.getAttribute('data-match-id');
+            const countdownEl = document.getElementById(`fixture-countdown-${matchId}`);
+            
+            if (countdownEl) {
+                const match = {
+                    start_time: card.getAttribute('data-start'),
+                    status: card.querySelector('.fixture-status').classList.contains('finished') ? 'finished' : 
+                           card.querySelector('.fixture-status').classList.contains('in_progress') ? 'in_progress' : 'upcoming'
+                };
+                
+                const countdownText = getCountdownText(match);
+                countdownEl.textContent = countdownText;
+                
+                // Update status if needed
+                const statusEl = card.querySelector('.fixture-status');
+                if (statusEl && !statusEl.classList.contains('finished') && !statusEl.classList.contains('in_progress')) {
+                    const newStatus = getMatchStatus(match);
+                    statusEl.className = `fixture-status ${newStatus.class}`;
+                    statusEl.style.background = newStatus.color;
+                    statusEl.style.color = '#fff';
+                    statusEl.textContent = newStatus.text;
+                }
+            }
+        });
+    }, 1000);
 }
 
 // Event listeners
@@ -506,6 +584,21 @@ fetchTournaments().then(fetchFixtures);
     background: rgba(33, 150, 243, 0.10);
     border-color: #4fc3f7;
 }
+.fixture-status.open {
+    color: #43a047;
+    background: rgba(67, 160, 71, 0.10);
+    border-color: #43a047;
+}
+.fixture-status.locked {
+    color: #ff9800;
+    background: rgba(255, 152, 0, 0.10);
+    border-color: #ff9800;
+}
+.fixture-status.started {
+    color: #757575;
+    background: rgba(117, 117, 117, 0.10);
+    border-color: #757575;
+}
 .fixture-status.in_progress {
     color: var(--primary-teal);
     background: rgba(23, 162, 184, 0.13);
@@ -523,6 +616,13 @@ fetchTournaments().then(fetchFixtures);
     justify-content: center;
     display: flex;
     align-items: center;
+}
+.fixture-countdown {
+    font-size: 0.97em;
+    color: #b0bec5;
+    margin-top: 0.1em;
+    text-align: center;
+    min-height: 1.2em;
 }
 .status-icon {
     font-size: 1.1em;
