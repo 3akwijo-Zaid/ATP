@@ -287,8 +287,19 @@ document.addEventListener('DOMContentLoaded', function() {
           .then(result => {
         if (result.success) {
           showMessage('Login successful! Redirecting...', 'success');
-          // Redirect admin users to admin panel, regular users to profile
-          const redirectUrl = result.user && result.user.is_admin ? '../admin/dashboard.php' : 'profile.php';
+          // Check for redirect parameter
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirect = urlParams.get('redirect');
+          
+          let redirectUrl;
+          if (result.user && result.user.is_admin) {
+            redirectUrl = '../admin/dashboard.php';
+          } else if (redirect) {
+            redirectUrl = redirect;
+          } else {
+            redirectUrl = 'profile.php';
+          }
+          
           setTimeout(() => { window.location.href = redirectUrl; }, 1200);
         } else {
           showMessage(result.message || 'Login failed.', 'error');

@@ -233,7 +233,7 @@ async function renderFixtures(data) {
                             predictionHtml = `<button class='btn btn-primary btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>Predict</button>`;
                         }
                     } else {
-                        predictionHtml = `<a href='login.php' class='btn btn-secondary btn-sm'>Login to Predict</a>`;
+                        predictionHtml = `<a href='login.php?redirect=fixtures.php' class='btn btn-secondary btn-sm'>Login to Predict</a>`;
                     }
                     let featuredHtml = '';
                     if (IS_ADMIN) {
