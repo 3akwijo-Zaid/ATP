@@ -121,22 +121,26 @@ class User {
         
         // Check if correct column exists in predictions table
         try {
-            $this->db->query('SELECT COUNT(*) as total, SUM(correct) as correct FROM predictions WHERE user_id = :id');
+            $this->db->query('SELECT COUNT(*) as total, SUM(correct) as correct, SUM(points_awarded) as total_points, MAX(points_awarded) as max_points, MIN(created_at) as first_prediction FROM predictions WHERE user_id = :id');
             $this->db->bind(':id', $userId);
             $row = $this->db->single();
             $total = $row['total'] ?: 0;
             $correct = $row['correct'] ?: 0;
+            $totalPoints = $row['total_points'] ?: 0;
+            $maxPoints = $row['max_points'] ?: 0;
+            $firstPrediction = $row['first_prediction'] ?? null;
         } catch (Exception $e) {
-            // If correct column doesn't exist, just count total predictions
-            $this->db->query('SELECT COUNT(*) as total FROM predictions WHERE user_id = :id');
+            $this->db->query('SELECT COUNT(*) as total, MIN(created_at) as first_prediction FROM predictions WHERE user_id = :id');
             $this->db->bind(':id', $userId);
             $row = $this->db->single();
             $total = $row['total'] ?: 0;
             $correct = 0; // Default to 0 if column doesn't exist
+            $totalPoints = 0;
+            $maxPoints = 0;
+            $firstPrediction = $row['first_prediction'] ?? null;
         }
-        
         $accuracy = $total > 0 ? round($correct / $total * 100) : 0;
-        
+        $avgPoints = $total > 0 ? round($totalPoints / $total, 2) : 0;
         // Streak calculation - handle missing correct column
         $streak = 0;
         try {
@@ -148,15 +152,107 @@ class User {
                 else break;
             }
         } catch (Exception $e) {
-            // If correct column doesn't exist, set streak to 0
             $streak = 0;
         }
-        
+        // Days active
+        $this->db->query('SELECT COUNT(DISTINCT DATE(created_at)) as days_active FROM predictions WHERE user_id = :id');
+        $this->db->bind(':id', $userId);
+        $daysActive = $this->db->single()['days_active'] ?? 0;
+        // Most active day
+        $this->db->query('SELECT DATE(created_at) as day, COUNT(*) as cnt FROM predictions WHERE user_id = :id GROUP BY day ORDER BY cnt DESC LIMIT 1');
+        $this->db->bind(':id', $userId);
+        $mostActiveDayRow = $this->db->single();
+        $mostActiveDay = $mostActiveDayRow['day'] ?? null;
+        $mostActiveDayCount = $mostActiveDayRow['cnt'] ?? 0;
+        // Best ever rank (lowest rank achieved)
+        $this->db->query('SELECT id FROM users ORDER BY points DESC, id ASC');
+        $users = $this->db->resultSet();
+        $bestRank = null;
+        foreach ($users as $i => $u) {
+            if ($u['id'] == $userId) {
+                $bestRank = $i+1;
+                break;
+            }
+        }
+        // True Rival: Mix of most competitive and closest win/loss
+        $this->db->query('
+            SELECT
+              p2.user_id,
+              SUM(CASE WHEN p1.correct > p2.correct THEN 1 ELSE 0 END) AS user_wins,
+              SUM(CASE WHEN p1.correct < p2.correct THEN 1 ELSE 0 END) AS rival_wins,
+              COUNT(*) AS overlap
+            FROM predictions p1
+            JOIN predictions p2 ON p1.match_id = p2.match_id AND p1.user_id != p2.user_id
+            WHERE p1.user_id = :id
+            GROUP BY p2.user_id
+            HAVING (user_wins + rival_wins) > 0
+        ');
+        $this->db->bind(':id', $userId);
+        $rows = $this->db->resultSet();
+        $bestScore = -1;
+        $trueRival = null;
+        foreach ($rows as $row) {
+            $decisive = $row['user_wins'] + $row['rival_wins'];
+            $win_ratio = $decisive > 0 ? $row['user_wins'] / $decisive : 0;
+            $closeness = 1 - abs($win_ratio - 0.5) * 2;
+            $score = $decisive * 0.7 + $closeness * 100 * 0.3;
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $trueRival = $row;
+                $trueRival['closeness'] = $closeness;
+                $trueRival['score'] = $score;
+                $trueRival['win_ratio'] = $win_ratio;
+            }
+        }
+        $topRivalUsername = null;
+        $topRivalOverlap = null;
+        $winRateVsRival = null;
+        $rivalCloseness = null;
+        if ($trueRival) {
+            // Get username
+            $this->db->query('SELECT username FROM users WHERE id = :id');
+            $this->db->bind(':id', $trueRival['user_id']);
+            $topRivalUsername = $this->db->single()['username'] ?? null;
+            $topRivalOverlap = $trueRival['overlap'];
+            $winRateVsRival = $trueRival['win_ratio'] !== null ? round($trueRival['win_ratio'] * 100, 1) : null;
+            $rivalCloseness = round($trueRival['closeness'] * 100, 1);
+        }
+        // Prediction timing
+        $this->db->query('SELECT p.created_at, m.start_time FROM predictions p JOIN matches m ON p.match_id = m.id WHERE p.user_id = :id');
+        $this->db->bind(':id', $userId);
+        $rows = $this->db->resultSet();
+        $totalSeconds = 0; $count = 0; $lastMinuteCount = 0;
+        foreach ($rows as $row) {
+            $created = strtotime($row['created_at']);
+            $start = strtotime($row['start_time']);
+            if ($start > $created) {
+                $diff = $start - $created;
+                $totalSeconds += $diff;
+                $count++;
+                if ($diff <= 60*10) $lastMinuteCount++; // within 10 minutes
+            }
+        }
+        $avgTimeBeforeMatch = $count > 0 ? round($totalSeconds / $count / 60, 1) : null; // in minutes
+        // Return all stats
         return [
             'points' => $points,
             'accuracy' => $accuracy,
             'streak' => $streak,
-            'total_predictions' => $total
+            'total_predictions' => $total,
+            'avg_points' => $avgPoints,
+            'max_points' => $maxPoints,
+            'days_active' => $daysActive,
+            'first_prediction' => $firstPrediction,
+            'most_active_day' => $mostActiveDay,
+            'most_active_day_count' => $mostActiveDayCount,
+            'best_rank' => $bestRank,
+            'top_rival_username' => $topRivalUsername,
+            'top_rival_overlap' => $topRivalOverlap,
+            'win_rate_vs_rival' => $winRateVsRival,
+            'rival_closeness' => $rivalCloseness,
+            'rival_score' => $bestScore,
+            'avg_time_before_match' => $avgTimeBeforeMatch,
+            'last_minute_predictions' => $lastMinuteCount
         ];
     }
 

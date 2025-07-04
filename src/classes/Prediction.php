@@ -375,4 +375,28 @@ class Prediction {
         // Return only the requested limit
         return array_slice($allActivity, 0, $limit);
     }
+
+    /**
+     * Grade all predictions for a match and update the 'correct' column
+     * @param int $matchId
+     * @param string $actualWinner ('player1' or 'player2')
+     */
+    public function gradeMatchPredictions($matchId, $actualWinner)
+    {
+        // Get all predictions for this match
+        $this->db->query('SELECT id, prediction_data FROM predictions WHERE match_id = :match_id');
+        $this->db->bind(':match_id', $matchId);
+        $predictions = $this->db->resultSet();
+
+        foreach ($predictions as $prediction) {
+            $data = json_decode($prediction['prediction_data'], true);
+            $predictedWinner = $data['winner'] ?? null;
+            $isCorrect = ($predictedWinner && $predictedWinner == $actualWinner) ? 1 : 0;
+
+            $this->db->query('UPDATE predictions SET correct = :correct WHERE id = :id');
+            $this->db->bind(':correct', $isCorrect);
+            $this->db->bind(':id', $prediction['id']);
+            $this->db->execute();
+        }
+    }
 }

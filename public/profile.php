@@ -140,21 +140,21 @@ function renderProfile(data) {
                     case 'match_prediction':
                         activityIcon = '🎾';
                         const winner = activity.prediction_data?.winner === 'player1' ? activity.player1_name : activity.player2_name;
-                        activityText = `Predicted ${winner} to win ${activity.tournament_name}`;
+                        activityText = `You predicted <b>${winner}</b> to win in <b>${activity.tournament_name}</b>.`;
                         break;
                     case 'game_prediction':
                         activityIcon = '🎯';
                         const gameWinner = activity.predicted_winner === 'player1' ? activity.player1_name : activity.player2_name;
-                        activityText = `Predicted Point ${activity.game_number}: ${gameWinner} (${activity.predicted_score})`;
+                        activityText = `You predicted <b>${gameWinner}</b> would win point <b>${activity.game_number}</b> with a score of <b>${activity.predicted_score}</b>.`;
                         break;
                     case 'statistics_prediction':
                         activityIcon = '📊';
                         const playerName = activity.player_type === 'player1' ? activity.player1_name : activity.player2_name;
-                        activityText = `Predicted ${playerName}: ${activity.aces_predicted} aces, ${activity.double_faults_predicted} double faults`;
+                        activityText = `You predicted <b>${playerName}</b> would serve <b>${activity.aces_predicted}</b> aces and <b>${activity.double_faults_predicted}</b> double faults.`;
                         break;
                     default:
                         activityIcon = '📝';
-                        activityText = 'Made a prediction';
+                        activityText = 'You made a prediction.';
                 }
                 
                 return `
@@ -172,8 +172,187 @@ function renderProfile(data) {
             }).join('');
             activityList.innerHTML = activityHtml;
         } else {
-            activityList.innerHTML = '<li class="activity-empty">No recent activity. Start making predictions to see your activity here!</li>';
+            activityList.innerHTML = '<li class="activity-empty">You haven\'t made any predictions yet. Once you start predicting match outcomes, your recent activity will appear here. Join the action and make your first prediction today!</li>';
         }
+    }
+
+    // Add new stats sections as tabs
+    const statsBox = document.querySelector('.profile-stats');
+    if (statsBox) {
+        // Tab bar HTML
+        const tabBar = `
+        <div class="profile-tabs">
+            <button class="profile-tab active" data-tab="points">🏅 Points</button>
+            <button class="profile-tab" data-tab="participation">📅 Participation</button>
+            <button class="profile-tab" data-tab="leaderboard">🏆 Leaderboard</button>
+            <button class="profile-tab" data-tab="headtohead">🤝 Head-to-Head</button>
+            <button class="profile-tab" data-tab="timing">⏰ Timing</button>
+        </div>
+        `;
+        // Tab content HTML
+        const tabContents = `
+        <div class="profile-tab-content" id="tab-points">
+            <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                <div><b>${s.avg_points ?? 0}</b><br>Avg. Points/Prediction</div>
+                <div><b>${s.max_points ?? 0}</b><br>Best Single Prediction</div>
+            </div>
+        </div>
+        <div class="profile-tab-content" id="tab-participation" style="display:none;">
+            <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                <div><b>${s.days_active ?? 0}</b><br>Days Active</div>
+                <div><b>${s.first_prediction ? new Date(s.first_prediction).toLocaleDateString() : '-'}</b><br>First Prediction</div>
+                <div><b>${s.most_active_day ? new Date(s.most_active_day).toLocaleDateString() : '-'}</b><br>Most Active Day (${s.most_active_day_count ?? 0})</div>
+            </div>
+        </div>
+        <div class="profile-tab-content" id="tab-leaderboard" style="display:none;">
+            <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                <div><b>${s.best_rank ?? '-'}</b><br>Best Ever Rank</div>
+            </div>
+        </div>
+        <div class="profile-tab-content" id="tab-headtohead" style="display:none;">
+            ${s.top_rival_username ? `<div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                <div><b>${s.top_rival_username}</b><br>Top Rival</div>
+                <div><b>${s.win_rate_vs_rival !== null ? s.win_rate_vs_rival + '%' : '-'}</b><br>Win Rate vs. Rival</div>
+            </div>` : '<div style="text-align:center;color:#b0bec5;">No rival data yet.</div>'}
+        </div>
+        <div class="profile-tab-content" id="tab-timing" style="display:none;">
+            <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                <div><b>${s.avg_time_before_match !== null ? s.avg_time_before_match + ' min' : '-'}</b><br>Avg. Time Before Match</div>
+                <div><b>${s.last_minute_predictions ?? 0}</b><br>Last-Minute Predictions (&le;10 min)</div>
+            </div>
+        </div>
+        `;
+        statsBox.insertAdjacentHTML('beforebegin', tabBar);
+        statsBox.insertAdjacentHTML('afterend', tabContents);
+    }
+
+    // --- NEW LAYOUT ---
+    // 1. Top row: Recent Activity and Badges Awarded
+    const container = document.querySelector('.profile-container');
+    if (container) {
+        // Remove old badges and activity if present
+        const oldBadges = document.getElementById('profile-badges');
+        if (oldBadges) oldBadges.parentElement.remove();
+        const oldActivity = document.getElementById('profile-activity-list');
+        if (oldActivity) oldActivity.parentElement.parentElement.remove();
+        // Build Recent Activity card
+        let activityHtml = '';
+        if (data.activity && data.activity.length > 0) {
+            activityHtml = data.activity.map(activity => {
+                const date = new Date(activity.created_at).toLocaleDateString();
+                const time = new Date(activity.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                let activityText = '';
+                let activityIcon = '';
+                switch (activity.type) {
+                    case 'match_prediction':
+                        activityIcon = '🎾';
+                        const winner = activity.prediction_data?.winner === 'player1' ? activity.player1_name : activity.player2_name;
+                        activityText = `You predicted <b>${winner}</b> to win in <b>${activity.tournament_name}</b>.`;
+                        break;
+                    case 'game_prediction':
+                        activityIcon = '🎯';
+                        const gameWinner = activity.predicted_winner === 'player1' ? activity.player1_name : activity.player2_name;
+                        activityText = `You predicted <b>${gameWinner}</b> would win point <b>${activity.game_number}</b> with a score of <b>${activity.predicted_score}</b>.`;
+                        break;
+                    case 'statistics_prediction':
+                        activityIcon = '📊';
+                        const playerName = activity.player_type === 'player1' ? activity.player1_name : activity.player2_name;
+                        activityText = `You predicted <b>${playerName}</b> would serve <b>${activity.aces_predicted}</b> aces and <b>${activity.double_faults_predicted}</b> double faults.`;
+                        break;
+                    default:
+                        activityIcon = '📝';
+                        activityText = 'You made a prediction.';
+                }
+                return `
+                    <li class="activity-item">
+                        <div class="activity-icon">${activityIcon}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">${activityText}</div>
+                            <div class="activity-meta">
+                                <span class="activity-tournament">${activity.tournament_name}</span>
+                                <span class="activity-date"><span class="match-date" data-utc1="${activity.created_at}"></span></span>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        } else {
+            activityHtml = '<li class="activity-empty">You haven\'t made any predictions yet. Once you start predicting match outcomes, your recent activity will appear here. Join the action and make your first prediction today!</li>';
+        }
+        const activityCard = `
+        <div class="profile-card profile-card-activity">
+            <h3 class="profile-card-title">Recent Activity</h3>
+            <ul id="profile-activity-list" class="activity-list">${activityHtml}</ul>
+        </div>`;
+        // Build Badges card
+        let badgesHtml = '';
+        if (data.badges && data.badges.length > 0) {
+            badgesHtml = data.badges.map(b =>
+                `<span class='badge' title='${b.tooltip ? b.tooltip.replace(/'/g, '&apos;') : ''}'>${b.icon ? b.icon + ' ' : ''}${b.label}</span>`
+            ).join(' ');
+        } else {
+            badgesHtml = '<span style="color: #b0bec5; font-style: italic; font-size: 0.9em;">No badges earned yet. Make predictions to earn badges!</span>';
+        }
+        const badgesCard = `
+        <div class="profile-card profile-card-badges">
+            <h3 class="profile-card-title">Badges Awarded</h3>
+            <div class="profile-badges">${badgesHtml}</div>
+        </div>`;
+        // Insert the two cards as a grid
+        let topRow = document.getElementById('profile-top-row');
+        if (!topRow) {
+            topRow = document.createElement('div');
+            topRow.id = 'profile-top-row';
+            topRow.className = 'profile-top-row';
+            container.insertBefore(topRow, container.children[1]);
+        }
+        topRow.innerHTML = activityCard + badgesCard;
+        // 2. Below: Stats card
+        let statsCard = document.getElementById('profile-stats-card');
+        if (!statsCard) {
+            statsCard = document.createElement('div');
+            statsCard.id = 'profile-stats-card';
+            statsCard.className = 'profile-card profile-card-stats';
+            container.appendChild(statsCard);
+        }
+        statsCard.innerHTML = `
+            <h3 class="profile-card-title">Statistics</h3>
+            <div class="profile-stats-section">
+                <div class="profile-section-title">Points Breakdown</div>
+                <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                    <div><b>${s.avg_points ?? 0}</b><br>Avg. Points/Prediction</div>
+                    <div><b>${s.max_points ?? 0}</b><br>Best Single Prediction</div>
+                </div>
+            </div>
+            <div class="profile-stats-section">
+                <div class="profile-section-title">Participation</div>
+                <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                    <div><b>${s.days_active ?? 0}</b><br>Days Active</div>
+                    <div><b>${s.first_prediction ? new Date(s.first_prediction).toLocaleDateString() : '-'}</b><br>First Prediction</div>
+                    <div><b>${s.most_active_day ? new Date(s.most_active_day).toLocaleDateString() : '-'}</b><br>Most Active Day (${s.most_active_day_count ?? 0})</div>
+                </div>
+            </div>
+            <div class="profile-stats-section">
+                <div class="profile-section-title">Leaderboard</div>
+                <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                    <div><b>${s.best_rank ?? '-'}</b><br>Best Ever Rank</div>
+                </div>
+            </div>
+            <div class="profile-stats-section">
+                <div class="profile-section-title">Head-to-Head</div>
+                ${s.top_rival_username ? `<div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                    <div><b>${s.top_rival_username}</b><br>Top Rival (${s.top_rival_overlap} matches)</div>
+                    <div><b>${s.win_rate_vs_rival !== null ? s.win_rate_vs_rival + '%' : '-'}</b><br>Win Rate vs. Rival</div>
+                </div>` : '<div style="text-align:center;color:#b0bec5;">No rival data yet.</div>'}
+            </div>
+            <div class="profile-stats-section">
+                <div class="profile-section-title">Prediction Timing</div>
+                <div class="grid grid--responsive-sm gap-md mb-lg text-center">
+                    <div><b>${s.avg_time_before_match !== null ? s.avg_time_before_match + ' min' : '-'}</b><br>Avg. Time Before Match</div>
+                    <div><b>${s.last_minute_predictions ?? 0}</b><br>Last-Minute Predictions (&le;10 min)</div>
+                </div>
+            </div>
+        `;
     }
 }
 function getFlag(code) {
@@ -189,6 +368,16 @@ function getFlag(code) {
 }
 document.addEventListener('DOMContentLoaded', function() {
     fetchProfile();
+    // Tab switching logic
+    document.querySelectorAll('.profile-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const tabName = this.getAttribute('data-tab');
+            document.querySelectorAll('.profile-tab-content').forEach(tc => tc.style.display = 'none');
+            document.getElementById('tab-' + tabName).style.display = '';
+        });
+    });
 });
 </script>
 <style>
@@ -306,5 +495,114 @@ ul { list-style: none; padding: 0; margin: 0; }
 .profile-settings .btn:hover { background: #2196f3; }
 #profile-edit-message { color: #ffd54f; margin-left: 1em; font-weight: 600; }
 @media (max-width: 900px) { .profile-sections { flex-direction: column; } .profile-card { flex-direction: column; gap: 1em; } }
-</style>
-<?php require_once 'includes/footer.php'; ?> 
+.profile-tabs {
+  display: flex;
+  gap: 0.5em;
+  margin-bottom: 1.2em;
+  justify-content: center;
+}
+.profile-tab {
+  background: #232b33;
+  color: #ffd54f;
+  border: 2px solid #ffd54f;
+  border-radius: 8px 8px 0 0;
+  padding: 0.7em 1.5em;
+  font-size: 1.08em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+  outline: none;
+}
+.profile-tab.active, .profile-tab:hover {
+  background: #ffd54f;
+  color: #232b33;
+  border-bottom: 2px solid #232b33;
+  z-index: 2;
+}
+.profile-tab-content {
+  background: rgba(34,52,58,0.93);
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 4px 16px #0002;
+  padding: 2em 1.5em 1.5em 1.5em;
+  margin-bottom: 2em;
+  min-height: 120px;
+}
+.profile-section-title {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: #ffd54f;
+  margin-bottom: 0.7em;
+  text-align: center;
+}
+.profile-top-row {
+  display: flex;
+  gap: 2em;
+  margin-bottom: 2em;
+  flex-wrap: wrap;
+}
+.profile-card {
+  background: rgba(34,52,58,0.97);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px #0002;
+  padding: 2em 1.5em 1.5em 1.5em;
+  margin-bottom: 2em;
+  flex: 1 1 340px;
+  min-width: 280px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.profile-card-title {
+  font-size: 1.3em;
+  font-weight: 800;
+  color: #ffd54f;
+  margin-bottom: 1em;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.profile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7em;
+  justify-content: center;
+  margin-top: 0.5em;
+  min-height: 2em;
+}
+.activity-list { list-style: none; padding: 0; color: #fff; font-size: 1.08em; }
+.activity-list li { margin-bottom: 0.7em; background: rgba(0,0,0,0.08); border-radius: 6px; padding: 0.5em 1em; }
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8em;
+    background: rgba(255, 213, 79, 0.1);
+    border: 1px solid rgba(255, 213, 79, 0.2);
+    border-radius: 8px;
+    padding: 0.8em 1em;
+    margin-bottom: 0.8em;
+    transition: all 0.2s ease;
+}
+.activity-item:hover {
+    background: rgba(255, 213, 79, 0.18);
+    box-shadow: 0 2px 12px #ffd54f33;
+}
+.activity-icon {
+    font-size: 1.5em;
+    margin-right: 0.5em;
+    align-self: flex-start;
+}
+.activity-content { flex: 1; }
+.activity-text { font-weight: 600; margin-bottom: 0.2em; }
+.activity-meta { color: #b0bec5; font-size: 0.97em; }
+.profile-stats-section { margin-bottom: 2em; }
+.profile-section-title {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: #ffd54f;
+  margin-bottom: 0.7em;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .profile-top-row { flex-direction: column; gap: 1.2em; }
+  .profile-card { min-width: 0; }
+}
+</style> 

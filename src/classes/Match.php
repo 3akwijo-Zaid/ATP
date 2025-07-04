@@ -114,7 +114,26 @@ class MatchManager {
             
             // Commit transaction
             $this->db->commit();
-            
+
+            // Grade predictions for this match
+            require_once __DIR__ . '/Prediction.php';
+            $prediction = new \Prediction();
+            // Determine actual winner as 'player1' or 'player2'
+            $actualWinner = null;
+            if (!empty($data['winner_id'])) {
+                // Get player1_id and player2_id for this match
+                $this->db->query('SELECT player1_id, player2_id FROM matches WHERE id = :id');
+                $this->db->bind(':id', $data['id']);
+                $row = $this->db->single();
+                if ($row) {
+                    if ($data['winner_id'] == $row['player1_id']) $actualWinner = 'player1';
+                    elseif ($data['winner_id'] == $row['player2_id']) $actualWinner = 'player2';
+                }
+            }
+            if ($actualWinner) {
+                $prediction->gradeMatchPredictions($data['id'], $actualWinner);
+            }
+
             return ['success' => true, 'message' => 'Match results updated successfully'];
             
         } catch (Exception $e) {
