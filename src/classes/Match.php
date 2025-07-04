@@ -42,7 +42,12 @@ class MatchManager {
             JOIN players p2 ON m.player2_id = p2.id 
             WHERE m.id = :id');
         $this->db->bind(':id', $id);
-        return $this->db->single();
+        $match = $this->db->single();
+        if ($match) {
+            $match['game_predictions_enabled'] = (int)$match['game_predictions_enabled'];
+            $match['statistics_predictions_enabled'] = (int)$match['statistics_predictions_enabled'];
+        }
+        return $match;
     }
 
     public function updateMatchResult($data) {
