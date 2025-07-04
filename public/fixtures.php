@@ -154,7 +154,7 @@ function getCountdownText(match) {
     } else if (secondsToStart > 0) {
         return 'Locked (' + formatCountdown(secondsToStart) + ' to start)';
     } else {
-        return ''; // Empty when match has started to avoid duplication
+        return '';
     }
 }
 
@@ -346,7 +346,13 @@ function startFixturesCountdowns() {
                 };
                 
                 const countdownText = getCountdownText(match);
-                countdownEl.textContent = countdownText;
+                
+                // Remove countdown div if text is empty
+                if (countdownText === '') {
+                    countdownEl.remove();
+                } else {
+                    countdownEl.textContent = countdownText;
+                }
                 
                 // Update status if needed
                 const statusEl = card.querySelector('.fixture-status');
