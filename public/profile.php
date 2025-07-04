@@ -22,12 +22,6 @@ if (isset($_SESSION['user_id'])) {
     $country = $profile['flag'] ?? '';
 }
 ?>
-<?php if (isset($_GET['welcome'])): ?>
-    <div style="background: #ffd54f; color: #222; font-weight: 600; text-align: center; padding: 1em; border-radius: 10px; margin-bottom: 1.5em; font-size: 1.15em; box-shadow: 0 2px 12px #ffd54f44;">
-        Set your account informations
-    </div>
-<?php endif; ?>
-<?php $isWelcome = isset($_GET['welcome']); ?>
 <div class="container container--full profile-container">
     <div class="grid grid--cols-1 gap-lg bg-surface-light rounded-xl shadow-lg p-lg mb-xl">
         <div class="profile-avatar"><img src="<?php echo htmlspecialchars($avatar); ?>" alt="Avatar" id="profile-avatar-img"></div>
@@ -43,7 +37,6 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
     <div class="grid grid--responsive gap-lg">
-        <?php if (!$isWelcome): ?>
         <div class="profile-stats">
             <h3>Stats</h3>
             <div class="grid grid--responsive-sm gap-md mb-lg text-center">
@@ -60,8 +53,6 @@ if (isset($_SESSION['user_id'])) {
             <h3>Recent Activity</h3>
             <ul id="profile-activity-list" class="list-none p-0 m-0"></ul>
         </div>
-        <?php endif; ?>
-
     </div>
 </div>
 <script>
