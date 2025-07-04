@@ -12,9 +12,8 @@
         <label for="tournamentFilter" class="form-label">Filter by Tournament:</label>
         <select id="tournamentFilter" class="styled-select"></select><br>
     </div><br>
-    <div id="fixtures-list">
-        <div class="loading">Loading fixtures...</div>
-    </div>
+    <div id="upcoming-matches-list"></div>
+    <div id="match-results-list"></div>
 </div>
 <script>
 const USER_ID = <?php echo $user_id; ?>;
@@ -72,6 +71,20 @@ function getFlagCode(code) {
     return map[code] || code.toLowerCase();
 }
 
+function getFriendlyDateLabel(dateStr) {
+    const today = new Date();
+    const date = new Date(dateStr);
+    // Normalize to midnight for comparison
+    today.setHours(0,0,0,0);
+    date.setHours(0,0,0,0);
+    const diffDays = Math.round((date - today) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === -1) return 'Yesterday';
+    if (diffDays === 1) return 'Tomorrow';
+    // Otherwise, return the date in a readable format
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 async function fetchTournaments() {
     try {
         const res = await fetch('../api/tournaments.php');
@@ -113,78 +126,134 @@ async function fetchFixtures() {
 }
 
 async function renderFixtures(data) {
-    let html = '';
+    let upcomingHtml = '<h3>Upcoming Matches</h3>';
+    let resultsHtml = '<h3>Match Results</h3>';
+    let hasUpcoming = false;
+    let hasResults = false;
     if (!data || !data.length) {
-        html = '<p>No matches found.</p>';
+        upcomingHtml += '<p>No upcoming matches found.</p>';
+        resultsHtml += '<p>No match results found.</p>';
     } else {
         for (const day of data) {
-            html += `<div class='fixture-day'><h4>${day.date}</h4><div class='fixture-list'>`;
-            for (const m of day.matches) {
-                let predictionHtml = '';
-                if (USER_ID) {
-                    const prediction = await fetchPrediction(m.id);
-                    // Determine locked by time: lock if match start_time is in the past
-                    let isLocked = false;
-                    if (m.start_time) {
-                        // Parse as UTC if possible, fallback to local
-                        const matchTime = new Date(m.start_time.replace(/ /, 'T') + 'Z');
-                        const now = new Date();
-                        isLocked = matchTime < now;
-                    }
-                    if (m.status === 'upcoming') {
-                        if (isLocked) {
-                            predictionHtml = `<button class='btn btn-locked btn-sm' disabled>Locked</button>`;
-                        } else if (prediction) {
-                            predictionHtml = `<button class='btn btn-outline-success btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View/Edit Prediction</button>`;
-                        } else {
-                            predictionHtml = `<button class='btn btn-primary btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>Predict</button>`;
+            const friendlyDate = getFriendlyDateLabel(day.date);
+            // Group upcoming matches
+            const upcomingMatches = day.matches.filter(m => m.status === 'upcoming');
+            if (upcomingMatches.length) {
+                hasUpcoming = true;
+                upcomingHtml += `<div class='fixture-day'><h4>${friendlyDate}</h4><div class='fixture-list'>`;
+                for (const m of upcomingMatches) {
+                    let predictionHtml = '';
+                    if (USER_ID) {
+                        const prediction = await fetchPrediction(m.id);
+                        let isLocked = false;
+                        if (m.start_time) {
+                            const matchTime = new Date(m.start_time.replace(/ /, 'T') + 'Z');
+                            const now = new Date();
+                            isLocked = matchTime < now;
                         }
-                    } else if (prediction) {
-                        predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View Your Prediction</button>`;
+                        if (m.status === 'upcoming') {
+                            if (isLocked) {
+                                predictionHtml = `<button class='btn btn-locked btn-sm' disabled>Locked</button>`;
+                            } else if (prediction) {
+                                predictionHtml = `<button class='btn btn-outline-success btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View/Edit Prediction</button>`;
+                            } else {
+                                predictionHtml = `<button class='btn btn-primary btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>Predict</button>`;
+                            }
+                        } else if (prediction) {
+                            predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View Your Prediction</button>`;
+                        }
+                    } else {
+                        predictionHtml = `<a href='login.php' class='btn btn-secondary btn-sm'>Login to Predict</a>`;
                     }
-                } else {
-                    predictionHtml = `<a href='login.php' class='btn btn-secondary btn-sm'>Login to Predict</a>`;
+                    let featuredHtml = '';
+                    if (IS_ADMIN) {
+                        featuredHtml = `<button class='btn btn-featured ${m.featured == 1 ? 'btn-featured-on' : 'btn-featured-off'}' data-match-id='${m.id}' data-featured='${m.featured || 0}'>${m.featured == 1 ? '★ Featured' : '☆ Make Featured'}</button>`;
+                    }
+                    upcomingHtml += `<div class='fixture-card'>
+                        <div class='fixture-tournament'>
+                            ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
+                            <span>${m.tournament_name} (${m.round})</span>
+                        </div>
+                        <div class='fixture-time'><span class='match-date time-only' data-utc1='${m.start_time}'></span></div>
+                        <div class='fixture-players'>
+                            <span class='fixture-player'>
+                                ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixture-player-img'>` : ''}
+                                <b>${m.player1_name}</b> <span class='fi fi-${getFlagCode(m.player1_country)} flag-icon'></span>
+                            </span>
+                            <span class='fixture-vs'>vs</span>
+                            <span class='fixture-player'>
+                                ${m.player2_image ? `<img src='${m.player2_image}' alt='${m.player2_name}' class='fixture-player-img'>` : ''}
+                                <b>${m.player2_name}</b> <span class='fi fi-${getFlagCode(m.player2_country)} flag-icon'></span>
+                            </span>
+                        </div>
+                        <div class='fixture-prediction-types'>
+                            ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
+                            ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
+                        </div>
+                        <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
+                        <div class='fixture-result'></div>
+                        <div class='fixture-prediction-action'>
+                            ${predictionHtml}
+                            ${IS_ADMIN ? `<div style='margin-top:0.7em;'>${featuredHtml}</div>` : ''}
+                        </div>
+                    </div>`;
                 }
-
-                // Admin featured button
-                let featuredHtml = '';
-                if (IS_ADMIN) {
-                    featuredHtml = `<button class='btn btn-featured ${m.featured == 1 ? 'btn-featured-on' : 'btn-featured-off'}' data-match-id='${m.id}' data-featured='${m.featured || 0}'>${m.featured == 1 ? '★ Featured' : '☆ Make Featured'}</button>`;
-                }
-
-                html += `<div class='fixture-card${m.status === 'finished' ? ' finished-card' : ''}'>
-                <div class='fixture-tournament'>
-                    ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
-                    <span>${m.tournament_name} (${m.round})</span>
-                </div>
-                    <div class='fixture-time'><span class='match-date time-only' data-utc1='${m.start_time}'></span></div>
-                    <div class='fixture-players'>
-                        <span class='fixture-player'>
-                            ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixture-player-img'>` : ''}
-                            <b>${m.player1_name}</b> <span class='fi fi-${getFlagCode(m.player1_country)} flag-icon'></span>
-                        </span>
-                        <span class='fixture-vs'>vs</span>
-                        <span class='fixture-player'>
-                            ${m.player2_image ? `<img src='${m.player2_image}' alt='${m.player2_name}' class='fixture-player-img'>` : ''}
-                            <b>${m.player2_name}</b> <span class='fi fi-${getFlagCode(m.player2_country)} flag-icon'></span>
-                        </span>
-                    </div>
-                    <div class='fixture-prediction-types'>
-                        ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
-                        ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
-                    </div>
-                    <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
-                    <div class='fixture-result${m.status === 'finished' ? ' finished-result' : ''}'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
-                    <div class='fixture-prediction-action'>
-                        ${predictionHtml}
-                        ${IS_ADMIN ? `<div style='margin-top:0.7em;'>${featuredHtml}</div>` : ''}
-                    </div>
-                </div>`;
+                upcomingHtml += `</div></div>`;
             }
-            html += '</div></div>';
+            // Group finished matches
+            const finishedMatches = day.matches.filter(m => m.status === 'finished');
+            if (finishedMatches.length) {
+                hasResults = true;
+                resultsHtml += `<div class='fixture-day'><h4>${friendlyDate}</h4><div class='fixture-list'>`;
+                for (const m of finishedMatches) {
+                    let predictionHtml = '';
+                    if (USER_ID) {
+                        const prediction = await fetchPrediction(m.id);
+                        if (prediction) {
+                            predictionHtml = `<button class='btn btn-info btn-sm' onclick='window.location=\"predictions.php?match_id=${m.id}\"'>View Your Prediction</button>`;
+                        }
+                    }
+                    let featuredHtml = '';
+                    if (IS_ADMIN) {
+                        featuredHtml = `<button class='btn btn-featured ${m.featured == 1 ? 'btn-featured-on' : 'btn-featured-off'}' data-match-id='${m.id}' data-featured='${m.featured || 0}'>${m.featured == 1 ? '★ Featured' : '☆ Make Featured'}</button>`;
+                    }
+                    resultsHtml += `<div class='fixture-card finished-card'>
+                        <div class='fixture-tournament'>
+                            ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
+                            <span>${m.tournament_name} (${m.round})</span>
+                        </div>
+                        <div class='fixture-time'><span class='match-date time-only' data-utc1='${m.start_time}'></span></div>
+                        <div class='fixture-players'>
+                            <span class='fixture-player'>
+                                ${m.player1_image ? `<img src='${m.player1_image}' alt='${m.player1_name}' class='fixture-player-img'>` : ''}
+                                <b>${m.player1_name}</b> <span class='fi fi-${getFlagCode(m.player1_country)} flag-icon'></span>
+                            </span>
+                            <span class='fixture-vs'>vs</span>
+                            <span class='fixture-player'>
+                                ${m.player2_image ? `<img src='${m.player2_image}' alt='${m.player2_name}' class='fixture-player-img'>` : ''}
+                                <b>${m.player2_name}</b> <span class='fi fi-${getFlagCode(m.player2_country)} flag-icon'></span>
+                            </span>
+                        </div>
+                        <div class='fixture-prediction-types'>
+                            ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
+                            ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
+                        </div>
+                        <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
+                        <div class='fixture-result finished-result'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
+                        <div class='fixture-prediction-action'>
+                            ${predictionHtml}
+                            ${IS_ADMIN ? `<div style='margin-top:0.7em;'>${featuredHtml}</div>` : ''}
+                        </div>
+                    </div>`;
+                }
+                resultsHtml += `</div></div>`;
+            }
         }
+        if (!hasUpcoming) upcomingHtml += '<p>No upcoming matches found.</p>';
+        if (!hasResults) resultsHtml += '<p>No match results found.</p>';
     }
-    document.getElementById('fixtures-list').innerHTML = html;
+    document.getElementById('upcoming-matches-list').innerHTML = upcomingHtml;
+    document.getElementById('match-results-list').innerHTML = resultsHtml;
     if (typeof updateMatchDates === 'function') updateMatchDates();
 }
 
