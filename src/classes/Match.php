@@ -126,8 +126,8 @@ class MatchManager {
         $this->db->bind(':set_number', $data['set_number']);
         $this->db->bind(':player1_games', $data['player1_games']);
         $this->db->bind(':player2_games', $data['player2_games']);
-        $this->db->bind(':player1_tiebreak', $data['player1_tiebreak']);
-        $this->db->bind(':player2_tiebreak', $data['player2_tiebreak']);
+        $this->db->bind(':player1_tiebreak', $data['player1_tiebreak'] === '' ? null : $data['player1_tiebreak']);
+        $this->db->bind(':player2_tiebreak', $data['player2_tiebreak'] === '' ? null : $data['player2_tiebreak']);
         
         if ($this->db->execute()) {
             return true;
