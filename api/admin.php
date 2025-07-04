@@ -52,6 +52,11 @@ switch ($action) {
     case 'update_result':
         if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
         $data = json_decode(file_get_contents("php://input"), true);
+        if (!$data || !isset($data['match_result']) || !isset($data['sets'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid or missing data for result update.']);
+            break;
+        }
         if ($matchManager->updateMatchResult($data['match_result'])) {
             foreach($data['sets'] as $set) {
                 $matchManager->addMatchSet($set);
