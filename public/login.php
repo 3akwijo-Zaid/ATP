@@ -285,6 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(res => res.json())
           .then(result => {
+        console.log('Login response:', result);
         if (result.success) {
           showMessage('Login successful! Redirecting...', 'success');
           // Check for redirect parameter
@@ -292,7 +293,8 @@ document.addEventListener('DOMContentLoaded', function() {
           const redirect = urlParams.get('redirect');
           
           let redirectUrl;
-          if (result.user && result.user.is_admin) {
+          const isAdmin = result.user && (result.user.is_admin || result.user.isAdmin || result.user.admin === 1 || result.user.admin === true);
+          if (isAdmin) {
             redirectUrl = '../admin/dashboard.php';
           } else if (redirect) {
             redirectUrl = redirect;
@@ -300,7 +302,21 @@ document.addEventListener('DOMContentLoaded', function() {
             redirectUrl = 'profile.php';
           }
           
-          setTimeout(() => { window.location.href = redirectUrl; }, 1200);
+          // Debug logging
+          console.log('Redirect URL:', redirectUrl);
+          console.log('User is admin:', result.user && result.user.is_admin);
+          console.log('Redirect parameter:', redirect);
+          
+          setTimeout(() => { 
+            console.log('Redirecting to:', redirectUrl);
+            try {
+              window.location.href = redirectUrl;
+            } catch (error) {
+              console.error('Redirect failed:', error);
+              // Fallback to profile.php
+              window.location.href = 'profile.php';
+            }
+          }, 1200);
         } else {
           showMessage(result.message || 'Login failed.', 'error');
         }
