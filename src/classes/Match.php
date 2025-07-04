@@ -27,7 +27,12 @@ class MatchManager {
             JOIN players p1 ON m.player1_id = p1.id 
             JOIN players p2 ON m.player2_id = p2.id 
             ORDER BY m.start_time ASC');
-        return $this->db->resultSet();
+        $matches = $this->db->resultSet();
+        foreach ($matches as &$match) {
+            $match['game_predictions_enabled'] = (int)$match['game_predictions_enabled'];
+            $match['statistics_predictions_enabled'] = (int)$match['statistics_predictions_enabled'];
+        }
+        return $matches;
     }
 
     public function getMatchById($id) {
@@ -174,6 +179,11 @@ class MatchManager {
         }
         $result = [];
         foreach ($grouped as $date => $matches) {
+            // Cast enabled fields to int for each match
+            foreach ($matches as &$match) {
+                $match['game_predictions_enabled'] = (int)$match['game_predictions_enabled'];
+                $match['statistics_predictions_enabled'] = (int)$match['statistics_predictions_enabled'];
+            }
             $result[] = ['date' => $date, 'matches' => $matches];
         }
         return $result;
