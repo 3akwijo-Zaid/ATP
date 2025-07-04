@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fixtures & Results</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7/css/flag-icons.min.css">
+    <style>
+        .fixtures-section-title-wrapper {
+            width: 100%;
+            text-align: center;
+        }
+        .fixtures-section-title {
+            font-size: 2.1rem;
+            font-weight: 900;
+            margin-top: 2.2rem;
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.02em;
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 2px 8px #0006, 0 1px 4px #ffd54f44;
+            display: inline-block;
+            padding-bottom: 0.2rem;
+        }
+        @media (max-width: 700px) {
+            .fixtures-section-title {
+                font-size: 1.4rem;
+                margin-top: 1.2rem;
+                margin-bottom: 0.7rem;
+                text-align: center;
+                padding-bottom: 0.2rem;
+            }
+        }
+    </style>
 </head>
 <div class="container container--full mt-4">
     <h2>Fixtures & Results</h2>
@@ -126,8 +153,8 @@ async function fetchFixtures() {
 }
 
 async function renderFixtures(data) {
-    let upcomingHtml = '<h3>Upcoming Matches</h3>';
-    let resultsHtml = '<h3>Match Results</h3>';
+    let upcomingHtml = '<div class="fixtures-section-title-wrapper"><div class="fixtures-section-title">Upcoming Matches</div></div>';
+    let resultsHtml = '<div class="fixtures-section-title-wrapper"><div class="fixtures-section-title">Match Results</div></div>';
     let hasUpcoming = false;
     let hasResults = false;
     if (!data || !data.length) {
