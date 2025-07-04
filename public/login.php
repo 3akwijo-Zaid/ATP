@@ -1,4 +1,3 @@
-
 <?php require_once 'includes/header.php'; ?>
 
 <main class="login-main">
@@ -292,8 +291,21 @@ document.addEventListener('DOMContentLoaded', function() {
           const urlParams = new URLSearchParams(window.location.search);
           const redirect = urlParams.get('redirect');
           
+          // Robust admin check
+          const isAdmin = result.user && (
+            result.user.is_admin === 1 ||
+            result.user.is_admin === "1" ||
+            result.user.isAdmin === 1 ||
+            result.user.isAdmin === "1" ||
+            result.user.admin === 1 ||
+            result.user.admin === "1" ||
+            result.user.is_admin === true ||
+            result.user.isAdmin === true ||
+            result.user.admin === true
+          );
+          console.log('User is admin:', isAdmin);
+          
           let redirectUrl;
-          const isAdmin = result.user && (result.user.is_admin || result.user.isAdmin || result.user.admin === 1 || result.user.admin === true);
           if (isAdmin) {
             redirectUrl = '../admin/dashboard.php';
           } else if (redirect) {
@@ -303,8 +315,8 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           
           // Debug logging
+          console.log('Login response:', result);
           console.log('Redirect URL:', redirectUrl);
-          console.log('User is admin:', result.user && result.user.is_admin);
           console.log('Redirect parameter:', redirect);
           
           setTimeout(() => { 
