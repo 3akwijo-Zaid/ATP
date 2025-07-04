@@ -22,6 +22,18 @@ function formatCountdown(seconds) {
     return `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
 }
 
+function getFriendlyDateLabel(dateStr) {
+    const today = new Date();
+    const date = new Date(dateStr);
+    today.setHours(0,0,0,0);
+    date.setHours(0,0,0,0);
+    const diffDays = Math.round((date - today) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === -1) return 'Yesterday';
+    if (diffDays === 1) return 'Tomorrow';
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const featuredMatches = document.getElementById('featured-matches');
 
@@ -118,11 +130,14 @@ async function fetchFixturesPreview() {
         let fixtureIndex = 0;
 
         for (const day of data) {
+            // Only show upcoming matches
+            const upcomingMatches = day.matches.filter(m => m.status === 'upcoming');
+            if (!upcomingMatches.length) continue;
             if (daysShown >= 2) break;
-            html += `<div class='fixtures-preview-day'><h4>${day.date}</h4><div class='fixtures-preview-list'>`;
+            html += `<div class='fixtures-preview-day'><h4>${getFriendlyDateLabel(day.date)}</h4><div class='fixtures-preview-list'>`;
 
             let matchesShown = 0;
-            for (const m of day.matches) {
+            for (const m of upcomingMatches) {
                 if (matchesShown >= 3) break;
                 const startTime = new Date(m.start_time);
                 const now = new Date();
