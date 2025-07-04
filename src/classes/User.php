@@ -214,7 +214,25 @@ class User {
             $this->db->bind(':id', $trueRival['user_id']);
             $topRivalUsername = $this->db->single()['username'] ?? null;
             $topRivalOverlap = $trueRival['overlap'];
-            $winRateVsRival = $trueRival['win_ratio'] !== null ? round($trueRival['win_ratio'] * 100, 1) : null;
+
+            // Calculate win rate vs rival based on points_awarded
+            $this->db->query('
+                SELECT p1.points_awarded as user_points, p2.points_awarded as rival_points
+                FROM predictions p1
+                JOIN predictions p2 ON p1.match_id = p2.match_id AND p2.user_id = :rival_id
+                WHERE p1.user_id = :user_id
+            ');
+            $this->db->bind(':user_id', $userId);
+            $this->db->bind(':rival_id', $trueRival['user_id']);
+            $rows = $this->db->resultSet();
+            $userWins = 0; $rivalWins = 0; $ties = 0;
+            foreach ($rows as $row) {
+                if ($row['user_points'] > $row['rival_points']) $userWins++;
+                elseif ($row['user_points'] < $row['rival_points']) $rivalWins++;
+                else $ties++;
+            }
+            $totalDuels = $userWins + $rivalWins + $ties;
+            $winRateVsRival = $totalDuels > 0 ? round($userWins / $totalDuels * 100, 1) : null;
             $rivalCloseness = round($trueRival['closeness'] * 100, 1);
         }
         // Prediction timing
