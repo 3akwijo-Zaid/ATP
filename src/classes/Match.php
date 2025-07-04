@@ -14,7 +14,7 @@ class MatchManager {
         $this->db->bind(':round', $data['round']);
         $this->db->bind(':player1_id', $data['player1_id']);
         $this->db->bind(':player2_id', $data['player2_id']);
-        $this->db->bind(':start_time', (new DateTime($data['start_time'], new DateTimeZone('Europe/Berlin')))->format('Y-m-d\TH:i:sP'));
+        $this->db->bind(':start_time', (new DateTime($data['start_time'], new DateTimeZone('Europe/Berlin')))->format('Y-m-d H:i:s'));
         $this->db->bind(':match_format', $data['match_format']);
         $this->db->bind(':featured', isset($data['featured']) ? $data['featured'] : 0);
         $this->db->bind(':game_predictions_enabled', isset($data['game_predictions_enabled']) ? $data['game_predictions_enabled'] : 1);

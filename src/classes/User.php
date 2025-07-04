@@ -109,7 +109,7 @@ class User {
             'username' => $row['username'],
             'avatar' => $avatar,
             'flag' => $row['country'],
-            'join_date' => (new DateTime($row['created_at'], new DateTimeZone('Europe/Berlin')))->format('Y-m-d\TH:i:sP'),
+            'join_date' => (new DateTime($row['created_at'], new DateTimeZone('Europe/Berlin')))->format('Y-m-d H:i:s'),
             'rank' => $rank
         ];
     }
