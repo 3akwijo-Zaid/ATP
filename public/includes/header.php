@@ -31,7 +31,13 @@ require_once '../config/config.php';
 
     <meta name="apple-mobile-web-app-title" content="Tennis Predictions">
     <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/icon-192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/icon-192.png">
+    <link rel="shortcut icon" href="assets/img/icon-192.png">
     <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+    
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 

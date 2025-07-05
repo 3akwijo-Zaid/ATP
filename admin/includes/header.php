@@ -13,6 +13,13 @@ require_once '../config/config.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#333">
     <title>Admin Panel</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../public/assets/img/admin.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../public/assets/img/admin.png">
+    <link rel="shortcut icon" href="../public/assets/img/admin.png">
+    <link rel="apple-touch-icon" href="../public/assets/img/admin.png">
+    
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
