@@ -491,8 +491,9 @@ ul { list-style: none; padding: 0; margin: 0; }
     .profile-container {
         padding-right: 1.5em;
     }
+    /* Removed transform to prevent card drift on mobile */
     .profile-stats, .profile-activity {
-        transform: translateX(0.6em);
+        /* No transform here */
     }
 }
 
