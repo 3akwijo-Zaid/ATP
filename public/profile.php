@@ -50,7 +50,7 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
         <div class="profile-activity">
-            <h3>Recent Activity</h3>
+            <h3>Recent Activity</h3><br>
             <ul id="profile-activity-list" class="list-none p-0 m-0"></ul>
         </div>
     </div>
