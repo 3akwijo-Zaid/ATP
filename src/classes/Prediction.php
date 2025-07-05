@@ -74,40 +74,98 @@ class Prediction {
                 // Award match_score_points if the predicted set scores match the actual set scores for the whole match
                 $predSetScores = [];
                 $actualSetScores = [];
+                $predSetScoresWithTiebreaks = [];
+                $actualSetScoresWithTiebreaks = [];
+                
+                // Prepare predicted sets with tiebreaks
                 foreach ($data['sets'] as $i => $predSet) {
-                    if (!isset($actualSets[$i])) continue;
-                    $actualSet = $actualSets[$i];
                     $predSetScores[] = [
                         'player1' => intval($predSet['player1']),
                         'player2' => intval($predSet['player2'])
                     ];
+                    
+                    $predSetWithTiebreak = [
+                        'player1' => intval($predSet['player1']),
+                        'player2' => intval($predSet['player2'])
+                    ];
+                    
+                    // Add tiebreak if present
+                    if (isset($predSet['tiebreak']) && is_array($predSet['tiebreak']) && 
+                        isset($predSet['tiebreak']['player1']) && isset($predSet['tiebreak']['player2']) &&
+                        $predSet['tiebreak']['player1'] !== '' && $predSet['tiebreak']['player2'] !== '') {
+                        $predSetWithTiebreak['tiebreak'] = [
+                            'player1' => intval($predSet['tiebreak']['player1']),
+                            'player2' => intval($predSet['tiebreak']['player2'])
+                        ];
+                    }
+                    
+                    $predSetScoresWithTiebreaks[] = $predSetWithTiebreak;
+                }
+                
+                // Prepare actual sets with tiebreaks
+                foreach ($actualSets as $actualSet) {
                     $actualSetScores[] = [
                         'player1' => intval($actualSet['player1_games']),
                         'player2' => intval($actualSet['player2_games'])
                     ];
-                    // Set score
-                    if (
-                        isset($predSet['player1']) && isset($predSet['player2']) &&
-                        intval($predSet['player1']) === intval($actualSet['player1_games']) &&
-                        intval($predSet['player2']) === intval($actualSet['player2_games'])
-                    ) {
-                        $points += intval($settings['set_score_points']);
+                    
+                    $actualSetWithTiebreak = [
+                        'player1' => intval($actualSet['player1_games']),
+                        'player2' => intval($actualSet['player2_games'])
+                    ];
+                    
+                    // Add tiebreak if present
+                    if (isset($actualSet['player1_tiebreak_points']) && isset($actualSet['player2_tiebreak_points']) &&
+                        $actualSet['player1_tiebreak_points'] !== '' && $actualSet['player2_tiebreak_points'] !== '') {
+                        $actualSetWithTiebreak['tiebreak'] = [
+                            'player1' => intval($actualSet['player1_tiebreak_points']),
+                            'player2' => intval($actualSet['player2_tiebreak_points'])
+                        ];
                     }
-                    // Tiebreak score
-                    if (
-                        $this->tiebreakCorrect($predSet, [
-                            'tiebreak' => [
-                                'player1' => $actualSet['player1_tiebreak_points'],
-                                'player2' => $actualSet['player2_tiebreak_points']
-                            ]
-                        ])
-                    ) {
-                        $points += intval($settings['tiebreak_score_points'] ?? 0);
+                    
+                    $actualSetScoresWithTiebreaks[] = $actualSetWithTiebreak;
+                }
+                
+                // Count set score points regardless of order
+                $setScorePoints = 0;
+                $tiebreakPoints = 0;
+                
+                // Check each predicted set against all actual sets
+                foreach ($predSetScoresWithTiebreaks as $predSet) {
+                    foreach ($actualSetScoresWithTiebreaks as $actualSet) {
+                        // Check if set scores match
+                        if ($predSet['player1'] === $actualSet['player1'] && $predSet['player2'] === $actualSet['player2']) {
+                            $setScorePoints += intval($settings['set_score_points']);
+                            
+                            // Check tiebreak if both sets have tiebreaks
+                            if ($this->tiebreakCorrect($predSet, $actualSet)) {
+                                $tiebreakPoints += intval($settings['tiebreak_score_points'] ?? 0);
+                            }
+                            break; // Found a match, move to next predicted set
+                        }
                     }
                 }
-                // Award match_score_points if all set scores match
-                if ($predSetScores === $actualSetScores) {
-                    $points += intval($settings['match_score_points']);
+                
+                $points += $setScorePoints + $tiebreakPoints;
+                
+                // Award match_score_points if all set scores match (in any order)
+                if (count($predSetScores) === count($actualSetScores)) {
+                    $predSorted = $predSetScores;
+                    $actualSorted = $actualSetScores;
+                    
+                    // Sort both arrays for comparison
+                    usort($predSorted, function($a, $b) {
+                        if ($a['player1'] !== $b['player1']) return $a['player1'] - $b['player1'];
+                        return $a['player2'] - $b['player2'];
+                    });
+                    usort($actualSorted, function($a, $b) {
+                        if ($a['player1'] !== $b['player1']) return $a['player1'] - $b['player1'];
+                        return $a['player2'] - $b['player2'];
+                    });
+                    
+                    if ($predSorted === $actualSorted) {
+                        $points += intval($settings['match_score_points']);
+                    }
                 }
             }
     

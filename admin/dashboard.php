@@ -37,11 +37,6 @@
             </span>
             <span>Predictions</span>
         </a>
-        <a href="game_results.php" class="admin-dashboard-card game-results">
-            <span class="admin-dashboard-icon-bg" style="background: linear-gradient(135deg,#e91e63,#f06292);">
-                <svg width="38" height="38" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            </span>
-            <span>Game Results</span>
         </a>
         <a href="settings.php" class="admin-dashboard-card settings">
             <span class="admin-dashboard-icon-bg" style="background: linear-gradient(135deg,#9c27b0,#e040fb);">
