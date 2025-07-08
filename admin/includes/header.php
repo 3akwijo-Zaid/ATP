@@ -37,6 +37,7 @@ require_once '../config/config.php';
                 <li><a href="players.php" <?php echo basename($_SERVER['PHP_SELF']) == 'players.php' ? 'class="active"' : ''; ?>>Players</a></li>
                 <li><a href="tournaments.php" <?php echo basename($_SERVER['PHP_SELF']) == 'tournaments.php' ? 'class="active"' : ''; ?>>Tournaments</a></li>
                 <li><a href="matches.php" <?php echo basename($_SERVER['PHP_SELF']) == 'matches.php' ? 'class="active"' : ''; ?>>Matches</a></li>
+                <li><a href="recalculate_points.php" <?php echo basename($_SERVER['PHP_SELF']) == 'recalculate_points.php' ? 'class="active"' : ''; ?>>Recalculate Points</a></li>
                 <li><a href="unified_predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'unified_predictions.php' ? 'class="active"' : ''; ?>>Predictions</a></li>
                 <li><a href="settings.php" <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'class="active"' : ''; ?>>Settings</a></li>
                 <li><a href="../public/index.php" class="main-site-link">Main Site</a></li>
@@ -58,6 +59,7 @@ require_once '../config/config.php';
                 <li><a href="players.php" <?php echo basename($_SERVER['PHP_SELF']) == 'players.php' ? 'class=\"active\"' : ''; ?>>Players</a></li>
                 <li><a href="tournaments.php" <?php echo basename($_SERVER['PHP_SELF']) == 'tournaments.php' ? 'class=\"active\"' : ''; ?>>Tournaments</a></li>
                 <li><a href="matches.php" <?php echo basename($_SERVER['PHP_SELF']) == 'matches.php' ? 'class=\"active\"' : ''; ?>>Matches</a></li>
+                <li><a href="recalculate_points.php" <?php echo basename($_SERVER['PHP_SELF']) == 'recalculate_points.php' ? 'class=\"active\"' : ''; ?>>Recalculate Points</a></li>
                 <li><a href="unified_predictions.php" <?php echo basename($_SERVER['PHP_SELF']) == 'unified_predictions.php' ? 'class=\"active\"' : ''; ?>>Predictions</a></li>
                 <li><a href="settings.php" <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'class=\"active\"' : ''; ?>>Settings</a></li>
                 <li><a href="../public/index.php" class="main-site-link">Main Site</a></li>

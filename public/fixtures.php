@@ -242,6 +242,16 @@ async function renderFixtures(data) {
                     }
                     
                     const matchStatus = getMatchStatus(m);
+                    let editHtml = '';
+                    if (IS_ADMIN) {
+                        editHtml = `
+                        <button class='btn btn-sm btn-secondary' onclick='showDateEditPublic(${m.id}, "${m.start_time}")'>Edit Match</button>
+                        <span id='date-edit-container-public-${m.id}' style='display:none;'>
+                            <input type='datetime-local' id='date-input-public-${m.id}' value='${m.start_time.replace(" ", "T")}' style='width:170px;'>
+                            <button class='btn btn-sm btn-success' onclick='saveDateEditPublic(${m.id})'>Save</button>
+                            <button class='btn btn-sm btn-danger' onclick='cancelDateEditPublic(${m.id})'>Cancel</button>
+                        </span>`;
+                    }
                     upcomingHtml += `<div class='fixture-card' data-start='${m.start_time}' data-match-id='${m.id}'>
                         <div class='fixture-tournament'>
                             ${m.tournament_logo ? `<img src='${m.tournament_logo}' alt='${m.tournament_name}' class='fixture-tournament-logo'>` : ''}
@@ -269,6 +279,7 @@ async function renderFixtures(data) {
                         <div class='fixture-prediction-action'>
                             ${predictionHtml}
                             ${IS_ADMIN ? `<div style='margin-top:0.7em;'>${featuredHtml}</div>` : ''}
+                            ${editHtml}
                         </div>
                     </div>`;
                 }
@@ -449,6 +460,29 @@ document.addEventListener('click', async function(e) {
 
 // Initialize
 fetchTournaments().then(fetchFixtures);
+
+window.showDateEditPublic = function(matchId, startTime) {
+    document.getElementById('date-edit-container-public-' + matchId).style.display = 'inline';
+};
+window.cancelDateEditPublic = function(matchId) {
+    document.getElementById('date-edit-container-public-' + matchId).style.display = 'none';
+};
+window.saveDateEditPublic = async function(matchId) {
+    const input = document.getElementById('date-input-public-' + matchId);
+    const newDateTime = input.value.replace('T', ' ');
+    const response = await fetch('../api/admin.php?action=update_match_date', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ match_id: matchId, new_date_time: newDateTime })
+    });
+    const result = await response.json();
+    if (result.success) {
+        alert('Match date updated successfully.');
+        location.reload();
+    } else {
+        alert(result.message || 'Failed to update match date.');
+    }
+};
 </script>
 <style>
 

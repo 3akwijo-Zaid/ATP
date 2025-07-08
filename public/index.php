@@ -233,6 +233,29 @@ function startFixturesCountdowns() {
     }, 1000);
 }
 
+window.showDateEditPublic = function(matchId, startTime) {
+    document.getElementById('date-edit-container-public-' + matchId).style.display = 'inline';
+};
+window.cancelDateEditPublic = function(matchId) {
+    document.getElementById('date-edit-container-public-' + matchId).style.display = 'none';
+};
+window.saveDateEditPublic = async function(matchId) {
+    const input = document.getElementById('date-input-public-' + matchId);
+    const newDateTime = input.value.replace('T', ' ');
+    const response = await fetch('../api/admin.php?action=update_match_date', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ match_id: matchId, new_date_time: newDateTime })
+    });
+    const result = await response.json();
+    if (result.success) {
+        alert('Match date updated successfully.');
+        location.reload();
+    } else {
+        alert(result.message || 'Failed to update match date.');
+    }
+};
+
 </script>
 
 <style>

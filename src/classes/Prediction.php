@@ -126,44 +126,34 @@ class Prediction {
                     $actualSetScoresWithTiebreaks[] = $actualSetWithTiebreak;
                 }
                 
-                // Count set score points regardless of order
+                // Count set score points with order sensitivity
                 $setScorePoints = 0;
                 $tiebreakPoints = 0;
-                
-                // Check each predicted set against all actual sets
-                foreach ($predSetScoresWithTiebreaks as $predSet) {
-                    foreach ($actualSetScoresWithTiebreaks as $actualSet) {
-                        // Check if set scores match
-                        if ($predSet['player1'] === $actualSet['player1'] && $predSet['player2'] === $actualSet['player2']) {
-                            $setScorePoints += intval($settings['set_score_points']);
-                            
-                            // Check tiebreak if both sets have tiebreaks
-                            if ($this->tiebreakCorrect($predSet, $actualSet)) {
-                                $tiebreakPoints += intval($settings['tiebreak_score_points'] ?? 0);
-                            }
-                            break; // Found a match, move to next predicted set
+                $numSets = min(count($predSetScoresWithTiebreaks), count($actualSetScoresWithTiebreaks));
+                for ($i = 0; $i < $numSets; $i++) {
+                    $predSet = $predSetScoresWithTiebreaks[$i];
+                    $actualSet = $actualSetScoresWithTiebreaks[$i];
+                    if ($predSet['player1'] === $actualSet['player1'] && $predSet['player2'] === $actualSet['player2']) {
+                        $setScorePoints += intval($settings['set_score_points']);
+                        // Check tiebreak if both sets have tiebreaks
+                        if ($this->tiebreakCorrect($predSet, $actualSet)) {
+                            $tiebreakPoints += intval($settings['tiebreak_score_points'] ?? 0);
                         }
                     }
                 }
-                
                 $points += $setScorePoints + $tiebreakPoints;
                 
-                // Award match_score_points if all set scores match (in any order)
+                // Award match_score_points if all set scores match (order matters)
                 if (count($predSetScores) === count($actualSetScores)) {
-                    $predSorted = $predSetScores;
-                    $actualSorted = $actualSetScores;
-                    
-                    // Sort both arrays for comparison
-                    usort($predSorted, function($a, $b) {
-                        if ($a['player1'] !== $b['player1']) return $a['player1'] - $b['player1'];
-                        return $a['player2'] - $b['player2'];
-                    });
-                    usort($actualSorted, function($a, $b) {
-                        if ($a['player1'] !== $b['player1']) return $a['player1'] - $b['player1'];
-                        return $a['player2'] - $b['player2'];
-                    });
-                    
-                    if ($predSorted === $actualSorted) {
+                    $allMatch = true;
+                    for ($i = 0; $i < count($predSetScores); $i++) {
+                        if ($predSetScores[$i]['player1'] !== $actualSetScores[$i]['player1'] ||
+                            $predSetScores[$i]['player2'] !== $actualSetScores[$i]['player2']) {
+                            $allMatch = false;
+                            break;
+                        }
+                    }
+                    if ($allMatch) {
                         $points += intval($settings['match_score_points']);
                     }
                 }

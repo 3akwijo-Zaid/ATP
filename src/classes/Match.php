@@ -228,4 +228,17 @@ class MatchManager {
         foreach ($params as $k => $v) $this->db->bind($k, $v);
         return $this->db->resultSet();
     }
+
+    /**
+     * Update the date/time of a match
+     * @param int $matchId
+     * @param string $newDateTime (Y-m-d H:i:s)
+     * @return bool
+     */
+    public function updateMatchDate($matchId, $newDateTime) {
+        $this->db->query('UPDATE matches SET start_time = :start_time WHERE id = :id');
+        $this->db->bind(':start_time', (new DateTime($newDateTime, new DateTimeZone('Europe/Berlin')))->format('Y-m-d H:i:s'));
+        $this->db->bind(':id', $matchId);
+        return $this->db->execute();
+    }
 } 

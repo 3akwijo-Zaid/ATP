@@ -140,6 +140,46 @@ switch ($action) {
         }
         break;
 
+    case 'update_match_date':
+        if (!isAdmin()) { 
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']); 
+            break; 
+        }
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['match_id']) || !isset($data['new_date_time'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Missing match_id or new_date_time']);
+            break;
+        }
+        $result = $matchManager->updateMatchDate($data['match_id'], $data['new_date_time']);
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Match date updated successfully.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to update match date.']);
+        }
+        break;
+
+    case 'recalculate_points':
+        if (!isAdmin()) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            break;
+        }
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['match_id'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Missing match_id']);
+            break;
+        }
+        $result = $prediction->calculatePoints($data['match_id']);
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Points recalculated successfully.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to recalculate points.']);
+        }
+        break;
+
     default:
         echo json_encode(['message' => 'Invalid admin action.']);
         break;

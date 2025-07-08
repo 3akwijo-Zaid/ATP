@@ -100,7 +100,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${m.round}</td>
                 <td>${m.player1_name || ''}</td>
                 <td>${m.player2_name || ''}</td>
-                <td><span class='match-date' data-utc1='${m.start_time}'></span></td>
+                <td>
+                    <span class='match-date' data-utc1='${m.start_time}' id='match-date-${m.id}'></span>
+                    <button class='btn btn-sm btn-secondary' onclick='showDateEdit(${m.id}, "${m.start_time}")'>Edit</button>
+                    <span id='date-edit-container-${m.id}' style='display:none;'>
+                        <input type='datetime-local' id='date-input-${m.id}' value='${m.start_time.replace(" ", "T")}' style='width:170px;'>
+                        <button class='btn btn-sm btn-success' onclick='saveDateEdit(${m.id})'>Save</button>
+                        <button class='btn btn-sm btn-danger' onclick='cancelDateEdit(${m.id})'>Cancel</button>
+                    </span>
+                </td>
                 <td>${m.status || 'upcoming'}</td>
                 <td><button onclick='toggleFeatured(${m.id}, ${m.featured || 0})' class='btn btn-sm ${m.featured ? 'btn-success' : 'btn-secondary'}'>${m.featured ? 'Featured' : 'Not Featured'}</button></td>
                 <td>${gamePred} ${statsPred}</td>
@@ -145,6 +153,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const result = await response.json();
         alert(result.message);
         fetchMatches();
+    };
+    window.showDateEdit = function(matchId, startTime) {
+        document.getElementById('date-edit-container-' + matchId).style.display = 'inline';
+        document.getElementById('match-date-' + matchId).style.display = 'none';
+    };
+    window.cancelDateEdit = function(matchId) {
+        document.getElementById('date-edit-container-' + matchId).style.display = 'none';
+        document.getElementById('match-date-' + matchId).style.display = 'inline';
+    };
+    window.saveDateEdit = async function(matchId) {
+        const input = document.getElementById('date-input-' + matchId);
+        const newDateTime = input.value.replace('T', ' ');
+        const response = await fetch('../api/admin.php?action=update_match_date', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ match_id: matchId, new_date_time: newDateTime })
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert('Match date updated successfully.');
+            location.reload();
+        } else {
+            alert(result.message || 'Failed to update match date.');
+        }
     };
     fetchMatches();
 });
