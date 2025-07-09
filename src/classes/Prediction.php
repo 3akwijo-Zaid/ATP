@@ -144,6 +144,9 @@ class Prediction {
                 $setScorePoints = 0;
                 $tiebreakPoints = 0;
                 for ($i = 0; $i < $numSetsToCompare; $i++) {
+                    if (!isset($predSetScoresWithTiebreaks[$i]) || !isset($actualSetScoresWithTiebreaks[$i])) {
+                        continue;
+                    }
                     $predSet = $predSetScoresWithTiebreaks[$i];
                     $actualSet = $actualSetScoresWithTiebreaks[$i];
                     if ($predSet['player1'] === $actualSet['player1'] && $predSet['player2'] === $actualSet['player2']) {
