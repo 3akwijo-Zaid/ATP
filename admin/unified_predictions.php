@@ -337,6 +337,14 @@ document.addEventListener('DOMContentLoaded', function() {
         formArea.innerHTML = `
             <form id="match-result-form">
                 <div class="form-group">
+                    <label for="result-type-select">Result Type</label>
+                    <select id="result-type-select" class="form-control" required>
+                        <option value="normal">Normal</option>
+                        <option value="retired_player1">Player 1 retired</option>
+                        <option value="retired_player2">Player 2 retired</option>
+                    </select>
+                </div>
+                <div class="form-group" id="winner-group">
                     <label for="winner-select">Winner</label>
                     <select id="winner-select" class="form-control" required>
                         <option value="">-- Select Winner --</option>
@@ -344,19 +352,113 @@ document.addEventListener('DOMContentLoaded', function() {
                         <option value="${match.player2_name}">${match.player2_name}</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="sets-group">
                     <label>Set Scores</label>
                     ${setsHtml}
                 </div>
                 <button type="submit" class="btn btn-primary">Save Result</button>
             </form>
         `;
+        // Retirement logic: hide winner/sets if retired
+        const resultTypeSelect = document.getElementById('result-type-select');
+        const winnerGroup = document.getElementById('winner-group');
+        const setsGroup = document.getElementById('sets-group');
+        resultTypeSelect.addEventListener('change', function() {
+            if (this.value === 'retired_player1' || this.value === 'retired_player2') {
+                winnerGroup.style.display = '';
+                setsGroup.style.display = '';
+                document.getElementById('winner-select').setAttribute('required', 'required');
+                for (let i = 1; i <= maxSets; i++) {
+                    document.getElementById(`set${i}_p1`).removeAttribute('required');
+                    document.getElementById(`set${i}_p2`).removeAttribute('required');
+                    document.getElementById(`set${i}_p1_tb`).removeAttribute('required');
+                    document.getElementById(`set${i}_p2_tb`).removeAttribute('required');
+                }
+            } else {
+                winnerGroup.style.display = '';
+                setsGroup.style.display = '';
+                document.getElementById('winner-select').setAttribute('required', 'required');
+                for (let i = 1; i <= maxSets; i++) {
+                    document.getElementById(`set${i}_p1`).setAttribute('required', 'required');
+                    document.getElementById(`set${i}_p2`).setAttribute('required', 'required');
+                    document.getElementById(`set${i}_p1_tb`).setAttribute('required', 'required');
+                    document.getElementById(`set${i}_p2_tb`).setAttribute('required', 'required');
+                }
+            }
+        });
         const form = document.getElementById('match-result-form');
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
+            const resultType = document.getElementById('result-type-select').value;
             const winnerName = document.getElementById('winner-select').value;
             const messageEl = document.getElementById('match-result-message');
             messageEl.style.display = 'block';
+            if (resultType === 'retired_player1' || resultType === 'retired_player2') {
+                // Retirement: require winner, allow any number of sets
+                let winnerId = null;
+                if (winnerName === match.player1_name) winnerId = Number(match.player1_id);
+                if (winnerName === match.player2_name) winnerId = Number(match.player2_id);
+                if (!winnerId) {
+                    messageEl.textContent = 'Please select the winner (the player who did NOT retire).';
+                    messageEl.style.background = '#ffe0e0';
+                    return;
+                }
+                // Collect sets played so far
+                let sets = [];
+                let p1Sets = 0;
+                let p2Sets = 0;
+                for (let i = 1; i <= maxSets; i++) {
+                    const p1_games = document.getElementById(`set${i}_p1`).value;
+                    const p2_games = document.getElementById(`set${i}_p2`).value;
+                    const p1_tb = document.getElementById(`set${i}_p1_tb`).value;
+                    const p2_tb = document.getElementById(`set${i}_p2_tb`).value;
+                    if (p1_games !== '' && p2_games !== '') {
+                        if (parseInt(p1_games) > parseInt(p2_games)) p1Sets++;
+                        else if (parseInt(p2_games) > parseInt(p1_games)) p2Sets++;
+                        sets.push({
+                            match_id: match.id,
+                            set_number: i,
+                            player1_games: p1_games,
+                            player2_games: p2_games,
+                            player1_tiebreak: p1_tb,
+                            player2_tiebreak: p2_tb
+                        });
+                    }
+                }
+                if (sets.length === 0) {
+                    messageEl.textContent = 'Please enter at least one set score.';
+                    messageEl.style.background = '#ffe0e0';
+                    return;
+                }
+                // Build result summary from sets played
+                const resultSummary = `${p1Sets}-${p2Sets} (retired)`;
+                const payload = {
+                    match_result: {
+                        id: match.id,
+                        status: resultType,
+                        winner: winnerId,
+                        result_summary: resultSummary
+                    },
+                    sets: sets
+                };
+                try {
+                    const response = await fetch('../api/admin.php?action=update_result', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    messageEl.textContent = result.message || (result.success ? 'Result saved!' : 'Failed to save result.');
+                    messageEl.style.background = result.success ? '#e0ffe0' : '#ffe0e0';
+                    if (result.success) {
+                        loadMatchResultPredictions(match.id);
+                    }
+                } catch (err) {
+                    messageEl.textContent = 'Error saving result.';
+                    messageEl.style.background = '#ffe0e0';
+                }
+                return;
+            }
             let sets = [];
             let p1Sets = 0;
             let p2Sets = 0;

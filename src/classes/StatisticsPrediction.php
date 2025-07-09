@@ -146,6 +146,7 @@ class StatisticsPrediction {
         foreach ($predictions as $prediction) {
             $pointsAwarded = 0;
             $correct = false;
+            $oldPoints = isset($prediction['points_awarded']) ? (int)$prediction['points_awarded'] : 0;
             
             // Find corresponding result
             $result = null;
@@ -179,8 +180,8 @@ class StatisticsPrediction {
             // Update prediction with points
             $this->updateStatisticsPredictionPoints($prediction['id'], $pointsAwarded, $correct);
             
-            // Update user points
-            $this->updateUserPoints($prediction['user_id'], $pointsAwarded);
+            // Subtract old points, add new points
+            $this->updateUserPoints($prediction['user_id'], $pointsAwarded - $oldPoints);
         }
         
         // Apply joker multipliers after regular points calculation

@@ -40,38 +40,73 @@ function isAdmin() {
 
 switch ($action) {
     case 'add_match':
-        if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
+        if (!isAdmin()) { 
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']); 
+            break; 
+        }
         $data = json_decode(file_get_contents("php://input"), true);
         if ($matchManager->createMatch($data)) {
-            echo json_encode(['message' => 'Match created successfully.']);
+            echo json_encode(['success' => true, 'message' => 'Match created successfully.']);
         } else {
-            echo json_encode(['message' => 'Failed to create match.']);
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to create match.']);
         }
         break;
 
     case 'update_result':
-        if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
+        if (!isAdmin()) { 
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']); 
+            break; 
+        }
         $data = json_decode(file_get_contents("php://input"), true);
         if (!$data || !isset($data['match_result']) || !isset($data['sets'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid or missing data for result update.']);
             break;
         }
+        // Handle retired matches
+        if (isset($data['match_result']['status']) && 
+            ($data['match_result']['status'] === 'retired_player1' || $data['match_result']['status'] === 'retired_player2')) {
+            if ($matchManager->updateMatchResult($data['match_result'])) {
+                // Insert sets into match_sets for retired matches
+                foreach($data['sets'] as $set) {
+                    $matchManager->addMatchSet($set);
+                }
+                // Calculate points for retired match
+                $prediction->calculatePoints($data['match_result']['id']);
+                echo json_encode(['success' => true, 'message' => 'Match marked as retired. Points awarded for sets played and winner.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Failed to update result.']);
+            }
+            break;
+        }
         if ($matchManager->updateMatchResult($data['match_result'])) {
             foreach($data['sets'] as $set) {
                 $matchManager->addMatchSet($set);
             }
-            $prediction->calculatePoints($data['match_result']['id']);
-            echo json_encode(['message' => 'Result updated and points calculated.']);
+            $result = $prediction->calculatePoints($data['match_result']['id']);
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'Result updated and points calculated successfully.']);
+            } else {
+                echo json_encode(['success' => true, 'message' => 'Result updated but points calculation failed.']);
+            }
         } else {
-            echo json_encode(['message' => 'Failed to update result.']);
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to update result.']);
         }
         break;
         
     case 'get_all_users':
-        if (!isAdmin()) { echo json_encode(['message' => 'Unauthorized']); break; }
+        if (!isAdmin()) { 
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']); 
+            break; 
+        }
         $users = $user->getAllUsers();
-        echo json_encode($users);
+        echo json_encode(['success' => true, 'data' => $users]);
         break;
 
     case 'promote_user':
@@ -181,6 +216,7 @@ switch ($action) {
         break;
 
     default:
-        echo json_encode(['message' => 'Invalid admin action.']);
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Invalid admin action.']);
         break;
 } 

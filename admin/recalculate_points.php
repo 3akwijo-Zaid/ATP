@@ -15,7 +15,7 @@ async function fetchFinishedMatches() {
     const res = await fetch('../api/matches.php?grouped=0');
     const matches = await res.json();
     let html = '<table class="modern-table"><thead><tr><th>ID</th><th>Round</th><th>Player 1</th><th>Player 2</th><th>Start Time</th><th>Status</th><th>Recalculate</th></tr></thead><tbody>';
-    matches.filter(m => m.status === 'finished' || m.status === 'completed').forEach(m => {
+    matches.filter(m => m.status === 'finished' || m.status === 'completed' || m.status === 'retired_player1' || m.status === 'retired_player2').forEach(m => {
         html += `<tr>
             <td>${m.id}</td>
             <td>${m.round}</td>

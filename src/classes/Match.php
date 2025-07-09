@@ -64,6 +64,13 @@ class MatchManager {
                 $winner = null;
             }
         }
+        // Backend validation: if marking as retired, require at least one set
+        if (isset($data['status']) && 
+            ($data['status'] === 'retired_player1' || $data['status'] === 'retired_player2')) {
+            if (!isset($data['sets']) || !is_array($data['sets']) || count($data['sets']) < 1) {
+                return ['success' => false, 'message' => 'You must enter at least one set for a retired match.'];
+            }
+        }
         $this->db->query('UPDATE matches SET status = :status, winner_id = :winner, result_summary = :result_summary WHERE id = :id');
         $this->db->bind(':id', $data['id']);
         $this->db->bind(':status', $data['status']);
@@ -238,6 +245,17 @@ class MatchManager {
     public function updateMatchDate($matchId, $newDateTime) {
         $this->db->query('UPDATE matches SET start_time = :start_time WHERE id = :id');
         $this->db->bind(':start_time', (new DateTime($newDateTime, new DateTimeZone('Europe/Berlin')))->format('Y-m-d H:i:s'));
+        $this->db->bind(':id', $matchId);
+        return $this->db->execute();
+    }
+
+    /**
+     * Set a match as finished
+     * @param int $matchId
+     * @return bool
+     */
+    public function setMatchFinished($matchId) {
+        $this->db->query('UPDATE matches SET status = "finished" WHERE id = :id');
         $this->db->bind(':id', $matchId);
         return $this->db->execute();
     }

@@ -286,7 +286,7 @@ async function renderFixtures(data) {
                 upcomingHtml += `</div></div>`;
             }
             // Collect finished matches for flat pagination
-            const finishedMatches = day.matches.filter(m => m.status === 'finished');
+            const finishedMatches = day.matches.filter(m => m.status === 'finished' || m.status === 'retired_player1' || m.status === 'retired_player2');
             if (finishedMatches.length) {
                 hasResults = true;
                 finishedMatches.forEach(m => finishedMatchesFlat.push({ ...m, date: day.date }));
@@ -342,7 +342,7 @@ async function renderFixtures(data) {
                         ${m.game_predictions_enabled ? '<span class="prediction-badge game-badge">Game</span>' : ''}
                         ${m.statistics_predictions_enabled ? '<span class="prediction-badge stats-badge">Stats</span>' : ''}
                     </div>
-                    <div class='fixture-status ${m.status}'>${m.status.replace('_',' ')}</div>
+                    <div class='fixture-status ${m.status}'>${m.status === 'retired_player1' || m.status === 'retired_player2' ? 'Retired' : m.status.replace('_',' ')}</div>
                     <div class='fixture-result finished-result'>${m.result_summary ? 'Result: ' + m.result_summary : ''}</div>
                     <div class='fixture-prediction-action'>
                         ${predictionHtml}

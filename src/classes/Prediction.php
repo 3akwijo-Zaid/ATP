@@ -37,6 +37,15 @@ class Prediction {
      * Calculate points for a user's prediction for a match, including tiebreaks
      */
     public function calculatePoints($matchId) {
+        // Check if match is retired
+        $this->db->query('SELECT status FROM matches WHERE id = :match_id');
+        $this->db->bind(':match_id', $matchId);
+        $match = $this->db->single();
+        $isRetired = false;
+        if ($match && isset($match['status']) && 
+            ($match['status'] === 'retired_player1' || $match['status'] === 'retired_player2')) {
+            $isRetired = true;
+        }
         // Get all predictions for this match
         $this->db->query('SELECT * FROM predictions WHERE match_id = :match_id');
         $this->db->bind(':match_id', $matchId);
@@ -47,7 +56,17 @@ class Prediction {
         $this->db->query('SELECT * FROM match_sets WHERE match_id = :match_id ORDER BY set_number ASC');
         $this->db->bind(':match_id', $matchId);
         $actualSets = $this->db->resultSet();
-        if (!$actualSets) return false;
+        
+        // For retired matches, we can still calculate winner points even without sets
+        if (!$actualSets && !$isRetired) {
+            return false;
+        }
+        
+        $numSetsToCompare = $actualSets ? count($actualSets) : 0;
+        // For retired matches, skip the last set for points calculation
+        if ($isRetired && $numSetsToCompare > 1) {
+            $numSetsToCompare--;
+        }
 
         // Get point settings
         $this->db->query('SELECT * FROM point_settings WHERE id = 1');
@@ -57,7 +76,9 @@ class Prediction {
         foreach ($predictions as $prediction) {
             $data = json_decode($prediction['prediction_data'], true);
             $points = 0;
-            // Winner points
+            $oldPoints = isset($prediction['points_awarded']) ? (int)$prediction['points_awarded'] : 0;
+            
+            // Always award winner points, even for retired matches
             if (isset($data['winner']) && $prediction['match_id']) {
                 $this->db->query('SELECT winner_id, player1_id, player2_id FROM matches WHERE id = :match_id');
                 $this->db->bind(':match_id', $prediction['match_id']);
@@ -69,27 +90,26 @@ class Prediction {
                     }
                 }
             }
-            // Set and tiebreak points
-            if (isset($data['sets']) && is_array($data['sets'])) {
-                // Award match_score_points if the predicted set scores match the actual set scores for the whole match
+            
+            // Set and tiebreak points (only if we have actual sets)
+            if ($actualSets && isset($data['sets']) && is_array($data['sets'])) {
+                // Only compare up to the number of sets actually played (for retired matches)
                 $predSetScores = [];
                 $actualSetScores = [];
                 $predSetScoresWithTiebreaks = [];
                 $actualSetScoresWithTiebreaks = [];
-                
                 // Prepare predicted sets with tiebreaks
-                foreach ($data['sets'] as $i => $predSet) {
+                for ($i = 0; $i < $numSetsToCompare; $i++) {
+                    if (!isset($data['sets'][$i])) break;
+                    $predSet = $data['sets'][$i];
                     $predSetScores[] = [
                         'player1' => intval($predSet['player1']),
                         'player2' => intval($predSet['player2'])
                     ];
-                    
                     $predSetWithTiebreak = [
                         'player1' => intval($predSet['player1']),
                         'player2' => intval($predSet['player2'])
                     ];
-                    
-                    // Add tiebreak if present
                     if (isset($predSet['tiebreak']) && is_array($predSet['tiebreak']) && 
                         isset($predSet['tiebreak']['player1']) && isset($predSet['tiebreak']['player2']) &&
                         $predSet['tiebreak']['player1'] !== '' && $predSet['tiebreak']['player2'] !== '') {
@@ -98,23 +118,19 @@ class Prediction {
                             'player2' => intval($predSet['tiebreak']['player2'])
                         ];
                     }
-                    
                     $predSetScoresWithTiebreaks[] = $predSetWithTiebreak;
                 }
-                
                 // Prepare actual sets with tiebreaks
-                foreach ($actualSets as $actualSet) {
+                for ($i = 0; $i < $numSetsToCompare; $i++) {
+                    $actualSet = $actualSets[$i];
                     $actualSetScores[] = [
                         'player1' => intval($actualSet['player1_games']),
                         'player2' => intval($actualSet['player2_games'])
                     ];
-                    
                     $actualSetWithTiebreak = [
                         'player1' => intval($actualSet['player1_games']),
                         'player2' => intval($actualSet['player2_games'])
                     ];
-                    
-                    // Add tiebreak if present
                     if (isset($actualSet['player1_tiebreak_points']) && isset($actualSet['player2_tiebreak_points']) &&
                         $actualSet['player1_tiebreak_points'] !== '' && $actualSet['player2_tiebreak_points'] !== '') {
                         $actualSetWithTiebreak['tiebreak'] = [
@@ -122,31 +138,27 @@ class Prediction {
                             'player2' => intval($actualSet['player2_tiebreak_points'])
                         ];
                     }
-                    
                     $actualSetScoresWithTiebreaks[] = $actualSetWithTiebreak;
                 }
-                
                 // Count set score points with order sensitivity
                 $setScorePoints = 0;
                 $tiebreakPoints = 0;
-                $numSets = min(count($predSetScoresWithTiebreaks), count($actualSetScoresWithTiebreaks));
-                for ($i = 0; $i < $numSets; $i++) {
+                for ($i = 0; $i < $numSetsToCompare; $i++) {
                     $predSet = $predSetScoresWithTiebreaks[$i];
                     $actualSet = $actualSetScoresWithTiebreaks[$i];
                     if ($predSet['player1'] === $actualSet['player1'] && $predSet['player2'] === $actualSet['player2']) {
                         $setScorePoints += intval($settings['set_score_points']);
-                        // Check tiebreak if both sets have tiebreaks
                         if ($this->tiebreakCorrect($predSet, $actualSet)) {
                             $tiebreakPoints += intval($settings['tiebreak_score_points'] ?? 0);
                         }
                     }
                 }
                 $points += $setScorePoints + $tiebreakPoints;
-                
-                // Award match_score_points if all set scores match (order matters)
-                if (count($predSetScores) === count($actualSetScores)) {
+                // For retired matches, do not award match_score_points (full match prediction)
+                // Only award match_score_points for non-retired matches
+                if (!$isRetired && count($predSetScores) === $numSetsToCompare) {
                     $allMatch = true;
-                    for ($i = 0; $i < count($predSetScores); $i++) {
+                    for ($i = 0; $i < $numSetsToCompare; $i++) {
                         if ($predSetScores[$i]['player1'] !== $actualSetScores[$i]['player1'] ||
                             $predSetScores[$i]['player2'] !== $actualSetScores[$i]['player2']) {
                             $allMatch = false;
@@ -165,9 +177,10 @@ class Prediction {
             $this->db->bind(':id', $prediction['id']);
             $this->db->execute();
             
-            // Update user points
-            $this->db->query('UPDATE users SET points = points + :points WHERE id = :user_id');
-            $this->db->bind(':points', $points);
+            // Update user points: subtract old points, add new points
+            $this->db->query('UPDATE users SET points = points - :old_points + :new_points WHERE id = :user_id');
+            $this->db->bind(':old_points', $oldPoints);
+            $this->db->bind(':new_points', $points);
             $this->db->bind(':user_id', $prediction['user_id']);
             $this->db->execute();
         }

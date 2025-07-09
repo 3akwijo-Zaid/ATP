@@ -41,7 +41,7 @@ CREATE TABLE matches (
   start_time DATETIME NOT NULL,
   match_format ENUM('best_of_3','best_of_5') DEFAULT 'best_of_5',
   featured TINYINT(1) DEFAULT 0,
-  status ENUM('upcoming','in_progress','finished') DEFAULT 'upcoming',
+  status ENUM('upcoming','in_progress','finished','retired_player1','retired_player2') DEFAULT 'upcoming',
   winner_id INT,
   result_summary VARCHAR(255),
   competition_name VARCHAR(100), -- for legacy support
